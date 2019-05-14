@@ -19,6 +19,7 @@ yum install docker-ce-17.03.2.ce-1.el7.centos.x86_64.rpm
 systemctl start docker.service     
 
 ## Step 4: Change cgroup of Docker
+//No Longer Needed
 Change cgroup of Docker by using the following instructions:    
 You may restart the docker after this step.   
 cat << EOF > /etc/docker/daemon.json    
