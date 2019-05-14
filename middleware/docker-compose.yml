@@ -1,0 +1,31 @@
+version: '3'
+services:
+
+  data-collector:
+    build: data-collector
+    image: mw/ts-news-collector
+    restart: always
+    ports:
+      - 19871:19871
+    networks:
+      - my-network
+
+  spring-data-neo4j:
+    build: spring-data-neo4j
+    image: mw/spring-data-neo4j
+    restart: always
+    ports:
+      - 19872:19872
+    networks:
+      - my-network
+
+
+networks:
+    my-network:
+      # driver: overlay
+      driver: bridge
+
+
+
+
+

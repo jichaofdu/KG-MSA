@@ -1,0 +1,16 @@
+server:
+  port: 18855
+
+spring:
+  application:
+    name: ts-food-map-service
+  data:
+    mongodb:
+      host: ts-food-map-mongo
+      database: ts
+      port: 27017
+  zipkin:
+    baseUrl: http://zipkin:9411/
+  sleuth:
+    sampler:
+      percentage: 1.0

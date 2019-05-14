@@ -1,0 +1,4 @@
+To watch trace in Zipkin, you need:
+1. Add dependency "slueth" and "Zipkin" in pom.xml
+2. Configure the Zipkin address in microservice/src/main/resources/application.yml
+3. Start zipkin in docker-compose.yml

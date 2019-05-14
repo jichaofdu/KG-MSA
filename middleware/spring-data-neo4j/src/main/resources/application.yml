@@ -1,0 +1,6 @@
+server:
+  port: 19872
+
+spring:
+  application:
+    name: spring-data-neo4j
