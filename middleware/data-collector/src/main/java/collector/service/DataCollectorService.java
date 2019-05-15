@@ -1,5 +1,7 @@
 package collector.service;
 
+import collector.domain.apicontainer.ApiContainer;
+import collector.domain.apicontainer.ContainerList;
 import collector.domain.apinode.ApiNode;
 import collector.domain.apinode.NodeList;
 import collector.domain.apipod.ApiPod;
@@ -7,11 +9,17 @@ import collector.domain.apipod.PodList;
 import collector.domain.apiservice.ApiAppService;
 import collector.domain.apiservice.AppServiceList;
 import collector.domain.entities.AppService;
+import collector.domain.entities.Container;
 import collector.domain.entities.Pod;
 import collector.domain.entities.VirtualMachine;
 import collector.domain.relationships.AppServiceAndPod;
+import collector.domain.relationships.PodAndContainer;
 import collector.domain.relationships.VirtualMachineAndPod;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -32,6 +40,38 @@ public class DataCollectorService {
 
     private final String neo4jDaoIP = "http://localhost:19872";
 
+    private final String[] clusterIPs = {
+            "http://10.141.212.24",
+            "http://10.141.212.25",
+            "http://10.141.211.162",
+    };
+
+    public ContainerList getContainerList(){
+        ArrayList<ApiContainer> containers = new ArrayList<>();
+        for(String clusterIP : clusterIPs) {
+            String list = restTemplate.getForObject(clusterIP + ":5678/containers/json", String.class);
+
+            //Json的解析类对象
+            JsonParser parser = new JsonParser();
+            //将JSON的String 转成一个JsonArray对象
+            JsonArray jsonArray = parser.parse(list).getAsJsonArray();
+
+            Gson gson = new Gson();
+            ArrayList<ApiContainer> tempList = new ArrayList<>();
+
+            //加强for循环遍历JsonArray
+            for (JsonElement user : jsonArray) {
+                //使用GSON，直接转成Bean对象
+                ApiContainer apiContainer = gson.fromJson(user, ApiContainer.class);
+                tempList.add(apiContainer);
+            }
+
+            containers.addAll(tempList);
+        }
+        ContainerList containerList = new ContainerList();
+        containerList.setItems(containers);
+        return containerList;
+    }
 
     public NodeList getNodeList(){
         String list = restTemplate.getForObject( masterIP + "/api/v1/nodes", String.class);
@@ -58,9 +98,11 @@ public class DataCollectorService {
         ArrayList<ApiNode> apiNodeList = getNodeList().getItems();
         ArrayList<ApiPod> apiPodList = getPodList().getItems();
         ArrayList<ApiAppService> apiServiceList = getAppServiceList().getItems();
+        ArrayList<ApiContainer> apiContainerList = getContainerList().getItems();
         //第二步: 构建关系
         ArrayList<VirtualMachineAndPod> vmPodRelations = constructVmPodRelation(apiNodeList,apiPodList);
         ArrayList<AppServiceAndPod> appServiceAndPodRelations = constructAppServicePodRelation(apiServiceList, apiPodList);
+        ArrayList<PodAndContainer> podAndContainerRelations = constructPodAndContainerRelation(apiPodList,apiContainerList);
         //第三步: 上传关系(无需额外上传entity, 关系中包含entity, 对面会自动处理)
         ArrayList<VirtualMachineAndPod> vmPodRelationsResult = new ArrayList<>();
         for(VirtualMachineAndPod vmAndPod : vmPodRelations){
@@ -74,7 +116,12 @@ public class DataCollectorService {
             appServiceAndPodsResult.add(newSvcAndPod);
         }
         System.out.println("完成上传AppServiceAndPod:" + appServiceAndPodsResult.size());
-
+        ArrayList<PodAndContainer> podAndContainerResult = new ArrayList<>();
+        for(PodAndContainer podAndContainer : podAndContainerRelations){
+            PodAndContainer newPodAndContainer = postPodAndContainer(podAndContainer);
+            podAndContainerResult.add(newPodAndContainer);
+        }
+        System.out.println("完成上传PodAndContainer:" + podAndContainerResult.size());
         return "";
     }
 
@@ -89,6 +136,13 @@ public class DataCollectorService {
                 restTemplate.postForObject(neo4jDaoIP + "/appServiceAndPod", svcAndPod, AppServiceAndPod.class);
         return newObj;
     }
+
+    private PodAndContainer postPodAndContainer(PodAndContainer podAndContainer){
+        PodAndContainer newObj =
+                restTemplate.postForObject(neo4jDaoIP + "/podAndContainer", podAndContainer, PodAndContainer.class);
+        return null;
+    }
+
 
     //使用抽取到的apiNode和apiPod
     private ArrayList<VirtualMachineAndPod> constructVmPodRelation(ArrayList<ApiNode> apiNodes,
@@ -150,6 +204,30 @@ public class DataCollectorService {
         return relations;
     }
 
+    private ArrayList<PodAndContainer> constructPodAndContainerRelation(ArrayList<ApiPod> apiPods,
+                                                                        ArrayList<ApiContainer> apiContainers){
+        ArrayList<PodAndContainer> relations = new ArrayList<>();
+        for(ApiPod apiPod : apiPods){
+            //当前这个node叫什么名字
+            String podName = apiPod.getMetadata().getName();
+            Pod pod = convertApiPodToPod(apiPod);
+            for(ApiContainer apiContainer : apiContainers){
+                //找到容器的pod-name和之前pod名字一样的哪些container
+                if(podName.equals(apiContainer.getLabels().get("io.kubernetes.pod.name"))){
+                    Container container = converApiContainerToContainer(apiContainer);
+                    PodAndContainer relation = new PodAndContainer();
+                    relation.setContainer(container);
+                    relation.setPod(pod);
+                    relation.setRelation("DEPLOY-IN");
+                    relation.setId(container.getId() + "ContainerPod" + pod.getId());
+                    relations.add(relation);
+                }
+            }
+        }
+
+        return relations;
+    }
+
 
 
 
@@ -205,5 +283,18 @@ public class DataCollectorService {
         return appService;
     }
 
+    private Container converApiContainerToContainer(ApiContainer apiContainer){
+
+        Container container = new Container();
+        container.setCommand(apiContainer.getCommand());
+        container.setState(apiContainer.getState());
+        container.setStatus(apiContainer.getStatus());
+        container.setCreated(apiContainer.getCreated());
+        container.setImage(apiContainer.getImage());
+        container.setId(apiContainer.getId());
+        container.setName(apiContainer.getNames().get(0));
+
+        return container;
+    }
 
 }

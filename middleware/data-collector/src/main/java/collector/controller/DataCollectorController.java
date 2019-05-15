@@ -1,5 +1,6 @@
 package collector.controller;
 
+import collector.domain.apicontainer.ContainerList;
 import collector.domain.apinode.NodeList;
 import collector.domain.apipod.PodList;
 import collector.domain.apiservice.AppServiceList;
@@ -17,6 +18,11 @@ public class DataCollectorController {
     @GetMapping("/node")
     public NodeList getNodeList(){
         return dataCollectorService.getNodeList();
+    }
+
+    @GetMapping("/container")
+    public ContainerList getContainerList(){
+        return dataCollectorService.getContainerList();
     }
 
     @GetMapping("/pod")

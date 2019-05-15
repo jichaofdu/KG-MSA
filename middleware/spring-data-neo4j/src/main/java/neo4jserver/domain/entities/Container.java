@@ -9,13 +9,20 @@ public class Container extends GraphNode {
     @Property(name="image")
     private String image;
 
+    @Property(name="command")
+    private String command;
+
+    @Property(name="created")
+    private String created;
+
+    @Property(name="state")
+    private String state;
+
+    @Property(name="status")
+    private String status;
+
     public Container() {
         super();
-    }
-
-    public Container(String name, String image) {
-        super(name);
-        this.image = image;
     }
 
     public String getImage() {
@@ -24,5 +31,37 @@ public class Container extends GraphNode {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public String getCommand() {
+        return command;
+    }
+
+    public void setCommand(String command) {
+        this.command = command;
+    }
+
+    public String getCreated() {
+        return created;
+    }
+
+    public void setCreated(String created) {
+        this.created = created;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
