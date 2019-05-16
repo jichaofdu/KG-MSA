@@ -23,11 +23,9 @@ kind: Service
 metadata:
   name: ts-ui-dashboard
 spec:
-  type: NodePort
   ports:
     - name: http
       port: 8080
-      nodePort: 30099
   selector:
    app: ts-ui-dashboard
 ---

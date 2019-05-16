@@ -32,22 +32,23 @@ public class AccountLoginServiceImpl implements AccountLoginService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("verificationCode", li.getVerificationCode());
         HttpEntity requestEntity = new HttpEntity(body,headers);
-        ResponseEntity rssResponse = restTemplate.exchange(
-                "http://ts-verification-code-service:15678/verification/verify",
-                HttpMethod.POST,
-                requestEntity,
-                String.class
-        );
-        String verifyResult = (String)rssResponse.getBody();
-        System.out.println("[Login Service][Login] Verification Result:" + verifyResult);
-        if(!verifyResult.contains("true")){
-            LoginResult verifyCodeLr = new LoginResult();
-            verifyCodeLr.setAccount(null);
-            verifyCodeLr.setToken(null);
-            verifyCodeLr.setStatus(false);
-            verifyCodeLr.setMessage("Verification Code Wrong.");
-            return verifyCodeLr;
-        }
+//        ResponseEntity rssResponse = restTemplate.exchange(
+//                "http://ts-verification-code-service:15678/verification/verify",
+//                HttpMethod.POST,
+//                requestEntity,
+//                String.class
+//        );
+
+//        String verifyResult = (String)rssResponse.getBody();
+//        System.out.println("[Login Service][Login] Verification Result:" + verifyResult);
+//        if(!verifyResult.contains("true")){
+//            LoginResult verifyCodeLr = new LoginResult();
+//            verifyCodeLr.setAccount(null);
+//            verifyCodeLr.setToken(null);
+//            verifyCodeLr.setStatus(false);
+//            verifyCodeLr.setMessage("Verification Code Wrong.");
+//            return verifyCodeLr;
+//        }
 //        LoginResult lr = restTemplate.postForObject(
 //                "http://ts-sso-service:12349/account/login",
 //                li,LoginResult.class);

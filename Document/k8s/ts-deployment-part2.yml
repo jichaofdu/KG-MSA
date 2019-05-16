@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: ts-admin-basic-info-service
 spec:
-  replicas: 1
+  replicas: 0
   template:
     metadata:
       labels:
@@ -23,7 +23,7 @@ kind: Deployment
 metadata:
   name: ts-admin-order-service
 spec:
-  replicas: 1
+  replicas: 0
   template:
     metadata:
       labels:
@@ -43,7 +43,7 @@ kind: Deployment
 metadata:
   name: ts-admin-route-service
 spec:
-  replicas: 1
+  replicas: 0
   template:
     metadata:
       labels:
@@ -63,7 +63,7 @@ kind: Deployment
 metadata:
   name: ts-admin-travel-service
 spec:
-  replicas: 1
+  replicas: 0
   template:
     metadata:
       labels:
@@ -83,7 +83,7 @@ kind: Deployment
 metadata:
   name: ts-admin-user-service
 spec:
-  replicas: 1
+  replicas: 0
   template:
     metadata:
       labels:
@@ -383,7 +383,7 @@ kind: Deployment
 metadata:
   name: ts-order-other-service
 spec:
-  replicas: 5
+  replicas: 1
   template:
     metadata:
       labels:
@@ -403,7 +403,7 @@ kind: Deployment
 metadata:
   name: ts-order-service
 spec:
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
@@ -443,7 +443,7 @@ kind: Deployment
 metadata:
   name: ts-preserve-other-service
 spec:
-  replicas: 3
+  replicas: 1
   template:
     metadata:
       labels:
@@ -483,7 +483,7 @@ kind: Deployment
 metadata:
   name: ts-price-service
 spec:
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
@@ -583,7 +583,7 @@ kind: Deployment
 metadata:
   name: ts-seat-service
 spec:
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
@@ -723,7 +723,7 @@ kind: Deployment
 metadata:
   name: ts-travel2-service
 spec:
-  replicas: 3
+  replicas: 1
   template:
     metadata:
       labels:

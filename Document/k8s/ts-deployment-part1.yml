@@ -1,26 +1,6 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: redis
-spec:
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: redis
-    spec:
-      containers:
-      - name: redis
-        image: redis
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 6379
-
----
-
-apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
   name: ts-account-mongo
 spec:
   replicas: 1
@@ -30,11 +10,11 @@ spec:
         app: ts-account-mongo
     spec:
       containers:
-      - name: ts-account-mongo
-        image: mongo
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 27017
+        - name: ts-account-mongo
+          image: mongo
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
 
 ---
 
@@ -50,11 +30,11 @@ spec:
         app: ts-route-mongo
     spec:
       containers:
-      - name: ts-route-mongo
-        image: mongo
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 27017
+        - name: ts-route-mongo
+          image: mongo
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
 
 ---
 
@@ -70,11 +50,11 @@ spec:
         app: ts-contacts-mongo
     spec:
       containers:
-      - name: ts-contacts-mongo
-        image: mongo
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 27017
+        - name: ts-contacts-mongo
+          image: mongo
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
 
 ---
 
@@ -90,11 +70,11 @@ spec:
         app: ts-order-mongo
     spec:
       containers:
-      - name: ts-order-mongo
-        image: mongo
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 27017
+        - name: ts-order-mongo
+          image: mongo
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
 
 ---
 
@@ -110,11 +90,11 @@ spec:
         app: ts-order-other-mongo
     spec:
       containers:
-      - name: ts-order-other-mongo
-        image: mongo
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 27017
+        - name: ts-order-other-mongo
+          image: mongo
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
 
 ---
 
@@ -130,11 +110,11 @@ spec:
         app: ts-config-mongo
     spec:
       containers:
-      - name: ts-config-mongo
-        image: mongo
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 27017
+        - name: ts-config-mongo
+          image: mongo
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
 
 ---
 
@@ -150,11 +130,11 @@ spec:
         app: ts-station-mongo
     spec:
       containers:
-      - name: ts-station-mongo
-        image: mongo
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 27017
+        - name: ts-station-mongo
+          image: mongo
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
 
 ---
 
@@ -170,11 +150,11 @@ spec:
         app: ts-train-mongo
     spec:
       containers:
-      - name: ts-train-mongo
-        image: mongo
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 27017
+        - name: ts-train-mongo
+          image: mongo
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
 
 ---
 
@@ -190,11 +170,11 @@ spec:
         app: ts-travel-mongo
     spec:
       containers:
-      - name: ts-travel-mongo
-        image: mongo
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 27017
+        - name: ts-travel-mongo
+          image: mongo
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
 
 ---
 
@@ -210,11 +190,11 @@ spec:
         app: ts-travel2-mongo
     spec:
       containers:
-      - name: ts-travel2-mongo
-        image: mongo
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 27017
+        - name: ts-travel2-mongo
+          image: mongo
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
 
 ---
 
@@ -230,11 +210,11 @@ spec:
         app: ts-price-mongo
     spec:
       containers:
-      - name: ts-price-mongo
-        image: mongo
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 27017
+        - name: ts-price-mongo
+          image: mongo
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
 
 ---
 
@@ -250,11 +230,11 @@ spec:
         app: ts-security-mongo
     spec:
       containers:
-      - name: ts-security-mongo
-        image: mongo
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 27017
+        - name: ts-security-mongo
+          image: mongo
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
 
 ---
 
@@ -270,11 +250,11 @@ spec:
         app: ts-inside-payment-mongo
     spec:
       containers:
-      - name: ts-inside-payment-mongo
-        image: mongo
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 27017
+        - name: ts-inside-payment-mongo
+          image: mongo
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
 
 ---
 
@@ -290,11 +270,11 @@ spec:
         app: ts-payment-mongo
     spec:
       containers:
-      - name: ts-payment-mongo
-        image: mongo
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 27017
+        - name: ts-payment-mongo
+          image: mongo
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
 
 ---
 
@@ -310,11 +290,11 @@ spec:
         app: ts-assurance-mongo
     spec:
       containers:
-      - name: ts-assurance-mongo
-        image: mongo
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 27017
+        - name: ts-assurance-mongo
+          image: mongo
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
 
 ---
 
@@ -330,12 +310,36 @@ spec:
         app: ts-ticket-office-mongo
     spec:
       containers:
-      - name: ts-ticket-office-mongo
-        image: mongo
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 27017
+        - name: ts-ticket-office-mongo
+          image: mongo
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
 
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ts-voucher-mysql
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ts-voucher-mysql
+    spec:
+      containers:
+        - name: ts-voucher-mysql
+          image: mysql:5.7
+          imagePullPolicy: IfNotPresent
+          env:
+            # Use secret in real usage
+            - name: MYSQL_ROOT_PASSWORD
+              value: root
+          ports:
+            - containerPort: 3306
 
 ---
 
@@ -351,11 +355,11 @@ spec:
         app: ts-food-map-mongo
     spec:
       containers:
-      - name: ts-food-map-mongo
-        image: mongo
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 27017
+        - name: ts-food-map-mongo
+          image: mongo
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
 
 ---
 
@@ -371,11 +375,11 @@ spec:
         app: ts-consign-mongo
     spec:
       containers:
-      - name: ts-consign-mongo
-        image: mongo
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 27017
+        - name: ts-consign-mongo
+          image: mongo
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
 
 ---
 
@@ -391,11 +395,11 @@ spec:
         app: ts-consign-price-mongo
     spec:
       containers:
-      - name: ts-consign-price-mongo
-        image: mongo
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 27017
+        - name: ts-consign-price-mongo
+          image: mongo
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
 
 ---
 
@@ -411,23 +415,31 @@ spec:
         app: ts-food-mongo
     spec:
       containers:
-      - name: ts-food-mongo
-        image: mongo
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 27017
+        - name: ts-food-mongo
+          image: mongo
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
 
 ---
 
-apiVersion: v1
-kind: Service
+apiVersion: extensions/v1beta1
+kind: Deployment
 metadata:
-  name: redis
+  name: ts-verification-code-mongo
 spec:
-  ports:
-    - port: 6379
-  selector:
-   app: redis
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ts-verification-code-mongo
+    spec:
+      containers:
+        - name: ts-verification-code-mongo
+          image: mongo
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
 
 ---
 
@@ -439,7 +451,7 @@ spec:
   ports:
     - port: 27017
   selector:
-   app: ts-account-mongo
+    app: ts-account-mongo
 
 ---
 
@@ -451,7 +463,7 @@ spec:
   ports:
     - port: 27017
   selector:
-   app: ts-route-mongo
+    app: ts-route-mongo
 
 ---
 
@@ -463,7 +475,7 @@ spec:
   ports:
     - port: 27017
   selector:
-   app: ts-contacts-mongo
+    app: ts-contacts-mongo
 
 ---
 
@@ -475,7 +487,7 @@ spec:
   ports:
     - port: 27017
   selector:
-   app: ts-order-mongo
+    app: ts-order-mongo
 
 ---
 
@@ -487,7 +499,7 @@ spec:
   ports:
     - port: 27017
   selector:
-   app: ts-order-other-mongo
+    app: ts-order-other-mongo
 
 ---
 
@@ -499,7 +511,7 @@ spec:
   ports:
     - port: 27017
   selector:
-   app: ts-config-mongo
+    app: ts-config-mongo
 
 ---
 
@@ -511,7 +523,7 @@ spec:
   ports:
     - port: 27017
   selector:
-   app: ts-station-mongo
+    app: ts-station-mongo
 
 ---
 
@@ -523,7 +535,7 @@ spec:
   ports:
     - port: 27017
   selector:
-   app: ts-train-mongo
+    app: ts-train-mongo
 
 ---
 
@@ -535,7 +547,7 @@ spec:
   ports:
     - port: 27017
   selector:
-   app: ts-travel-mongo
+    app: ts-travel-mongo
 
 ---
 
@@ -547,7 +559,7 @@ spec:
   ports:
     - port: 27017
   selector:
-   app: ts-travel2-mongo
+    app: ts-travel2-mongo
 
 ---
 
@@ -559,7 +571,7 @@ spec:
   ports:
     - port: 27017
   selector:
-   app: ts-price-mongo
+    app: ts-price-mongo
 
 ---
 
@@ -571,7 +583,7 @@ spec:
   ports:
     - port: 27017
   selector:
-   app: ts-security-mongo
+    app: ts-security-mongo
 
 ---
 
@@ -583,7 +595,7 @@ spec:
   ports:
     - port: 27017
   selector:
-   app: ts-inside-payment-mongo
+    app: ts-inside-payment-mongo
 
 ---
 
@@ -595,7 +607,7 @@ spec:
   ports:
     - port: 27017
   selector:
-   app: ts-payment-mongo
+    app: ts-payment-mongo
 
 ---
 
@@ -607,7 +619,7 @@ spec:
   ports:
     - port: 27017
   selector:
-   app: ts-assurance-mongo
+    app: ts-assurance-mongo
 
 ---
 
@@ -619,10 +631,21 @@ spec:
   ports:
     - port: 27017
   selector:
-   app: ts-ticket-office-mongo
+    app: ts-ticket-office-mongo
 
 ---
 
+apiVersion: v1
+kind: Service
+metadata:
+  name: ts-voucher-mysql
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: ts-voucher-mysql
+
+---
 
 apiVersion: v1
 kind: Service
@@ -632,7 +655,7 @@ spec:
   ports:
     - port: 27017
   selector:
-   app: ts-food-map-mongo
+    app: ts-food-map-mongo
 
 ---
 
@@ -644,7 +667,7 @@ spec:
   ports:
     - port: 27017
   selector:
-   app: ts-consign-mongo
+    app: ts-consign-mongo
 
 ---
 
@@ -656,7 +679,7 @@ spec:
   ports:
     - port: 27017
   selector:
-   app: ts-consign-price-mongo
+    app: ts-consign-price-mongo
 
 ---
 
@@ -668,6 +691,18 @@ spec:
   ports:
     - port: 27017
   selector:
-   app: ts-food-mongo
+    app: ts-food-mongo
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: ts-verification-code-mongo
+spec:
+  ports:
+    - port: 27017
+  selector:
+    app: ts-verification-code-mongo
 
 ---

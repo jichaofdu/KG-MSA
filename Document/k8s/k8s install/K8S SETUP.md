@@ -49,12 +49,10 @@ EOF
 sysctl --system  
 
 ## Step 6： Add to PATH
-export KUBECONFIG=/etc/kubernetes/admin.conf  
-
 ## Step 7: Do some settings
-sysctl net.bridge.bridge-nf-call-iptables=1  
-
 ## Step 8: Close SWAP
+export KUBECONFIG=/etc/kubernetes/admin.conf  
+sysctl net.bridge.bridge-nf-call-iptables=1  
 sudo swapoff -a  
 
 # ==For Master==
