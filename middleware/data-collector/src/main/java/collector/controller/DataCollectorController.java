@@ -4,6 +4,7 @@ import collector.domain.apicontainer.ContainerList;
 import collector.domain.apinode.NodeList;
 import collector.domain.apipod.PodList;
 import collector.domain.apiservice.AppServiceList;
+import collector.domain.prom.ExpressionQueriesVectorResponse;
 import collector.service.DataCollectorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,6 +39,11 @@ public class DataCollectorController {
     @GetMapping("/buildFramework")
     public String buildFrameWork(){
         return dataCollectorService.createRawFrameworkToKnowledgeGraph();
+    }
+
+    @GetMapping("/t")
+    public ExpressionQueriesVectorResponse testProm(){
+        return dataCollectorService.tProm();
     }
 
 }

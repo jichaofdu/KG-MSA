@@ -12,6 +12,7 @@ import collector.domain.entities.AppService;
 import collector.domain.entities.Container;
 import collector.domain.entities.Pod;
 import collector.domain.entities.VirtualMachine;
+import collector.domain.prom.ExpressionQueriesVectorResponse;
 import collector.domain.relationships.AppServiceAndPod;
 import collector.domain.relationships.PodAndContainer;
 import collector.domain.relationships.VirtualMachineAndPod;
@@ -19,9 +20,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,6 +49,23 @@ public class DataCollectorService {
             "http://10.141.212.25",
             "http://10.141.211.162",
     };
+
+    public ExpressionQueriesVectorResponse tProm(){
+
+
+        MultiValueMap<String, Object> postParameters = new LinkedMultiValueMap<>();
+        postParameters.add("query", "up");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/x-www-form-urlencoded");
+        HttpEntity<MultiValueMap<String, Object>> r = new HttpEntity<>(postParameters, headers);
+
+        String str = restTemplate.postForObject("http://10.141.211.162:31999/api/v1/query",r,String.class);
+
+        ExpressionQueriesVectorResponse res = gson.fromJson(str,ExpressionQueriesVectorResponse.class);
+
+        return res;
+    }
+
 
     public ContainerList getContainerList(){
         ArrayList<ApiContainer> containers = new ArrayList<>();
@@ -143,7 +164,6 @@ public class DataCollectorService {
         return null;
     }
 
-
     //使用抽取到的apiNode和apiPod
     private ArrayList<VirtualMachineAndPod> constructVmPodRelation(ArrayList<ApiNode> apiNodes,
                                                                   ArrayList<ApiPod> apiPods){
@@ -227,9 +247,6 @@ public class DataCollectorService {
 
         return relations;
     }
-
-
-
 
     //转换ApiNode到Virtual Machine
     private VirtualMachine convertApiNodeToVm(ApiNode node){
