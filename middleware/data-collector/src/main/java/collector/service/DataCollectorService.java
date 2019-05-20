@@ -8,12 +8,10 @@ import collector.domain.apipod.ApiPod;
 import collector.domain.apipod.PodList;
 import collector.domain.apiservice.ApiAppService;
 import collector.domain.apiservice.AppServiceList;
-import collector.domain.entities.AppService;
-import collector.domain.entities.Container;
-import collector.domain.entities.Pod;
-import collector.domain.entities.VirtualMachine;
+import collector.domain.entities.*;
 import collector.domain.prom.ExpressionQueriesVectorResponse;
 import collector.domain.relationships.AppServiceAndPod;
+import collector.domain.relationships.MetricAndContainer;
 import collector.domain.relationships.PodAndContainer;
 import collector.domain.relationships.VirtualMachineAndPod;
 import com.google.gson.Gson;
@@ -40,9 +38,11 @@ public class DataCollectorService {
     @Autowired
     private Gson gson;
 
-    private final String masterIP = "http://10.141.212.25:8080";
+    private final String masterIP = "http://10.141.211.162:8180/";
 
     private final String neo4jDaoIP = "http://localhost:19872";
+
+    private final String promethsusQuery = "http://10.141.211.162:31999/api/v1/query";
 
     private final String[] clusterIPs = {
             "http://10.141.212.24",
@@ -50,22 +50,24 @@ public class DataCollectorService {
             "http://10.141.211.162",
     };
 
-    public ExpressionQueriesVectorResponse tProm(){
 
+    //container_memory_usage_bytes{name="k8s_ts-order-service_ts-order-service-68d9c9b878-vgzhl_default_ff88298e-777c-11e9-bb23-005056a4ea84_26"}
+    public ExpressionQueriesVectorResponse getMetric(String metricName, String containerName){
+
+        String queryStr = metricName + "{" + "name=" + "\"" + containerName + "\"" + "}";
 
         MultiValueMap<String, Object> postParameters = new LinkedMultiValueMap<>();
-        postParameters.add("query", "up");
+        postParameters.add("query", queryStr);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/x-www-form-urlencoded");
         HttpEntity<MultiValueMap<String, Object>> r = new HttpEntity<>(postParameters, headers);
 
-        String str = restTemplate.postForObject("http://10.141.211.162:31999/api/v1/query",r,String.class);
+        String str = restTemplate.postForObject(promethsusQuery,r,String.class);
 
         ExpressionQueriesVectorResponse res = gson.fromJson(str,ExpressionQueriesVectorResponse.class);
 
         return res;
     }
-
 
     public ContainerList getContainerList(){
         ArrayList<ApiContainer> containers = new ArrayList<>();
@@ -124,6 +126,7 @@ public class DataCollectorService {
         ArrayList<VirtualMachineAndPod> vmPodRelations = constructVmPodRelation(apiNodeList,apiPodList);
         ArrayList<AppServiceAndPod> appServiceAndPodRelations = constructAppServicePodRelation(apiServiceList, apiPodList);
         ArrayList<PodAndContainer> podAndContainerRelations = constructPodAndContainerRelation(apiPodList,apiContainerList);
+        ArrayList<MetricAndContainer> metricAndContainers = constructMetricAndContainer(apiContainerList);
         //第三步: 上传关系(无需额外上传entity, 关系中包含entity, 对面会自动处理)
         ArrayList<VirtualMachineAndPod> vmPodRelationsResult = new ArrayList<>();
         for(VirtualMachineAndPod vmAndPod : vmPodRelations){
@@ -163,6 +166,37 @@ public class DataCollectorService {
                 restTemplate.postForObject(neo4jDaoIP + "/podAndContainer", podAndContainer, PodAndContainer.class);
         return null;
     }
+
+    //使用抽取到的apiContainer并用apicontainer抽取
+    public ArrayList<MetricAndContainer> constructMetricAndContainer(ArrayList<ApiContainer> apiContainers){
+        ArrayList<MetricAndContainer> relations = new ArrayList<>();
+        for(ApiContainer apiContainer : apiContainers){
+            Container container = converApiContainerToContainer(apiContainer);
+            String containerName = container.getName();
+            if(containerName.startsWith("/")){
+                containerName = containerName.substring(1);
+            }
+            //根据containernNamec抽取各种Metric
+            ExpressionQueriesVectorResponse res = getMetric("container_memory_usage_bytes",
+                    containerName);
+            Metric metric = new Metric();
+            metric.setTime(res.getData().getResult().get(0).getValue().get(0));
+            metric.setValue(res.getData().getResult().get(0).getValue().get(1));
+            metric.setId(containerName + "_" + "container_memory_usage_bytes");
+            metric.setName(containerName + "_" + "container_memory_usage_bytes");
+
+            MetricAndContainer relation = new MetricAndContainer();
+            relation.setContainer(container);
+            relation.setMetric(metric);
+            relation.setId(metric.getId() + "MetricAndContainer" + container.getId());
+            relation.setRelation("RUNTIME_INFO");
+
+            relations.add(relation);
+        }
+        return relations;
+    }
+
+
 
     //使用抽取到的apiNode和apiPod
     private ArrayList<VirtualMachineAndPod> constructVmPodRelation(ArrayList<ApiNode> apiNodes,

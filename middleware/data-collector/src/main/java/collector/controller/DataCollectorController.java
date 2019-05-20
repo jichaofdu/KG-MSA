@@ -9,6 +9,8 @@ import collector.service.DataCollectorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 @RestController
 public class DataCollectorController {
@@ -41,9 +43,6 @@ public class DataCollectorController {
         return dataCollectorService.createRawFrameworkToKnowledgeGraph();
     }
 
-    @GetMapping("/t")
-    public ExpressionQueriesVectorResponse testProm(){
-        return dataCollectorService.tProm();
-    }
+
 
 }
