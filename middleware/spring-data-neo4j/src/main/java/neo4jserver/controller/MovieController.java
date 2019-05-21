@@ -6,6 +6,7 @@ import neo4jserver.domain.entities.Container;
 import neo4jserver.domain.entities.Pod;
 import neo4jserver.domain.entities.VirtualMachine;
 import neo4jserver.domain.relationships.AppServiceAndPod;
+import neo4jserver.domain.relationships.MetricAndContainer;
 import neo4jserver.domain.relationships.PodAndContainer;
 import neo4jserver.domain.relationships.VirtualMachineAndPod;
 import neo4jserver.services.MovieService;
@@ -111,6 +112,15 @@ public class MovieController {
 		return movieService.postVirtualMachineAndPod(virtualMachineAndPod);
 	}
 
+	@GetMapping("/metricAndContainer/{id}")
+	public MetricAndContainer getMetricAndContainer(@PathVariable String id){
+		return movieService.findByMetricAndContainerId(id);
+	}
+
+	@PostMapping("/metricAndContainer")
+	public MetricAndContainer getMetricAndContainer(@RequestBody MetricAndContainer metricAndContainer){
+		return movieService.postMetricAndContainer(metricAndContainer);
+	}
 
 
 //	@GetMapping("/addDeploy")

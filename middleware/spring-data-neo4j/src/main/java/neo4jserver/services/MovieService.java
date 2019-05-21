@@ -4,6 +4,7 @@ import java.util.*;
 import neo4jserver.domain.*;
 import neo4jserver.domain.entities.*;
 import neo4jserver.domain.relationships.AppServiceAndPod;
+import neo4jserver.domain.relationships.MetricAndContainer;
 import neo4jserver.domain.relationships.PodAndContainer;
 import neo4jserver.domain.relationships.VirtualMachineAndPod;
 import neo4jserver.repositories.*;
@@ -32,13 +33,19 @@ public class MovieService {
 
 	private final PodAndContainerRepository podAndContainerRepository;
 
+	private final MetricRepository metricRepository;
+
+	private final MetricAndContainerRepository metricAndContainerRepository;
+
 	public MovieService(PodRepository podRepository,
 						ContainerRepository containerRepository,
 						AppServiceRepository appServiceRepository,
 						VirtualMachineRepository virtualMachineRepository,
 						VirtualMachineAndPodRepository virtualMachineAndPodRepository,
 						AppServiceAndPodRepository appServiceAndPodRepository,
-						PodAndContainerRepository podAndContainerRepository) {
+						PodAndContainerRepository podAndContainerRepository,
+						MetricRepository metricRepository,
+						MetricAndContainerRepository metricAndContainerRepository) {
 		this.podRepository = podRepository;
 		this.virtualMachineRepository = virtualMachineRepository;
 		this.virtualMachineAndPodRepository = virtualMachineAndPodRepository;
@@ -46,6 +53,28 @@ public class MovieService {
 		this.appServiceRepository = appServiceRepository;
 		this.appServiceAndPodRepository = appServiceAndPodRepository;
 		this.podAndContainerRepository = podAndContainerRepository;
+		this.metricRepository = metricRepository;
+		this.metricAndContainerRepository = metricAndContainerRepository;
+	}
+
+	@Transactional(readOnly = true)
+	public Metric findByMetricId(String id){
+		Long idLong = Long.parseLong(id);
+		MetricResult mr = metricRepository.getContainerWithLabels(idLong);
+		Metric metric = mr.metric;
+		metric.setLabels(new HashSet<>(mr.labels));
+		return metric;
+	}
+
+	@Transactional(readOnly = true)
+	public Metric postMetric(Metric metric) {
+		Metric newMetric = metricRepository.save(metric);
+		return metric;
+	}
+
+	@Transactional(readOnly = true)
+	public ArrayList<Metric> findAllMetrics(){
+		return metricRepository.findAllMetrics();
 	}
 
 	@Transactional(readOnly = true)
@@ -177,7 +206,28 @@ public class MovieService {
 		return podAndContainer;
 	}
 
+	@Transactional(readOnly = true)
+	public MetricAndContainer findByMetricAndContainerId(String id){
+		Optional<MetricAndContainer> relation = metricAndContainerRepository.findById(id);
+		return relation.get();
+	}
 
+	@Transactional(readOnly = true)
+	public MetricAndContainer postMetricAndContainer(MetricAndContainer metricAndContainer) {
+
+		Metric metric = metricAndContainer.getMetric();
+		Container container = metricAndContainer.getContainer();
+
+		metric = metricRepository.save(metric);
+		container = containerRepository.save(container);
+
+		metricAndContainer.setMetric(metric);
+		metricAndContainer.setContainer(container);
+
+		metricAndContainer = metricAndContainerRepository.save(metricAndContainer);
+
+		return metricAndContainer;
+	}
 
 	@Transactional(readOnly = true)
 	public VirtualMachineAndPod findByVirtualMachineAndPodId(String id){

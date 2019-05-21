@@ -126,7 +126,7 @@ public class DataCollectorService {
         ArrayList<VirtualMachineAndPod> vmPodRelations = constructVmPodRelation(apiNodeList,apiPodList);
         ArrayList<AppServiceAndPod> appServiceAndPodRelations = constructAppServicePodRelation(apiServiceList, apiPodList);
         ArrayList<PodAndContainer> podAndContainerRelations = constructPodAndContainerRelation(apiPodList,apiContainerList);
-        ArrayList<MetricAndContainer> metricAndContainers = constructMetricAndContainer(apiContainerList);
+        ArrayList<MetricAndContainer> metricAndContainerRelations = constructMetricAndContainer(apiContainerList);
         //第三步: 上传关系(无需额外上传entity, 关系中包含entity, 对面会自动处理)
         ArrayList<VirtualMachineAndPod> vmPodRelationsResult = new ArrayList<>();
         for(VirtualMachineAndPod vmAndPod : vmPodRelations){
@@ -146,6 +146,12 @@ public class DataCollectorService {
             podAndContainerResult.add(newPodAndContainer);
         }
         System.out.println("完成上传PodAndContainer:" + podAndContainerResult.size());
+        ArrayList<MetricAndContainer> metricAndContainerResult = new ArrayList<>();
+        for(MetricAndContainer metricAndContainer : metricAndContainerRelations){
+            MetricAndContainer newMetricAndContainer = postMetricAndContainer(metricAndContainer);
+            metricAndContainerResult.add(newMetricAndContainer);
+        }
+        System.out.println("完成上传MetricAndContainer:" + metricAndContainerResult.size());
         return "";
     }
 
@@ -164,7 +170,13 @@ public class DataCollectorService {
     private PodAndContainer postPodAndContainer(PodAndContainer podAndContainer){
         PodAndContainer newObj =
                 restTemplate.postForObject(neo4jDaoIP + "/podAndContainer", podAndContainer, PodAndContainer.class);
-        return null;
+        return newObj;
+    }
+
+    private MetricAndContainer postMetricAndContainer(MetricAndContainer metricAndContainer){
+        MetricAndContainer newObj =
+                restTemplate.postForObject(neo4jDaoIP + "/metricAndContainer", metricAndContainer, MetricAndContainer.class);
+        return newObj;
     }
 
     //使用抽取到的apiContainer并用apicontainer抽取
@@ -177,25 +189,35 @@ public class DataCollectorService {
                 containerName = containerName.substring(1);
             }
             //根据containernNamec抽取各种Metric
-            ExpressionQueriesVectorResponse res = getMetric("container_memory_usage_bytes",
-                    containerName);
-            Metric metric = new Metric();
-            metric.setTime(res.getData().getResult().get(0).getValue().get(0));
-            metric.setValue(res.getData().getResult().get(0).getValue().get(1));
-            metric.setId(containerName + "_" + "container_memory_usage_bytes");
-            metric.setName(containerName + "_" + "container_memory_usage_bytes");
-
-            MetricAndContainer relation = new MetricAndContainer();
-            relation.setContainer(container);
-            relation.setMetric(metric);
-            relation.setId(metric.getId() + "MetricAndContainer" + container.getId());
-            relation.setRelation("RUNTIME_INFO");
-
+            MetricAndContainer relation;
+                    //抽取container_memory_usage_bytes
+            relation = asemblyMetricAndContainer("container_memory_usage_bytes",
+                    containerName, container);
+            relations.add(relation);
+            //抽取container_fs_usage_bytes
+            relation = asemblyMetricAndContainer("container_fs_usage_bytes",
+                    containerName, container);
             relations.add(relation);
         }
         return relations;
     }
 
+    //Assembly Metrics
+    private MetricAndContainer asemblyMetricAndContainer(String metricName, String containerName, Container container){
+        ExpressionQueriesVectorResponse res = getMetric(metricName, containerName);
+        Metric metric = new Metric();
+        metric.setTime(res.getData().getResult().get(0).getValue().get(0));
+        metric.setValue(res.getData().getResult().get(0).getValue().get(1));
+        metric.setId(containerName + "_" + metricName);
+        metric.setName(containerName + "_" + metricName);
+        MetricAndContainer relation = new MetricAndContainer();
+        relation.setContainer(container);
+        relation.setMetric(metric);
+        relation.setId(metric.getId() + "MetricAndContainer" + container.getId());
+        relation.setRelation("RUNTIME_INFO");
+
+        return relation;
+    }
 
 
     //使用抽取到的apiNode和apiPod

@@ -2,3 +2,9 @@ mvn spring-boot:run
 
 kubeadm join 10.141.212.25:6443 --token lvqhxk.jsns97b1wg38ain0 \
     --discovery-token-ca-cert-hash sha256:f7e3ee185b1d65e28b85655e7136ef9eb52801487882ca10faa56251caef7028
+
+清空neo4j
+
+MATCH (n)
+OPTIONAL MATCH (n)-[r]-()
+DELETE n,
