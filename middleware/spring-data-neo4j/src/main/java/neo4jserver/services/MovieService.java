@@ -219,6 +219,7 @@ public class MovieService {
 		Container container = metricAndContainer.getContainer();
 
 		metric = metricRepository.save(metric);
+		System.out.println(container.getLatestUpdateTimestamp());
 		container = containerRepository.save(container);
 
 		metricAndContainer.setMetric(metric);

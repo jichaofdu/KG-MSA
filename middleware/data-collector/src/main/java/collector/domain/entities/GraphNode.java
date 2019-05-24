@@ -1,5 +1,6 @@
 package collector.domain.entities;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,6 +17,8 @@ public class GraphNode {
     private String className = this.getClass().getName();
 
     private Set<String> labels = new HashSet<>();
+
+    private String latestUpdateTimestamp;
 
     public GraphNode() {
     }
@@ -62,5 +65,34 @@ public class GraphNode {
 
     public void removeAllLabel(){
         this.labels.clear();
+    }
+
+    public String getLatestUpdateTimestamp() {
+        return latestUpdateTimestamp;
+    }
+
+    public void setLatestUpdateTimestamp(String latestUpdateTimestamp) {
+        this.latestUpdateTimestamp = latestUpdateTimestamp;
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    //通过Name判断是否相等
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj instanceof GraphNode) {
+            if (((GraphNode) obj).name.equals(this.name)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

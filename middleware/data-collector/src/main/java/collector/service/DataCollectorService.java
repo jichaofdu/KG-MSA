@@ -25,9 +25,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+
+import java.util.*;
 
 @Service
 public class DataCollectorService {
@@ -49,6 +48,8 @@ public class DataCollectorService {
             "http://10.141.212.25",
             "http://10.141.211.162",
     };
+
+
 
 
     //container_memory_usage_bytes{name="k8s_ts-order-service_ts-order-service-68d9c9b878-vgzhl_default_ff88298e-777c-11e9-bb23-005056a4ea84_26"}
@@ -116,7 +117,7 @@ public class DataCollectorService {
 
     //构建一个基础的知识图谱 - 包括pod node svc
     public String createRawFrameworkToKnowledgeGraph(){
-
+        String currTimestampString = "" + new Date().getTime();
         //第一步: 获取所有的node,pod,service
         ArrayList<ApiNode> apiNodeList = getNodeList().getItems();
         ArrayList<ApiPod> apiPodList = getPodList().getItems();
@@ -130,24 +131,40 @@ public class DataCollectorService {
         //第三步: 上传关系(无需额外上传entity, 关系中包含entity, 对面会自动处理)
         ArrayList<VirtualMachineAndPod> vmPodRelationsResult = new ArrayList<>();
         for(VirtualMachineAndPod vmAndPod : vmPodRelations){
+            //添加更新时间戳以区分新旧时间
+            vmAndPod.getVirtualMachine().setLatestUpdateTimestamp(currTimestampString);
+            vmAndPod.getPod().setLatestUpdateTimestamp(currTimestampString);
+            //上传
             VirtualMachineAndPod newVmAndPod = postVmAndPod(vmAndPod);
             vmPodRelationsResult.add(newVmAndPod);
         }
         System.out.println("完成上传VirtualMachineAndPod:" + vmPodRelationsResult.size());
         ArrayList<AppServiceAndPod> appServiceAndPodsResult = new ArrayList<>();
         for(AppServiceAndPod svcAndPod : appServiceAndPodRelations){
+            //添加更新时间戳以区分新旧时间
+            svcAndPod.getPod().setLatestUpdateTimestamp(currTimestampString);
+            svcAndPod.getAppService().setLatestUpdateTimestamp(currTimestampString);
+            //上传
             AppServiceAndPod newSvcAndPod = postSvcAndPod(svcAndPod);
             appServiceAndPodsResult.add(newSvcAndPod);
         }
         System.out.println("完成上传AppServiceAndPod:" + appServiceAndPodsResult.size());
         ArrayList<PodAndContainer> podAndContainerResult = new ArrayList<>();
         for(PodAndContainer podAndContainer : podAndContainerRelations){
+            //添加更新时间戳以区分新旧时间
+            podAndContainer.getPod().setLatestUpdateTimestamp(currTimestampString);
+            podAndContainer.getContainer().setLatestUpdateTimestamp(currTimestampString);
+            //上传
             PodAndContainer newPodAndContainer = postPodAndContainer(podAndContainer);
             podAndContainerResult.add(newPodAndContainer);
         }
         System.out.println("完成上传PodAndContainer:" + podAndContainerResult.size());
         ArrayList<MetricAndContainer> metricAndContainerResult = new ArrayList<>();
         for(MetricAndContainer metricAndContainer : metricAndContainerRelations){
+            //添加更新时间戳以区分新旧时间
+            metricAndContainer.getContainer().setLatestUpdateTimestamp(currTimestampString);
+            metricAndContainer.getMetric().setLatestUpdateTimestamp(currTimestampString);
+            //上传
             MetricAndContainer newMetricAndContainer = postMetricAndContainer(metricAndContainer);
             metricAndContainerResult.add(newMetricAndContainer);
         }
