@@ -49,8 +49,11 @@ public class DataCollectorService {
             "http://10.141.211.162",
     };
 
+    private String currTimestampString = "Not Set Yet";
 
-
+    public String getCurrentTimestamp(){
+        return currTimestampString;
+    }
 
     //container_memory_usage_bytes{name="k8s_ts-order-service_ts-order-service-68d9c9b878-vgzhl_default_ff88298e-777c-11e9-bb23-005056a4ea84_26"}
     public ExpressionQueriesVectorResponse getMetric(String metricName, String containerName){
@@ -117,7 +120,7 @@ public class DataCollectorService {
 
     //构建一个基础的知识图谱 - 包括pod node svc
     public String createRawFrameworkToKnowledgeGraph(){
-        String currTimestampString = "" + new Date().getTime();
+        currTimestampString = "" + new Date().getTime();
         //第一步: 获取所有的node,pod,service
         ArrayList<ApiNode> apiNodeList = getNodeList().getItems();
         ArrayList<ApiPod> apiPodList = getPodList().getItems();
