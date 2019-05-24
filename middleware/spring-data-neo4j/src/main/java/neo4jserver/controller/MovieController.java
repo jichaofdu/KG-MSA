@@ -1,10 +1,8 @@
 package neo4jserver.controller;
 
 import java.util.*;
-import neo4jserver.domain.entities.AppService;
-import neo4jserver.domain.entities.Container;
-import neo4jserver.domain.entities.Pod;
-import neo4jserver.domain.entities.VirtualMachine;
+
+import neo4jserver.domain.entities.*;
 import neo4jserver.domain.relationships.AppServiceAndPod;
 import neo4jserver.domain.relationships.MetricAndContainer;
 import neo4jserver.domain.relationships.PodAndContainer;
@@ -20,6 +18,11 @@ public class MovieController {
 	
 	public MovieController(MovieService movieService) {
 		this.movieService = movieService;
+	}
+
+	@PostMapping("/updateMetrics")
+	public ArrayList<Metric> updateMetrics(@RequestBody ArrayList<Metric> metrics){
+		return movieService.updateMetrics(metrics);
 	}
 
 	@GetMapping("/container/{id}")

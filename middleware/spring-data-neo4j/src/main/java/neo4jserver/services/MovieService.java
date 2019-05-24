@@ -73,6 +73,26 @@ public class MovieService {
 	}
 
 	@Transactional(readOnly = true)
+	public ArrayList<Metric> updateMetrics(ArrayList<Metric> metrics){
+		ArrayList<Metric> returnMetrics = new ArrayList<>();
+		for(Metric metric : metrics){
+			String name = metric.getName();
+			Optional<Metric> metricOld = metricRepository.findByName(name);
+			if(!metricOld.isPresent()){
+				continue;
+			}
+			Metric metricOldEntity = metricOld.get();
+			metricOldEntity.getHistoryTimestamps().add(metricOldEntity.getTime());
+			metricOldEntity.getHistoryValues().add(metricOldEntity.getValue());
+			metricOldEntity.setTime(metric.getTime());
+			metricOldEntity.setValue(metric.getValue());
+			metricOldEntity = metricRepository.save(metricOldEntity);
+			returnMetrics.add(metricOldEntity);
+		}
+		return returnMetrics;
+	}
+
+	@Transactional(readOnly = true)
 	public ArrayList<Metric> findAllMetrics(){
 		return metricRepository.findAllMetrics();
 	}

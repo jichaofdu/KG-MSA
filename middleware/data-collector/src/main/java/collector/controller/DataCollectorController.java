@@ -4,10 +4,13 @@ import collector.domain.apicontainer.ContainerList;
 import collector.domain.apinode.NodeList;
 import collector.domain.apipod.PodList;
 import collector.domain.apiservice.AppServiceList;
+import collector.domain.entities.Metric;
 import collector.service.DataCollectorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
 
 
 @RestController
@@ -39,6 +42,11 @@ public class DataCollectorController {
     @GetMapping("/service")
     public AppServiceList getAppServiceList(){
         return dataCollectorService.getAppServiceList();
+    }
+
+    @GetMapping("/updateMetrics")
+    public ArrayList<Metric> updateMetrics(){
+        return dataCollectorService.updateMetrics();
     }
 
     @GetMapping("/buildFramework")

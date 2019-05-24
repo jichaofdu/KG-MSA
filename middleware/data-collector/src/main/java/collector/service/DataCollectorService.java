@@ -27,6 +27,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
+import java.util.stream.StreamSupport;
 
 @Service
 public class DataCollectorService {
@@ -37,26 +38,73 @@ public class DataCollectorService {
     @Autowired
     private Gson gson;
 
+    //集群master机器的地址
     private final String masterIP = "http://10.141.211.162:8180/";
 
+    //neo4j的api服务器的地址
     private final String neo4jDaoIP = "http://localhost:19872";
 
+    //promethsus的查询地址
     private final String promethsusQuery = "http://10.141.211.162:31999/api/v1/query";
 
+    //集群全部机器的ip地址
     private final String[] clusterIPs = {
             "http://10.141.212.24",
             "http://10.141.212.25",
             "http://10.141.211.162",
     };
 
+    //需要查询的容器的metric指标名称
+    private final String[] containerMetricsNameVector = {
+            "container_memory_usage_bytes",
+            "container_fs_usage_bytes",
+    };
+
+    //时间戳 在图谱更新的时候会附加在节点上
+    //在图谱重整的时候此值将会被刷新
+    //在更新Metric的时候这个值不会刷新
     private String currTimestampString = "Not Set Yet";
+
+    //当前的实体列表
+    private HashSet<VirtualMachine> vms = new HashSet<>();
+    private HashSet<AppService> svcs = new HashSet<>();
+    private HashSet<Pod> pods = new HashSet<>();
+    private HashSet<Container> containers = new HashSet<>();
 
     public String getCurrentTimestamp(){
         return currTimestampString;
     }
 
+    //更新所有metrics
+    //更新依据是所有记录在案的container
+    //如果要依据最新的container需要先更新containers
+    public ArrayList<Metric> updateMetrics(){
+        ArrayList<Metric> newMetrics = new ArrayList<>();
+        for(String containerMetricName : containerMetricsNameVector){
+            for(Container container : containers){
+                String containerName = container.getName();
+                if(containerName.startsWith("/")){
+                    containerName = containerName.substring(1);
+                }
+                try{
+                    ExpressionQueriesVectorResponse res = getMetric(containerMetricName, containerName);
+                    Metric metric = getMetricFromExpressionQueriesVectorResponse(res,
+                            containerMetricName, containerName);
+                    metric.setLatestUpdateTimestamp(currTimestampString);
+                    newMetrics.add(metric);
+
+                }catch (Exception e){
+                    System.out.println("Metric未查到 容器名称:" + containerName + " Metric名称:" +containerMetricName);
+                }
+            }
+        }
+        ArrayList<Metric> updatedMetrics = restTemplate.postForObject(
+                neo4jDaoIP + "/updateMetrics", newMetrics, newMetrics.getClass());
+        return updatedMetrics;
+    }
+
     //container_memory_usage_bytes{name="k8s_ts-order-service_ts-order-service-68d9c9b878-vgzhl_default_ff88298e-777c-11e9-bb23-005056a4ea84_26"}
-    public ExpressionQueriesVectorResponse getMetric(String metricName, String containerName){
+    private ExpressionQueriesVectorResponse getMetric(String metricName, String containerName){
 
         String queryStr = metricName + "{" + "name=" + "\"" + containerName + "\"" + "}";
 
@@ -118,9 +166,19 @@ public class DataCollectorService {
         return appServiceList;
     }
 
+    private void clearAllInfo(){
+        vms.clear();
+        svcs.clear();
+        pods.clear();
+        containers.clear();
+    }
+
     //构建一个基础的知识图谱 - 包括pod node svc
     public String createRawFrameworkToKnowledgeGraph(){
+        //记录当前时间
         currTimestampString = "" + new Date().getTime();
+        //清空环境
+        clearAllInfo();
         //第一步: 获取所有的node,pod,service
         ArrayList<ApiNode> apiNodeList = getNodeList().getItems();
         ArrayList<ApiPod> apiPodList = getPodList().getItems();
@@ -172,24 +230,34 @@ public class DataCollectorService {
             metricAndContainerResult.add(newMetricAndContainer);
         }
         System.out.println("完成上传MetricAndContainer:" + metricAndContainerResult.size());
+        System.out.println("虚拟机数量:" + vms.size());
+        System.out.print("服务数量:" + svcs.size());
+        System.out.println("Pod数量:" + pods.size());
+        System.out.println("容器数量:" + containers.size());
         return "";
     }
 
     private VirtualMachineAndPod postVmAndPod(VirtualMachineAndPod vmAndPod){
         VirtualMachineAndPod newObj =
                 restTemplate.postForObject(neo4jDaoIP + "/virtualMachineAndPod",vmAndPod,VirtualMachineAndPod.class);
+        vms.add(newObj.getVirtualMachine());
+        pods.add(newObj.getPod());
         return newObj;
     }
 
     private AppServiceAndPod postSvcAndPod(AppServiceAndPod svcAndPod){
         AppServiceAndPod newObj =
                 restTemplate.postForObject(neo4jDaoIP + "/appServiceAndPod", svcAndPod, AppServiceAndPod.class);
+        svcs.add(newObj.getAppService());
+        pods.add(newObj.getPod());
         return newObj;
     }
 
     private PodAndContainer postPodAndContainer(PodAndContainer podAndContainer){
         PodAndContainer newObj =
                 restTemplate.postForObject(neo4jDaoIP + "/podAndContainer", podAndContainer, PodAndContainer.class);
+        pods.add(newObj.getPod());
+        containers.add(newObj.getContainer());
         return newObj;
     }
 
@@ -225,11 +293,7 @@ public class DataCollectorService {
     //Assembly Metrics
     private MetricAndContainer asemblyMetricAndContainer(String metricName, String containerName, Container container){
         ExpressionQueriesVectorResponse res = getMetric(metricName, containerName);
-        Metric metric = new Metric();
-        metric.setTime(res.getData().getResult().get(0).getValue().get(0));
-        metric.setValue(res.getData().getResult().get(0).getValue().get(1));
-        metric.setId(containerName + "_" + metricName);
-        metric.setName(containerName + "_" + metricName);
+        Metric metric = getMetricFromExpressionQueriesVectorResponse(res, metricName, containerName);
         MetricAndContainer relation = new MetricAndContainer();
         relation.setContainer(container);
         relation.setMetric(metric);
@@ -237,6 +301,16 @@ public class DataCollectorService {
         relation.setRelation("RUNTIME_INFO");
 
         return relation;
+    }
+
+    private Metric getMetricFromExpressionQueriesVectorResponse(ExpressionQueriesVectorResponse res,
+                                                                String metricName, String containerName){
+        Metric metric = new Metric();
+        metric.setTime(res.getData().getResult().get(0).getValue().get(0));
+        metric.setValue(res.getData().getResult().get(0).getValue().get(1));
+        metric.setId(containerName + "_" + metricName);
+        metric.setName(containerName + "_" + metricName);
+        return metric;
     }
 
 
