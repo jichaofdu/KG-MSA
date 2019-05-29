@@ -36,6 +36,7 @@ spec:
   ports:
   - name: http
     port: 9411
+    nodePort: 31879
   selector:
     app: zipkin
 ---

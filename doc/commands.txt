@@ -1,13 +1,14 @@
 mvn spring-boot:run
 
-kubeadm join 10.141.212.25:6443 --token lvqhxk.jsns97b1wg38ain0 \
-    --discovery-token-ca-cert-hash sha256:f7e3ee185b1d65e28b85655e7136ef9eb52801487882ca10faa56251caef7028
+kubeadm join 10.141.211.162:6443 --token iu2p6l.s64r12inemby1uyc \
+    --discovery-token-ca-cert-hash sha256:1734e83156c23789e79dc81ffb85680557e698b5bbdd0251030308c759ee239f
 
 生成新的kubeadm命令
 https://www.jianshu.com/p/a5e379638577
 
 
 清空neo4j的指令
+
 MATCH (n)
 OPTIONAL MATCH (n)-[r]-()
-DELETE n,
+DELETE n,r

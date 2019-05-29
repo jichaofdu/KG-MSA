@@ -14173,10 +14173,10 @@ data:
         resources:
           requests:
             cpu: 10m
-            memory: 10Mi
+            memory: 100Mi
           limits:
             cpu: 100m
-            memory: 50Mi
+            memory: 500Mi
         securityContext:
           runAsUser: 0
           runAsNonRoot: false
@@ -14301,10 +14301,10 @@ data:
         [[ else -]]
           limits:
             cpu: 2000m
-            memory: 128Mi
+            memory: 300Mi
           requests:
             cpu: 10m
-            memory: 40Mi
+            memory: 100Mi
           
         [[ end -]]
         volumeMounts:
@@ -16064,10 +16064,10 @@ spec:
           resources:
             limits:
               cpu: 100m
-              memory: 128Mi
+              memory: 300Mi
             requests:
               cpu: 10m
-              memory: 40Mi
+              memory: 100Mi
             
           env:
           - name: POD_NAME
@@ -16236,10 +16236,10 @@ spec:
           resources:
             limits:
               cpu: 100m
-              memory: 128Mi
+              memory: 300Mi
             requests:
               cpu: 10m
-              memory: 40Mi
+              memory: 100Mi
             
           env:
           - name: POD_NAME
@@ -16686,7 +16686,7 @@ spec:
         resources:
           limits:
             cpu: 100m
-            memory: 100Mi
+            memory: 300Mi
           requests:
             cpu: 10m
             memory: 100Mi
@@ -16741,10 +16741,10 @@ spec:
         resources:
           limits:
             cpu: 2000m
-            memory: 128Mi
+            memory: 300Mi
           requests:
             cpu: 10m
-            memory: 40Mi
+            memory: 100Mi
           
         volumeMounts:
         - name: istio-certs
@@ -16862,7 +16862,7 @@ spec:
         resources:
           limits:
             cpu: 100m
-            memory: 100Mi
+            memory: 300Mi
           requests:
             cpu: 50m
             memory: 100Mi
@@ -16920,10 +16920,10 @@ spec:
         resources:
           limits:
             cpu: 2000m
-            memory: 128Mi
+            memory: 300Mi
           requests:
             cpu: 10m
-            memory: 40Mi
+            memory: 100Mi
           
         volumeMounts:
         - name: istio-certs
@@ -17016,7 +17016,7 @@ spec:
           resources:
             limits:
               cpu: 100m
-              memory: 200Mi
+              memory: 300Mi
             requests:
               cpu: 10m
               memory: 100Mi
@@ -17064,10 +17064,10 @@ spec:
           resources:
             limits:
               cpu: 2000m
-              memory: 128Mi
+              memory: 300Mi
             requests:
               cpu: 10m
-              memory: 40Mi
+              memory: 100Mi
             
           volumeMounts:
           - name: istio-certs

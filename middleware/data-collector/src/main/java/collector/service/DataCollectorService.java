@@ -39,7 +39,7 @@ public class DataCollectorService {
     private Gson gson;
 
     //集群master机器的地址
-    private final String masterIP = "http://10.141.211.162:8180/";
+    private final String masterIP = "http://10.141.211.162:8082/";
 
     //neo4j的api服务器的地址
     private final String neo4jDaoIP = "http://localhost:19872";
@@ -52,6 +52,8 @@ public class DataCollectorService {
             "http://10.141.212.24",
             "http://10.141.212.25",
             "http://10.141.211.162",
+            "http://10.141.212.133",
+            "http://10.141.212.136",
     };
 
     //需要查询的容器的metric指标名称

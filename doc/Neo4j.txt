@@ -1,0 +1,29 @@
+Linux/UNIX Install (tar)
+
+
+Open up your terminal/shell.
+1.Extract the contents of the archive, using:
+    tar -xf <filecode>.
+  For example,
+    tar -xf neo4j-community-3.5.6-unix.tar.gz
+  Place the extracted files in a permanent home on your server. The top level directory is referred to as NEO4J_HOME.
+2.To run Neo4j as a console application, use:
+    <NEO4J_HOME>/bin/neo4j console
+  To run Neo4j in a background process, use:
+    <NEO4J_HOME>/bin/neo4j start
+3.For additional commands see the Unix tarball installation documentation.
+    Visit http://localhost:7474 in your web browser.
+    Connect using the username 'neo4j' with default password 'neo4j'. You'll then be prompted to change the password.
+    Neo4j Operations Manual: Linux Installation →
+
+neo4j开放外部端口访问
+去conf里打开conf文件并修改配置
+# With default configuration Neo4j only accepts local connections.
+# To accept non-local connections, uncomment this line:
+dbms.connectors.default_listen_address=0.0.0.0
+
+
+删除GraphNode标签
+    MATCH(m)
+            REMOVE m:GraphNode
+            RETURN m

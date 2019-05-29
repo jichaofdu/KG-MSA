@@ -15,6 +15,13 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
+        resources:
+          requests:
+            cpu: 50m
+            memory: 100Mi
+          limits:
+            cpu: 500m
+            memory: 500Mi
 
 ---
 
@@ -28,4 +35,5 @@ spec:
       port: 8080
   selector:
    app: ts-ui-dashboard
+
 ---
