@@ -5,6 +5,7 @@ import collector.domain.apinode.NodeList;
 import collector.domain.apipod.PodList;
 import collector.domain.apiservice.AppServiceList;
 import collector.domain.entities.Metric;
+import collector.domain.trace.Span;
 import collector.service.DataCollectorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,6 +55,9 @@ public class DataCollectorController {
         return dataCollectorService.createRawFrameworkToKnowledgeGraph();
     }
 
-
+    @GetMapping("/trace")
+    public ArrayList<ArrayList<Span>> getTraces(){
+        return dataCollectorService.getAndParseTrace();
+    }
 
 }

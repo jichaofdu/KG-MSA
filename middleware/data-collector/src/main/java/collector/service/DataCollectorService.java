@@ -14,10 +14,12 @@ import collector.domain.relationships.AppServiceAndPod;
 import collector.domain.relationships.MetricAndContainer;
 import collector.domain.relationships.PodAndContainer;
 import collector.domain.relationships.VirtualMachineAndPod;
+import collector.domain.trace.Span;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -26,26 +28,28 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.StreamSupport;
 
 @Service
 public class DataCollectorService {
 
-    @Autowired
-    private RestTemplate restTemplate;
-
-    @Autowired
-    private Gson gson;
-
     //集群master机器的地址
-    private final String masterIP = "http://10.141.211.162:8082/";
+    private final String masterIP =
+            "http://10.141.211.162:8082/";
 
     //neo4j的api服务器的地址
-    private final String neo4jDaoIP = "http://localhost:19872";
+    private final String neo4jDaoIP =
+            "http://localhost:19872";
 
     //promethsus的查询地址
-    private final String promethsusQuery = "http://10.141.211.162:31999/api/v1/query";
+    private final String promethsusQuery =
+            "http://10.141.211.162:31999/api/v1/query";
+
+    //zipkin的查询地址
+    private final String zipkinQuery =
+            "http://10.141.211.162:31879/zipkin/api/v1/traces?limit=40";
 
     //集群全部机器的ip地址
     private final String[] clusterIPs = {
@@ -73,8 +77,21 @@ public class DataCollectorService {
     private HashSet<Pod> pods = new HashSet<>();
     private HashSet<Container> containers = new HashSet<>();
 
+
+    @Autowired
+    private RestTemplate restTemplate;
+    @Autowired
+    private Gson gson;
+
     public String getCurrentTimestamp(){
         return currTimestampString;
+    }
+
+    //读取和记录zipkin的trace
+    public ArrayList<ArrayList<Span>> getAndParseTrace(){
+        String list = restTemplate.getForObject(zipkinQuery, String.class);
+        Type founderListType = new TypeToken<ArrayList<ArrayList<Span>>>(){}.getType();
+        return gson.fromJson(list, founderListType);
     }
 
     //更新所有metrics
