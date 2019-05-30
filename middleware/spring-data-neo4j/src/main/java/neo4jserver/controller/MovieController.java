@@ -3,10 +3,7 @@ package neo4jserver.controller;
 import java.util.*;
 
 import neo4jserver.domain.entities.*;
-import neo4jserver.domain.relationships.AppServiceAndPod;
-import neo4jserver.domain.relationships.MetricAndContainer;
-import neo4jserver.domain.relationships.PodAndContainer;
-import neo4jserver.domain.relationships.VirtualMachineAndPod;
+import neo4jserver.domain.relationships.*;
 import neo4jserver.services.MovieService;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +15,17 @@ public class MovieController {
 	
 	public MovieController(MovieService movieService) {
 		this.movieService = movieService;
+	}
+
+
+	@PostMapping("/apiHostService")
+	public ArrayList<AppServiceHostServiceAPI> postAppServiceAndServiceApi(@RequestBody ArrayList<AppServiceHostServiceAPI> relations){
+		return movieService.postListOfAppServiceAndServiceAPI(relations);
+	}
+
+	@PostMapping("/apiInvokeService")
+	public ArrayList<AppServiceInvokeServiceAPI> postAppServiceAndInvokeApi(@RequestBody ArrayList<AppServiceInvokeServiceAPI> relations){
+		return movieService.postListOfAppServiceInvokeServiceAPI(relations);
 	}
 
 	@PostMapping("/updateMetrics")

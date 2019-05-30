@@ -58,12 +58,10 @@ public class DataCollectorController {
     }
 
     @GetMapping("/trace")
-    public ArrayList<AppServiceInvokeServiceAPI> getTraces(){
-        ArrayList<AppServiceHostServiceAPI> svcHostApi = new ArrayList<>();
-        ArrayList<AppServiceInvokeServiceAPI> svcInvokeApi = new ArrayList<>();
-        dataCollectorService.getServiceHostApiAndServiceInvokeApi(svcHostApi, svcInvokeApi);
+    public ArrayList<AppServiceHostServiceAPI> getTraces(){
 
-        return svcInvokeApi;
+
+        return dataCollectorService.uploadApiSvcRelations();
     }
 
 }

@@ -91,6 +91,22 @@ public class DataCollectorService {
         return gson.fromJson(list, founderListType);
     }
 
+
+    public ArrayList<AppServiceHostServiceAPI> uploadApiSvcRelations(){
+        ArrayList<AppServiceHostServiceAPI> svcApiRelations = new ArrayList<>();
+        ArrayList<AppServiceInvokeServiceAPI> svcInvokeApiRelations = new ArrayList<>();
+        getServiceHostApiAndServiceInvokeApi(svcApiRelations, svcInvokeApiRelations);
+        //向对面提交一堆并处理结果
+        ArrayList<AppServiceHostServiceAPI> updatedSvcApiRelations = restTemplate.postForObject(
+                neo4jDaoIP + "/apiHostService", svcApiRelations, svcApiRelations.getClass());
+        ArrayList<AppServiceInvokeServiceAPI> updatedSvcInvokeApiRelations = restTemplate.postForObject(
+                neo4jDaoIP + "/apiInvokeService", svcInvokeApiRelations, svcInvokeApiRelations.getClass());
+        System.out.println("API数量:" + apis.size());
+        return updatedSvcApiRelations;
+        //向对面提交一堆并处理结果
+
+    }
+
     public void getServiceHostApiAndServiceInvokeApi(ArrayList<AppServiceHostServiceAPI> svcHostApi,
                                                      ArrayList<AppServiceInvokeServiceAPI> svcInvokeApi){
         //获取trace

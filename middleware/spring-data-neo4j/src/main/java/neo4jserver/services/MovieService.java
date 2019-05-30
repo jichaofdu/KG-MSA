@@ -3,13 +3,8 @@ package neo4jserver.services;
 import java.util.*;
 import neo4jserver.domain.*;
 import neo4jserver.domain.entities.*;
-import neo4jserver.domain.relationships.AppServiceAndPod;
-import neo4jserver.domain.relationships.MetricAndContainer;
-import neo4jserver.domain.relationships.PodAndContainer;
-import neo4jserver.domain.relationships.VirtualMachineAndPod;
+import neo4jserver.domain.relationships.*;
 import neo4jserver.repositories.*;
-import neo4jserver.utils.Neo4jUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +32,12 @@ public class MovieService {
 
 	private final MetricAndContainerRepository metricAndContainerRepository;
 
+	private final ServiceApiRepository serviceApiRepository;
+
+	private final AppServiceHostApiRepository appServiceHostApiRepository;
+
+	private final AppServiceInvokeApiRepository appServiceInvokeApiRepository;
+
 	public MovieService(PodRepository podRepository,
 						ContainerRepository containerRepository,
 						AppServiceRepository appServiceRepository,
@@ -45,7 +46,10 @@ public class MovieService {
 						AppServiceAndPodRepository appServiceAndPodRepository,
 						PodAndContainerRepository podAndContainerRepository,
 						MetricRepository metricRepository,
-						MetricAndContainerRepository metricAndContainerRepository) {
+						MetricAndContainerRepository metricAndContainerRepository,
+						ServiceApiRepository serviceApiRepository,
+						AppServiceHostApiRepository appServiceHostApiRepository,
+						AppServiceInvokeApiRepository appServiceInvokeApiRepository) {
 		this.podRepository = podRepository;
 		this.virtualMachineRepository = virtualMachineRepository;
 		this.virtualMachineAndPodRepository = virtualMachineAndPodRepository;
@@ -55,6 +59,41 @@ public class MovieService {
 		this.podAndContainerRepository = podAndContainerRepository;
 		this.metricRepository = metricRepository;
 		this.metricAndContainerRepository = metricAndContainerRepository;
+		this.serviceApiRepository = serviceApiRepository;
+		this.appServiceHostApiRepository = appServiceHostApiRepository;
+		this.appServiceInvokeApiRepository = appServiceInvokeApiRepository;
+	}
+
+	@Transactional(readOnly = true)
+	public ArrayList<AppServiceHostServiceAPI> postListOfAppServiceAndServiceAPI(ArrayList<AppServiceHostServiceAPI> list){
+		ArrayList<AppServiceHostServiceAPI> result = new ArrayList<>();
+		for(AppServiceHostServiceAPI relation : list){
+			AppService svc = relation.getAppService();
+			ServiceAPI api = relation.getServiceAPI();
+			svc = appServiceRepository.save(svc);
+			api = serviceApiRepository.save(api);
+			relation.setAppService(svc);
+			relation.setServiceAPI(api);
+			relation = appServiceHostApiRepository.save(relation);
+			result.add(relation);
+		}
+		return result;
+	}
+
+	@Transactional(readOnly = true)
+	public ArrayList<AppServiceInvokeServiceAPI> postListOfAppServiceInvokeServiceAPI(ArrayList<AppServiceInvokeServiceAPI> list){
+		ArrayList<AppServiceInvokeServiceAPI> result = new ArrayList<>();
+		for(AppServiceInvokeServiceAPI relation : list){
+			AppService svc = relation.getAppService();
+			ServiceAPI api = relation.getServiceAPI();
+			svc = appServiceRepository.save(svc);
+			api = serviceApiRepository.save(api);
+			relation.setAppService(svc);
+			relation.setServiceAPI(api);
+			relation = appServiceInvokeApiRepository.save(relation);
+			result.add(relation);
+		}
+		return result;
 	}
 
 	@Transactional(readOnly = true)
