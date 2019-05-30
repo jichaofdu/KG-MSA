@@ -10,11 +10,10 @@ import collector.domain.apiservice.ApiAppService;
 import collector.domain.apiservice.AppServiceList;
 import collector.domain.entities.*;
 import collector.domain.prom.ExpressionQueriesVectorResponse;
-import collector.domain.relationships.AppServiceAndPod;
-import collector.domain.relationships.MetricAndContainer;
-import collector.domain.relationships.PodAndContainer;
-import collector.domain.relationships.VirtualMachineAndPod;
+import collector.domain.relationships.*;
+import collector.domain.trace.BinaryAnnotation;
 import collector.domain.trace.Span;
+import collector.util.MatcherUrlRouterUtil;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -27,32 +26,30 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-
 import java.lang.reflect.Type;
 import java.util.*;
-import java.util.stream.StreamSupport;
 
 @Service
 public class DataCollectorService {
 
     //集群master机器的地址
-    private final String masterIP =
+    private static final String masterIP =
             "http://10.141.211.162:8082/";
 
     //neo4j的api服务器的地址
-    private final String neo4jDaoIP =
+    private static final String neo4jDaoIP =
             "http://localhost:19872";
 
     //promethsus的查询地址
-    private final String promethsusQuery =
+    private static final String promethsusQuery =
             "http://10.141.211.162:31999/api/v1/query";
 
     //zipkin的查询地址
-    private final String zipkinQuery =
+    private static final String zipkinQuery =
             "http://10.141.211.162:31879/zipkin/api/v1/traces?limit=40";
 
     //集群全部机器的ip地址
-    private final String[] clusterIPs = {
+    private static final String[] clusterIPs = {
             "http://10.141.212.24",
             "http://10.141.212.25",
             "http://10.141.211.162",
@@ -61,7 +58,7 @@ public class DataCollectorService {
     };
 
     //需要查询的容器的metric指标名称
-    private final String[] containerMetricsNameVector = {
+    private static final String[] containerMetricsNameVector = {
             "container_memory_usage_bytes",
             "container_fs_usage_bytes",
     };
@@ -69,14 +66,14 @@ public class DataCollectorService {
     //时间戳 在图谱更新的时候会附加在节点上
     //在图谱重整的时候此值将会被刷新
     //在更新Metric的时候这个值不会刷新
-    private String currTimestampString = "Not Set Yet";
+    private static String currTimestampString = "Not Set Yet";
 
     //当前的实体列表
-    private HashSet<VirtualMachine> vms = new HashSet<>();
-    private HashSet<AppService> svcs = new HashSet<>();
-    private HashSet<Pod> pods = new HashSet<>();
-    private HashSet<Container> containers = new HashSet<>();
-
+    private static HashMap<String, VirtualMachine> vms = new HashMap<>();
+    private static HashMap<String, AppService> svcs = new HashMap<>();
+    private static HashMap<String, Pod> pods = new HashMap<>();
+    private static HashMap<String, Container> containers = new HashMap<>();
+    private static HashMap<String, ServiceAPI> apis = new HashMap<>();
 
     @Autowired
     private RestTemplate restTemplate;
@@ -94,13 +91,109 @@ public class DataCollectorService {
         return gson.fromJson(list, founderListType);
     }
 
+    public void getServiceHostApiAndServiceInvokeApi(ArrayList<AppServiceHostServiceAPI> svcHostApi,
+                                                     ArrayList<AppServiceInvokeServiceAPI> svcInvokeApi){
+        //获取trace
+        ArrayList<ArrayList<Span>> traces = getAndParseTrace();
+        //遍历每一个trace
+        for(ArrayList<Span> trace : traces){
+            //遍历一个trace的每一个span
+            for(Span span : trace){
+                //istio的输出信息不是我们需要的 忽略
+                if(span.getName().contains("istio-policy")){
+                    continue;
+                }
+                // Client-Send或者Client-Receive才是我们需要的
+                if(!span.getAnnotations().get(0).getValue().equals("cr") &&
+                        !span.getAnnotations().get(0).getValue().equals("cs")){
+                    continue;
+                }
+                //开始处理我们需要的内容
+                //找到key=http.url的那个binary-annotation
+                for(BinaryAnnotation bn : span.getBinaryAnnotations()){
+                    //不是http.url就跳过吧
+                    if(!"http.url".equals(bn.getKey())){
+                        continue;
+                    }
+                    String invokeSource = bn.getEndpoint().getServiceName();
+                    String totalInvokeAddress = bn.getValue();
+                    //解析出API所在的服务名,调用API的服务名以及API本身的名称
+                    String invokeService = getSvcNameFromTotalName(invokeSource);
+                    String hostService = getHostFromLink(totalInvokeAddress);
+                    String api = getApiFromLink(totalInvokeAddress);
+                    //自己调自己的不要 开头是ip的不要
+                    if(invokeService.equals(hostService) || hostService.contains("10.")){
+                        continue;
+                    }
+                    //看下API在吗，不在的话重组一个
+                    System.out.println("发现API " + api);
+                    ServiceAPI serviceApi;
+                    if(apis.get(api) != null){
+                        serviceApi = apis.get(api);
+                    }else{
+                        serviceApi = new ServiceAPI();
+                        serviceApi.setHostName(hostService);
+                        serviceApi.setName(api);
+                        serviceApi.setId(api);
+                        serviceApi.setLatestUpdateTimestamp(currTimestampString);
+                    }
+
+                    //看看host serivice在吗 不在的话就不管了 在的话组装一下relation
+                    System.out.println("发现API的所属关系 " + hostService);
+                    if(svcs.get(hostService)!= null){
+                       AppService hostSvc = svcs.get(hostService);
+                       AppServiceHostServiceAPI relationHost = new AppServiceHostServiceAPI();
+                       relationHost.setAppService(hostSvc);
+                       relationHost.setServiceAPI(serviceApi);
+                       relationHost.setId(serviceApi.getId() + "ApiSvc" + hostSvc.getId());
+                       relationHost.setRelation("API_HOST_ON");
+                       svcHostApi.add(relationHost);
+                    }
+
+                    //看看invoke service在吗 不在的话就不管了 在的话组装一下relation
+                    System.out.println("发现API的被调关系 " + invokeService);
+                    if(svcs.get(invokeService)!= null){
+                        AppService invokeSvc = svcs.get(invokeService);
+                        AppServiceInvokeServiceAPI relationInvoke = new AppServiceInvokeServiceAPI();
+                        relationInvoke.setAppService(invokeSvc);
+                        relationInvoke.setServiceAPI(serviceApi);
+                        relationInvoke.setId(serviceApi.getId() + "ApiSvc" + invokeSvc.getId());
+                        relationInvoke.setRelation("API_INVOKE_BY");
+                        svcInvokeApi.add(relationInvoke);
+                    }
+                }
+            }
+        }
+    }
+
+    private String getApiFromLink(String url){
+        return MatcherUrlRouterUtil.matcherPattern(url);
+    }
+
+    private String getHostFromLink(String url){
+        String api = MatcherUrlRouterUtil.matcherPattern(url);
+        int index1 = url.indexOf("http://");
+        int index2 = url.indexOf(api);
+        String svc = url.substring(index1, index2).substring("http://".length());
+        int index3 = svc.indexOf(":");
+        svc = svc.substring(0, index3);
+        return svc;
+    }
+
+    private String getSvcNameFromTotalName(String s){
+        int index = s.indexOf(".");
+        return s.substring(0, index);
+    }
+
+
+
     //更新所有metrics
     //更新依据是所有记录在案的container
     //如果要依据最新的container需要先更新containers
     public ArrayList<Metric> updateMetrics(){
         ArrayList<Metric> newMetrics = new ArrayList<>();
         for(String containerMetricName : containerMetricsNameVector){
-            for(Container container : containers){
+            for(Container container : containers.values()){
                 String containerName = container.getName();
                 if(containerName.startsWith("/")){
                     containerName = containerName.substring(1);
@@ -259,24 +352,24 @@ public class DataCollectorService {
     private VirtualMachineAndPod postVmAndPod(VirtualMachineAndPod vmAndPod){
         VirtualMachineAndPod newObj =
                 restTemplate.postForObject(neo4jDaoIP + "/virtualMachineAndPod",vmAndPod,VirtualMachineAndPod.class);
-        vms.add(newObj.getVirtualMachine());
-        pods.add(newObj.getPod());
+        vms.put(newObj.getVirtualMachine().getName(), newObj.getVirtualMachine());
+        pods.put(newObj.getPod().getName(), newObj.getPod());
         return newObj;
     }
 
     private AppServiceAndPod postSvcAndPod(AppServiceAndPod svcAndPod){
         AppServiceAndPod newObj =
                 restTemplate.postForObject(neo4jDaoIP + "/appServiceAndPod", svcAndPod, AppServiceAndPod.class);
-        svcs.add(newObj.getAppService());
-        pods.add(newObj.getPod());
+        svcs.put(newObj.getAppService().getName(), newObj.getAppService());
+        pods.put(newObj.getPod().getName(), newObj.getPod());
         return newObj;
     }
 
     private PodAndContainer postPodAndContainer(PodAndContainer podAndContainer){
         PodAndContainer newObj =
                 restTemplate.postForObject(neo4jDaoIP + "/podAndContainer", podAndContainer, PodAndContainer.class);
-        pods.add(newObj.getPod());
-        containers.add(newObj.getContainer());
+        pods.put(newObj.getPod().getName(), newObj.getPod());
+        containers.put(newObj.getContainer().getName(), newObj.getContainer());
         return newObj;
     }
 

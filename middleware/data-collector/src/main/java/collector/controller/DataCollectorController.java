@@ -5,6 +5,8 @@ import collector.domain.apinode.NodeList;
 import collector.domain.apipod.PodList;
 import collector.domain.apiservice.AppServiceList;
 import collector.domain.entities.Metric;
+import collector.domain.relationships.AppServiceHostServiceAPI;
+import collector.domain.relationships.AppServiceInvokeServiceAPI;
 import collector.domain.trace.Span;
 import collector.service.DataCollectorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,8 +58,12 @@ public class DataCollectorController {
     }
 
     @GetMapping("/trace")
-    public ArrayList<ArrayList<Span>> getTraces(){
-        return dataCollectorService.getAndParseTrace();
+    public ArrayList<AppServiceInvokeServiceAPI> getTraces(){
+        ArrayList<AppServiceHostServiceAPI> svcHostApi = new ArrayList<>();
+        ArrayList<AppServiceInvokeServiceAPI> svcInvokeApi = new ArrayList<>();
+        dataCollectorService.getServiceHostApiAndServiceInvokeApi(svcHostApi, svcInvokeApi);
+
+        return svcInvokeApi;
     }
 
 }
