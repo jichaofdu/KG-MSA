@@ -42,11 +42,11 @@ docker tag ts/ts-train-service 10.141.211.175:5000/jichao/cluster-ts-train-servi
 docker tag ts/ts-travel2-service 10.141.211.175:5000/jichao/cluster-ts-travel2-service    
 docker tag ts/ts-travel-service 10.141.211.175:5000/jichao/cluster-ts-travel-service    
 docker tag ts/ts-travel-plan-service 10.141.211.175:5000/jichao/cluster-ts-travel-plan-service    
-docker tag ts/ts-ui-dashboard 10.141.211.175:5000/jichao/cluster-ts-ui-dashboard    
 docker tag ts/ts-verification-code-service 10.141.211.175:5000/jichao/cluster-ts-verification-code-service    
 docker tag mongo 10.141.211.175:5000/jichao/cluster-ts-mongo    
 docker tag rabbitmq:management 10.141.211.175:5000/jichao/cluster-ts-rabbitmq-management      
 docker tag openzipkin/zipkin 10.141.211.175:5000/jichao/cluster-ts-openzipkin-zipkin    
+docker tag ts/ts-ui-dashboard 10.141.211.175:5000/jichao/cluster-ts-ui-dashboard    
 
 ## Part2
 docker push 10.141.211.175:5000/jichao/cluster-ts-admin-basic-info-service    
@@ -88,8 +88,10 @@ docker push 10.141.211.175:5000/jichao/cluster-ts-train-service
 docker push 10.141.211.175:5000/jichao/cluster-ts-travel2-service    
 docker push 10.141.211.175:5000/jichao/cluster-ts-travel-service     
 docker push 10.141.211.175:5000/jichao/cluster-ts-travel-plan-service    
-docker push 10.141.211.175:5000/jichao/cluster-ts-ui-dashboard    
 docker push 10.141.211.175:5000/jichao/cluster-ts-verification-code-service    
 docker push 10.141.211.175:5000/jichao/cluster-ts-mongo       
 docker push 10.141.211.175:5000/jichao/cluster-ts-rabbitmq-management       
-docker push 10.141.211.175:5000/jichao/cluster-ts-openzipkin-zipkin    
+docker push 10.141.211.175:5000/jichao/cluster-ts-openzipkin-zipkin   
+
+docker push 10.141.211.175:5000/jichao/cluster-ts-ui-dashboard    
+ 

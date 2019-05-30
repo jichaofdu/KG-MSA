@@ -1,0 +1,7 @@
+kubectl delete -f p3.yml
+kubectl delete -f p2.yml
+kubectl delete -f p1.yml
+
+kubectl apply -f p1.yml
+kubectl apply -f p2.yml
+kubectl apply -f p3.yml

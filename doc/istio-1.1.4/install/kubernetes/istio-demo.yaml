@@ -16041,8 +16041,8 @@ spec:
           - '10s' #connectTimeout
           - --serviceCluster
           - istio-egressgateway
-          - --zipkinAddress
-          - zipkin:9411
+#          - --zipkinAddress
+#          - zipkin:9411
           - --proxyAdminPort
           - "15000"
           - --statusPort
@@ -16213,8 +16213,8 @@ spec:
           - '10s' #connectTimeout
           - --serviceCluster
           - istio-ingressgateway
-          - --zipkinAddress
-          - zipkin:9411
+#          - --zipkinAddress
+#          - zipkin:9411
           - --proxyAdminPort
           - "15000"
           - --statusPort
@@ -16677,7 +16677,7 @@ spec:
           - --configStoreURL=mcp://istio-galley.istio-system.svc:9901
           - --configDefaultNamespace=istio-system
           - --useAdapterCRDs=true
-          - --trace_zipkin_url=http://zipkin:9411/api/v1/spans
+#          - --trace_zipkin_url=http://zipkin:9411/api/v1/spans
         env:
         - name: GODEBUG
           value: "gctrace=1"
@@ -16849,7 +16849,7 @@ spec:
           - --configStoreURL=mcp://istio-galley.istio-system.svc:9901
           - --configDefaultNamespace=istio-system
           - --useAdapterCRDs=true
-          - --trace_zipkin_url=http://zipkin:9411/api/v1/spans
+#          - --trace_zipkin_url=http://zipkin:9411/api/v1/spans
           - --averageLatencyThreshold
           - 100ms
           - --loadsheddingMode
