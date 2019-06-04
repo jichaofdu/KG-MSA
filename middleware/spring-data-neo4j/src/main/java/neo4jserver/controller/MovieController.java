@@ -103,6 +103,12 @@ public class MovieController {
 		return movieService.postAppServiceAndPod(appServiceAndPod);
 	}
 
+	@PostMapping("/appServiceAndPodRelations")
+	public ArrayList<AppServiceAndPod> postAppServiceAndPodList(@RequestBody ArrayList<AppServiceAndPod>
+																	  relations){
+		return movieService.postAppServiceAndPodList(relations);
+	}
+
 	@GetMapping("/podAndContainer/{id}")
 	public PodAndContainer getPodAndContainer(@PathVariable String id){
 		return movieService.findByPodAndContainerId(id);
@@ -111,6 +117,12 @@ public class MovieController {
 	@PostMapping("/podAndContainer")
 	public PodAndContainer postPodAndContainer(@RequestBody PodAndContainer podAndContainer){
 		return movieService.postPodAndContainer(podAndContainer);
+	}
+
+	@PostMapping("/podAndContainerRelations")
+	public ArrayList<PodAndContainer> postPodAndContainerList(@RequestBody ArrayList<PodAndContainer>
+																				relations){
+		return movieService.postPodAndContainerList(relations);
 	}
 
 	@GetMapping("/virtualMachineAndPod/{id}")
@@ -123,14 +135,25 @@ public class MovieController {
 		return movieService.postVirtualMachineAndPod(virtualMachineAndPod);
 	}
 
+	@PostMapping("/virtualMachineAndPodRelations")
+	public ArrayList<VirtualMachineAndPod> postVirtualMachineAndPodList(@RequestBody ArrayList<VirtualMachineAndPod>
+																					relations){
+		return movieService.postVirtualMachineAndPodList(relations);
+	}
+
 	@GetMapping("/metricAndContainer/{id}")
 	public MetricAndContainer getMetricAndContainer(@PathVariable String id){
 		return movieService.findByMetricAndContainerId(id);
 	}
 
 	@PostMapping("/metricAndContainer")
-	public MetricAndContainer getMetricAndContainer(@RequestBody MetricAndContainer metricAndContainer){
+	public MetricAndContainer postMetricAndContainer(@RequestBody MetricAndContainer metricAndContainer){
 		return movieService.postMetricAndContainer(metricAndContainer);
+	}
+
+	@PostMapping("/metricAndContainerRelations")
+	public ArrayList<MetricAndContainer> postMetricAndContainer(@RequestBody  ArrayList<MetricAndContainer> relations){
+		return movieService.postMetricAndContainerList(relations);
 	}
 
 

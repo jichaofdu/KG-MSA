@@ -241,6 +241,16 @@ public class MovieService {
 		return appServiceAndPod;
 	}
 
+	@Transactional(readOnly = true)
+	public ArrayList<AppServiceAndPod> postAppServiceAndPodList(ArrayList<AppServiceAndPod> relations){
+		ArrayList<AppServiceAndPod> result = new ArrayList<>();
+		for(AppServiceAndPod relation : relations){
+			AppServiceAndPod newRelation = postAppServiceAndPod(relation);
+			result.add(newRelation);
+		}
+		return result;
+	}
+
 
 
 	@Transactional(readOnly = true)
@@ -263,6 +273,16 @@ public class MovieService {
 		podAndContainer = podAndContainerRepository.save(podAndContainer);
 
 		return podAndContainer;
+	}
+
+	@Transactional(readOnly = true)
+	public ArrayList<PodAndContainer> postPodAndContainerList(ArrayList<PodAndContainer> relations){
+		ArrayList<PodAndContainer> result = new ArrayList<>();
+		for(PodAndContainer relation : relations){
+			PodAndContainer newRelation = postPodAndContainer(relation);
+			result.add(newRelation);
+		}
+		return result;
 	}
 
 	@Transactional(readOnly = true)
@@ -290,6 +310,16 @@ public class MovieService {
 	}
 
 	@Transactional(readOnly = true)
+	public ArrayList<MetricAndContainer> postMetricAndContainerList(ArrayList<MetricAndContainer> relations){
+		ArrayList<MetricAndContainer> result = new ArrayList<>();
+		for(MetricAndContainer relation : relations){
+			MetricAndContainer newRelation = postMetricAndContainer(relation);
+			result.add(newRelation);
+		}
+		return result;
+	}
+
+	@Transactional(readOnly = true)
 	public VirtualMachineAndPod findByVirtualMachineAndPodId(String id){
 		Optional<VirtualMachineAndPod> deploy = virtualMachineAndPodRepository.findById(id);
 		return deploy.get();
@@ -312,6 +342,15 @@ public class MovieService {
 		return virtualMachineAndPod;
 	}
 
+	@Transactional(readOnly = true)
+	public ArrayList<VirtualMachineAndPod> postVirtualMachineAndPodList(ArrayList<VirtualMachineAndPod> relations){
+		ArrayList<VirtualMachineAndPod> result = new ArrayList<>();
+		for(VirtualMachineAndPod relation : relations){
+			VirtualMachineAndPod savedRelation = postVirtualMachineAndPod(relation);
+			result.add(savedRelation);
+		}
+		return result;
+	}
 
 
 //	@Transactional(readOnly = true)

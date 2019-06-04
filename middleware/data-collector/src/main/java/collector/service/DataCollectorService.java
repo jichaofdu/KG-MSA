@@ -103,7 +103,6 @@ public class DataCollectorService {
                 neo4jDaoIP + "/apiInvokeService", svcInvokeApiRelations, svcInvokeApiRelations.getClass());
         System.out.println("API数量:" + apis.size());
         return updatedSvcApiRelations;
-        //向对面提交一堆并处理结果
 
     }
 
@@ -152,6 +151,8 @@ public class DataCollectorService {
                         serviceApi.setName(api);
                         serviceApi.setId(api);
                         serviceApi.setLatestUpdateTimestamp(currTimestampString);
+
+                        apis.put(serviceApi.getName(), serviceApi);
                     }
 
                     //看看host serivice在吗 不在的话就不管了 在的话组装一下relation
@@ -305,58 +306,72 @@ public class DataCollectorService {
     public String createRawFrameworkToKnowledgeGraph(){
         //记录当前时间
         currTimestampString = "" + new Date().getTime();
+        System.out.println("CurrTimestampString" + currTimestampString);
         //清空环境
         clearAllInfo();
+        System.out.println("Clear");
         //第一步: 获取所有的node,pod,service
         ArrayList<ApiNode> apiNodeList = getNodeList().getItems();
+        System.out.println("Get Nodes");
         ArrayList<ApiPod> apiPodList = getPodList().getItems();
+        System.out.println("Get POD");
         ArrayList<ApiAppService> apiServiceList = getAppServiceList().getItems();
+        System.out.println("Get Service");
         ArrayList<ApiContainer> apiContainerList = getContainerList().getItems();
+        System.out.println("Get Container");
         //第二步: 构建关系
         ArrayList<VirtualMachineAndPod> vmPodRelations = constructVmPodRelation(apiNodeList,apiPodList);
+        System.out.println("vmPodRelations");
         ArrayList<AppServiceAndPod> appServiceAndPodRelations = constructAppServicePodRelation(apiServiceList, apiPodList);
+        System.out.println("appServiceAndPodRelations");
         ArrayList<PodAndContainer> podAndContainerRelations = constructPodAndContainerRelation(apiPodList,apiContainerList);
+        System.out.println("podAndContainerRelations");
         ArrayList<MetricAndContainer> metricAndContainerRelations = constructMetricAndContainer(apiContainerList);
+        System.out.println("metricAndContainerRelations");
         //第三步: 上传关系(无需额外上传entity, 关系中包含entity, 对面会自动处理)
         ArrayList<VirtualMachineAndPod> vmPodRelationsResult = new ArrayList<>();
-        for(VirtualMachineAndPod vmAndPod : vmPodRelations){
-            //添加更新时间戳以区分新旧时间
-            vmAndPod.getVirtualMachine().setLatestUpdateTimestamp(currTimestampString);
-            vmAndPod.getPod().setLatestUpdateTimestamp(currTimestampString);
-            //上传
-            VirtualMachineAndPod newVmAndPod = postVmAndPod(vmAndPod);
-            vmPodRelationsResult.add(newVmAndPod);
-        }
+        vmPodRelationsResult = postVmAndPodList(vmPodRelations);
+//        for(VirtualMachineAndPod vmAndPod : vmPodRelations){
+//            //添加更新时间戳以区分新旧时间
+//            vmAndPod.getVirtualMachine().setLatestUpdateTimestamp(currTimestampString);
+//            vmAndPod.getPod().setLatestUpdateTimestamp(currTimestampString);
+//            //上传
+//            VirtualMachineAndPod newVmAndPod = postVmAndPod(vmAndPod);
+//            vmPodRelationsResult.add(newVmAndPod);
+//        }
         System.out.println("完成上传VirtualMachineAndPod:" + vmPodRelationsResult.size());
         ArrayList<AppServiceAndPod> appServiceAndPodsResult = new ArrayList<>();
-        for(AppServiceAndPod svcAndPod : appServiceAndPodRelations){
-            //添加更新时间戳以区分新旧时间
-            svcAndPod.getPod().setLatestUpdateTimestamp(currTimestampString);
-            svcAndPod.getAppService().setLatestUpdateTimestamp(currTimestampString);
-            //上传
-            AppServiceAndPod newSvcAndPod = postSvcAndPod(svcAndPod);
-            appServiceAndPodsResult.add(newSvcAndPod);
-        }
+        appServiceAndPodsResult = postSvcAndPodList(appServiceAndPodRelations);
+//        for(AppServiceAndPod svcAndPod : appServiceAndPodRelations){
+//            //添加更新时间戳以区分新旧时间
+//            svcAndPod.getPod().setLatestUpdateTimestamp(currTimestampString);
+//            svcAndPod.getAppService().setLatestUpdateTimestamp(currTimestampString);
+//            //上传
+//            AppServiceAndPod newSvcAndPod = postSvcAndPod(svcAndPod);
+//            appServiceAndPodsResult.add(newSvcAndPod);
+//        }
         System.out.println("完成上传AppServiceAndPod:" + appServiceAndPodsResult.size());
         ArrayList<PodAndContainer> podAndContainerResult = new ArrayList<>();
-        for(PodAndContainer podAndContainer : podAndContainerRelations){
-            //添加更新时间戳以区分新旧时间
-            podAndContainer.getPod().setLatestUpdateTimestamp(currTimestampString);
-            podAndContainer.getContainer().setLatestUpdateTimestamp(currTimestampString);
-            //上传
-            PodAndContainer newPodAndContainer = postPodAndContainer(podAndContainer);
-            podAndContainerResult.add(newPodAndContainer);
-        }
+        podAndContainerResult = postPodAndContainerList(podAndContainerRelations);
+//        for(PodAndContainer podAndContainer : podAndContainerRelations){
+//            //添加更新时间戳以区分新旧时间
+//            podAndContainer.getPod().setLatestUpdateTimestamp(currTimestampString);
+//            podAndContainer.getContainer().setLatestUpdateTimestamp(currTimestampString);
+//            //上传
+//            PodAndContainer newPodAndContainer = postPodAndContainer(podAndContainer);
+//            podAndContainerResult.add(newPodAndContainer);
+//        }
         System.out.println("完成上传PodAndContainer:" + podAndContainerResult.size());
         ArrayList<MetricAndContainer> metricAndContainerResult = new ArrayList<>();
-        for(MetricAndContainer metricAndContainer : metricAndContainerRelations){
-            //添加更新时间戳以区分新旧时间
-            metricAndContainer.getContainer().setLatestUpdateTimestamp(currTimestampString);
-            metricAndContainer.getMetric().setLatestUpdateTimestamp(currTimestampString);
-            //上传
-            MetricAndContainer newMetricAndContainer = postMetricAndContainer(metricAndContainer);
-            metricAndContainerResult.add(newMetricAndContainer);
-        }
+        metricAndContainerResult = postMetricAndContainerList(metricAndContainerRelations);
+//        for(MetricAndContainer metricAndContainer : metricAndContainerRelations){
+//            //添加更新时间戳以区分新旧时间
+//            metricAndContainer.getContainer().setLatestUpdateTimestamp(currTimestampString);
+//            metricAndContainer.getMetric().setLatestUpdateTimestamp(currTimestampString);
+//            //上传
+//            MetricAndContainer newMetricAndContainer = postMetricAndContainer(metricAndContainer);
+//            metricAndContainerResult.add(newMetricAndContainer);
+//        }
         System.out.println("完成上传MetricAndContainer:" + metricAndContainerResult.size());
         System.out.println("虚拟机数量:" + vms.size());
         System.out.print("服务数量:" + svcs.size());
@@ -373,12 +388,40 @@ public class DataCollectorService {
         return newObj;
     }
 
+    private ArrayList<VirtualMachineAndPod> postVmAndPodList(ArrayList<VirtualMachineAndPod> relations){
+//        ArrayList<VirtualMachineAndPod> result =
+//            restTemplate.postForObject(neo4jDaoIP + "/virtualMachineAndPodRelations",relations,relations.getClass());
+        String str = restTemplate.postForObject(neo4jDaoIP + "/virtualMachineAndPodRelations",relations,String.class);
+        Type founderListType = new TypeToken<ArrayList<VirtualMachineAndPod>>(){}.getType();
+        ArrayList<VirtualMachineAndPod> result = gson.fromJson(str, founderListType);
+        System.out.println("postVmAndPodList传输完毕");
+        for(VirtualMachineAndPod relation : result){
+            vms.put(relation.getVirtualMachine().getName(), relation.getVirtualMachine());
+            pods.put(relation.getPod().getName(), relation.getPod());
+        }
+        return result;
+    }
+
     private AppServiceAndPod postSvcAndPod(AppServiceAndPod svcAndPod){
         AppServiceAndPod newObj =
                 restTemplate.postForObject(neo4jDaoIP + "/appServiceAndPod", svcAndPod, AppServiceAndPod.class);
         svcs.put(newObj.getAppService().getName(), newObj.getAppService());
         pods.put(newObj.getPod().getName(), newObj.getPod());
         return newObj;
+    }
+
+    private ArrayList<AppServiceAndPod> postSvcAndPodList(ArrayList<AppServiceAndPod> relations){
+//        ArrayList<AppServiceAndPod> result =
+//                restTemplate.postForObject(neo4jDaoIP + "/appServiceAndPodRelations",relations,relations.getClass());
+        String str = restTemplate.postForObject(neo4jDaoIP + "/appServiceAndPodRelations",relations,String.class);
+        Type founderListType = new TypeToken<ArrayList<AppServiceAndPod>>(){}.getType();
+        ArrayList<AppServiceAndPod> result = gson.fromJson(str, founderListType);
+        System.out.println("postSvcAndPodList传输完毕");
+        for(AppServiceAndPod relation : result){
+            svcs.put(relation.getAppService().getName(), relation.getAppService());
+            pods.put(relation.getPod().getName(), relation.getPod());
+        }
+        return result;
     }
 
     private PodAndContainer postPodAndContainer(PodAndContainer podAndContainer){
@@ -389,10 +432,37 @@ public class DataCollectorService {
         return newObj;
     }
 
+
+    private ArrayList<PodAndContainer> postPodAndContainerList(ArrayList<PodAndContainer> relations){
+//        ArrayList<PodAndContainer> result =
+//                restTemplate.postForObject(neo4jDaoIP + "/podAndContainerRelations",relations,relations.getClass());
+        String str = restTemplate.postForObject(neo4jDaoIP + "/podAndContainerRelations",relations,String.class);
+        Type founderListType = new TypeToken<ArrayList<PodAndContainer>>(){}.getType();
+        ArrayList<PodAndContainer> result = gson.fromJson(str, founderListType);
+
+        System.out.println("postPodAndContainerList传输完毕");
+        for(PodAndContainer relation : result){
+            pods.put(relation.getPod().getName(), relation.getPod());
+            containers.put(relation.getContainer().getName(), relation.getContainer());
+        }
+        return result;
+    }
+
     private MetricAndContainer postMetricAndContainer(MetricAndContainer metricAndContainer){
         MetricAndContainer newObj =
                 restTemplate.postForObject(neo4jDaoIP + "/metricAndContainer", metricAndContainer, MetricAndContainer.class);
         return newObj;
+    }
+
+    private ArrayList<MetricAndContainer> postMetricAndContainerList(ArrayList<MetricAndContainer> relations){
+//        ArrayList<MetricAndContainer> result =
+//                restTemplate.postForObject(neo4jDaoIP + "/metricAndContainerRelations",relations,relations.getClass());
+        String str = restTemplate.postForObject(neo4jDaoIP + "/metricAndContainerRelations",relations,String.class);
+        Type founderListType = new TypeToken<ArrayList<MetricAndContainer>>(){}.getType();
+        ArrayList<MetricAndContainer> result = gson.fromJson(str, founderListType);
+
+        System.out.println("postMetricAndContainerList传输完毕");
+        return result;
     }
 
     //使用抽取到的apiContainer并用apicontainer抽取
@@ -427,6 +497,8 @@ public class DataCollectorService {
         relation.setMetric(metric);
         relation.setId(metric.getId() + "MetricAndContainer" + container.getId());
         relation.setRelation("RUNTIME_INFO");
+        relation.getContainer().setLatestUpdateTimestamp(currTimestampString);
+        relation.getMetric().setLatestUpdateTimestamp(currTimestampString);
 
         return relation;
     }
@@ -459,6 +531,8 @@ public class DataCollectorService {
                     relation.setVirtualMachine(vm);
                     relation.setRelation("Deploy-On");
                     relation.setId(pod.getId() + "PodVm" + vm.getId());
+                    relation.getVirtualMachine().setLatestUpdateTimestamp(currTimestampString);
+                    relation.getPod().setLatestUpdateTimestamp(currTimestampString);
                     relations.add(relation);
                 }
 
@@ -495,6 +569,8 @@ public class DataCollectorService {
                     relation.setPod(pod);
                     relation.setRelation("BELONGS-TO");
                     relation.setId(pod.getId() + "PodSvc" + appService.getId());
+                    relation.getAppService().setLatestUpdateTimestamp(currTimestampString);
+                    relation.getPod().setLatestUpdateTimestamp(currTimestampString);
                     relations.add(relation);
                 }
             }
@@ -518,6 +594,8 @@ public class DataCollectorService {
                     relation.setPod(pod);
                     relation.setRelation("DEPLOY-IN");
                     relation.setId(container.getId() + "ContainerPod" + pod.getId());
+                    relation.getContainer().setLatestUpdateTimestamp(currTimestampString);
+                    relation.getPod().setLatestUpdateTimestamp(currTimestampString);
                     relations.add(relation);
                 }
             }
