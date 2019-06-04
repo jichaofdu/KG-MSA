@@ -6,9 +6,7 @@ kubeadm join 10.141.211.162:6443 --token iu2p6l.s64r12inemby1uyc \
 生成新的kubeadm命令
 https://www.jianshu.com/p/a5e379638577
 
+service  NetworkManager stop
+chkconfig NetworkManager off
 
-清空neo4j的指令
 
-MATCH (n)
-OPTIONAL MATCH (n)-[r]-()
-DELETE n,r

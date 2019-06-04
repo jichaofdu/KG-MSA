@@ -17,5 +17,39 @@ docker tag docker.io/mirrorgooglecontainers/pause:3.1 k8s.gcr.io/pause:3.1
 docker tag docker.io/mirrorgooglecontainers/etcd:3.3.10 k8s.gcr.io/etcd:3.3.10
 docker tag docker.io/coredns/coredns:1.3.1 k8s.gcr.io/coredns:1.3.1
 
+
+docker tag k8s.gcr.io/kube-apiserver:v1.14.1 jichaofdu/kube-apiserver:v1.14.1
+docker tag k8s.gcr.io/kube-controller-manager:v1.14.1 jichaofdu/kube-controller-manager:v1.14.1
+docker tag k8s.gcr.io/kube-scheduler:v1.14.1 jichaofdu/kube-scheduler:v1.14.1
+docker tag k8s.gcr.io/kube-proxy:v1.14.1 jichaofdu/kube-proxy:v1.14.1
+docker tag k8s.gcr.io/pause:3.1 jichaofdu/pause:3.1
+docker tag k8s.gcr.io/etcd:3.3.10 jichaofdu/etcd:3.3.10
+docker tag k8s.gcr.io/coredns:1.3.1 jichaofdu/coredns:1.3.1
+
+docker push jichaofdu/kube-apiserver:v1.14.1
+docker push jichaofdu/kube-controller-manager:v1.14.1
+docker push jichaofdu/kube-scheduler:v1.14.1
+docker push jichaofdu/kube-proxy:v1.14.1
+docker push jichaofdu/pause:3.1
+docker push jichaofdu/etcd:3.3.10
+docker push jichaofdu/coredns:1.3.1
+
+docker pull jichaofdu/kube-apiserver:v1.14.1
+docker pull jichaofdu/kube-controller-manager:v1.14.1
+docker pull jichaofdu/kube-scheduler:v1.14.1
+docker pull jichaofdu/kube-proxy:v1.14.1
+docker pull jichaofdu/pause:3.1
+docker pull jichaofdu/etcd:3.3.10
+docker pull jichaofdu/coredns:1.3.1
+
+docker tag jichaofdu/kube-apiserver:v1.14.1 k8s.gcr.io/kube-apiserver:v1.14.1
+docker tag jichaofdu/kube-controller-manager:v1.14.1 k8s.gcr.io/kube-controller-manager:v1.14.1
+docker tag jichaofdu/kube-scheduler:v1.14.1 k8s.gcr.io/kube-scheduler:v1.14.1
+docker tag jichaofdu/kube-proxy:v1.14.1 k8s.gcr.io/kube-proxy:v1.14.1
+docker tag jichaofdu/pause:3.1 k8s.gcr.io/pause:3.1
+docker tag jichaofdu/etcd:3.3.10 k8s.gcr.io/etcd:3.3.10
+docker tag jichaofdu/coredns:1.3.1 k8s.gcr.io/coredns:1.3.1
+
+
 kubeadm join 10.141.211.162:6443 --token 5aj89p.u009b3jlc2j9wpjw \
     --discovery-token-ca-cert-hash sha256:a1ce819db7163598f482abccf6a326f298caa440c58fc43ed47d981c6b2fc2d0

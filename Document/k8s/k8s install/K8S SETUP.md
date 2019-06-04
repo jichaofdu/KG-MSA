@@ -14,9 +14,10 @@ vi /etc/hosts
 
 ## Step 3: Install Docker
 Move the .rpm file to your every VM and use the following instructions to install Docker:   
-yum install docker-ce-selinux-17.03.2.ce-1.el7.centos.noarch.rpm   
-yum install docker-ce-17.03.2.ce-1.el7.centos.x86_64.rpm    
+yum install -y docker-ce-selinux-17.03.2.ce-1.el7.centos.noarch.rpm   
+yum install -y docker-ce-17.03.2.ce-1.el7.centos.x86_64.rpm    
 systemctl start docker.service     
+systemctl enable docker.service
 
 ## Step 4: Change cgroup of Docker
 //No Longer Needed

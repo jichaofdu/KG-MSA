@@ -2,3 +2,10 @@
 http://jkzhao.github.io/2019/04/08/kubeadm%E5%AE%89%E8%A3%85kubernetes-1-14-0/
 更新centos内核
 https://blog.csdn.net/kikajack/article/details/79396793
+
+yum list kernel.x86_64 --showduplicates | sort -r
+yum install kernel-3.10.0-957.el7.x86_64 -y
+sudo awk -F\' '$1=="menuentry " {print i++ " : " $2}' /etc/grub2.cfg
+sudo grub2-set-default 0
+sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+sudo reboot

@@ -14172,8 +14172,8 @@ data:
         imagePullPolicy: IfNotPresent
         resources:
           requests:
-            cpu: 10m
-            memory: 100Mi
+            cpu: 20m
+            memory: 150Mi
           limits:
             cpu: 100m
             memory: 500Mi
@@ -14303,8 +14303,8 @@ data:
             cpu: 2000m
             memory: 300Mi
           requests:
-            cpu: 10m
-            memory: 100Mi
+            cpu: 20m
+            memory: 150Mi
           
         [[ end -]]
         volumeMounts:
@@ -16067,7 +16067,7 @@ spec:
               memory: 300Mi
             requests:
               cpu: 10m
-              memory: 100Mi
+              memory: 150Mi
             
           env:
           - name: POD_NAME
@@ -16239,7 +16239,7 @@ spec:
               memory: 300Mi
             requests:
               cpu: 10m
-              memory: 100Mi
+              memory: 150Mi
             
           env:
           - name: POD_NAME
@@ -16689,7 +16689,7 @@ spec:
             memory: 300Mi
           requests:
             cpu: 10m
-            memory: 100Mi
+            memory: 150Mi
           
         volumeMounts:
         - name: istio-certs
@@ -16743,8 +16743,8 @@ spec:
             cpu: 2000m
             memory: 300Mi
           requests:
-            cpu: 10m
-            memory: 100Mi
+            cpu: 20m
+            memory: 150Mi
           
         volumeMounts:
         - name: istio-certs
@@ -16865,7 +16865,7 @@ spec:
             memory: 300Mi
           requests:
             cpu: 50m
-            memory: 100Mi
+            memory: 150Mi
           
         volumeMounts:
         - name: istio-certs
@@ -16922,8 +16922,8 @@ spec:
             cpu: 2000m
             memory: 300Mi
           requests:
-            cpu: 10m
-            memory: 100Mi
+            cpu: 20m
+            memory: 150Mi
           
         volumeMounts:
         - name: istio-certs
@@ -17018,8 +17018,8 @@ spec:
               cpu: 100m
               memory: 300Mi
             requests:
-              cpu: 10m
-              memory: 100Mi
+              cpu: 20m
+              memory: 150Mi
             
           volumeMounts:
           - name: config-volume
@@ -17066,8 +17066,8 @@ spec:
               cpu: 2000m
               memory: 300Mi
             requests:
-              cpu: 10m
-              memory: 100Mi
+              cpu: 20m
+              memory: 150Mi
             
           volumeMounts:
           - name: istio-certs

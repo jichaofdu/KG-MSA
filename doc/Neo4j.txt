@@ -27,3 +27,8 @@ dbms.connectors.default_listen_address=0.0.0.0
     MATCH(m)
             REMOVE m:GraphNode
             RETURN m
+
+清空neo4j的指令
+    MATCH (n)
+            OPTIONAL MATCH (n)-[r]-()
+            DELETE n,r

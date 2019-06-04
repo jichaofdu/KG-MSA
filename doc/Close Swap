@@ -1,0 +1,3 @@
+关闭SAWP
+swapoff -a
+vi /etc/fstab

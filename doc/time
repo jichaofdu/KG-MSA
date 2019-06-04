@@ -1,5 +1,5 @@
 设置时区为上海
 timedatectl set-timezone Asia/Shanghai
 时间同步命令
-yum install ntp
+yum install -y ntp
 ntpdate cn.ntp.org.cn
