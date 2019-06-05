@@ -22,11 +22,13 @@ import com.google.gson.reflect.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -79,6 +81,29 @@ public class DataCollectorService {
     private RestTemplate restTemplate;
     @Autowired
     private Gson gson;
+
+
+    @Scheduled(initialDelay=5000, fixedDelay =100000)
+    public void updateFrameworkPeriodly() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+        System.out.println("定期刷新应用骨架 现在时间：" + dateFormat.format(new Date()));
+        createRawFrameworkToKnowledgeGraph();
+    }
+
+    @Scheduled(initialDelay=100000, fixedDelay =500000)
+    public void updateTracePeriodly() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+        System.out.println("定期刷新调用关系 现在时间：" + dateFormat.format(new Date()));
+        uploadApiSvcRelations();
+    }
+
+
+    @Scheduled(initialDelay=100000, fixedDelay =15000)
+    public void updateMetricsPeriodly() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+        System.out.println("定期刷新应用指标数据 现在时间：" + dateFormat.format(new Date()));
+        updateMetrics();
+    }
 
     public String getCurrentTimestamp(){
         return currTimestampString;
@@ -137,7 +162,7 @@ public class DataCollectorService {
                     String hostService = getHostFromLink(totalInvokeAddress);
                     String api = getApiFromLink(totalInvokeAddress);
                     //自己调自己的不要 开头是ip的不要
-                    if(invokeService.equals(hostService) || hostService.contains("10.")){
+                    if(/**invokeService.equals(hostService) ||**/ hostService.contains("10.")){
                         continue;
                     }
                     //看下API在吗，不在的话重组一个
@@ -326,8 +351,8 @@ public class DataCollectorService {
         System.out.println("appServiceAndPodRelations");
         ArrayList<PodAndContainer> podAndContainerRelations = constructPodAndContainerRelation(apiPodList,apiContainerList);
         System.out.println("podAndContainerRelations");
-        ArrayList<MetricAndContainer> metricAndContainerRelations = constructMetricAndContainer(apiContainerList);
-        System.out.println("metricAndContainerRelations");
+//        ArrayList<MetricAndContainer> metricAndContainerRelations = constructMetricAndContainer(apiContainerList);
+//        System.out.println("metricAndContainerRelations");
         //第三步: 上传关系(无需额外上传entity, 关系中包含entity, 对面会自动处理)
         ArrayList<VirtualMachineAndPod> vmPodRelationsResult = new ArrayList<>();
         vmPodRelationsResult = postVmAndPodList(vmPodRelations);
@@ -362,8 +387,8 @@ public class DataCollectorService {
 //            podAndContainerResult.add(newPodAndContainer);
 //        }
         System.out.println("完成上传PodAndContainer:" + podAndContainerResult.size());
-        ArrayList<MetricAndContainer> metricAndContainerResult = new ArrayList<>();
-        metricAndContainerResult = postMetricAndContainerList(metricAndContainerRelations);
+//        ArrayList<MetricAndContainer> metricAndContainerResult = new ArrayList<>();
+//        metricAndContainerResult = postMetricAndContainerList(metricAndContainerRelations);
 //        for(MetricAndContainer metricAndContainer : metricAndContainerRelations){
 //            //添加更新时间戳以区分新旧时间
 //            metricAndContainer.getContainer().setLatestUpdateTimestamp(currTimestampString);
@@ -372,7 +397,7 @@ public class DataCollectorService {
 //            MetricAndContainer newMetricAndContainer = postMetricAndContainer(metricAndContainer);
 //            metricAndContainerResult.add(newMetricAndContainer);
 //        }
-        System.out.println("完成上传MetricAndContainer:" + metricAndContainerResult.size());
+//        System.out.println("完成上传MetricAndContainer:" + metricAndContainerResult.size());
         System.out.println("虚拟机数量:" + vms.size());
         System.out.print("服务数量:" + svcs.size());
         System.out.println("Pod数量:" + pods.size());
