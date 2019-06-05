@@ -11,10 +11,10 @@ public class AppServiceInvokeServiceAPI {
     @Id
     private String id;
 
-    @EndNode
+    @StartNode
     private AppService appService;
 
-    @StartNode
+    @EndNode
     private ServiceAPI serviceAPI;
 
     @Property(name="relation")
