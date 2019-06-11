@@ -1,6 +1,5 @@
 package neo4jserver.domain.relationships;
 
-
 import neo4jserver.domain.entities.AppService;
 import neo4jserver.domain.entities.ServiceAPI;
 import org.neo4j.ogm.annotation.*;
@@ -19,6 +18,9 @@ public class AppServiceInvokeServiceAPI {
 
     @Property(name="relation")
     private String relation;
+
+    @Property(name="count")
+    private int count;
 
     @Property(name="className")
     private String className = this.getClass().toString();
@@ -64,5 +66,13 @@ public class AppServiceInvokeServiceAPI {
 
     public void setClassName(String className) {
         this.className = className;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
     }
 }

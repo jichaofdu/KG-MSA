@@ -84,12 +84,17 @@ public class MovieService {
 	public ArrayList<AppServiceInvokeServiceAPI> postListOfAppServiceInvokeServiceAPI(ArrayList<AppServiceInvokeServiceAPI> list){
 		ArrayList<AppServiceInvokeServiceAPI> result = new ArrayList<>();
 		for(AppServiceInvokeServiceAPI relation : list){
-			AppService svc = relation.getAppService();
-			ServiceAPI api = relation.getServiceAPI();
-			svc = appServiceRepository.save(svc);
-			api = serviceApiRepository.save(api);
-			relation.setAppService(svc);
-			relation.setServiceAPI(api);
+
+			Optional<AppServiceInvokeServiceAPI> relationFind =
+					appServiceInvokeApiRepository.findById(relation.getId());
+			if(!relationFind.isPresent()){
+				relation.setAppService(appServiceRepository.save(relation.getAppService()));
+				relation.setServiceAPI(serviceApiRepository.save(relation.getServiceAPI()));
+			}else{
+				relation = relationFind.get();
+				relation.setCount(relation.getCount()+1);
+				System.out.println("API次数:" + relation.getCount());
+			}
 			relation = appServiceInvokeApiRepository.save(relation);
 			result.add(relation);
 		}

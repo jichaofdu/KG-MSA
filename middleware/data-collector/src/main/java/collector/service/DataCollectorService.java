@@ -48,7 +48,7 @@ public class DataCollectorService {
 
     //zipkin的查询地址
     private static final String zipkinQuery =
-            "http://10.141.211.162:31879/zipkin/api/v1/traces?limit=40";
+            "http://10.141.211.162:31879/zipkin/api/v1/traces?limit=100";
 
     //集群全部机器的ip地址
     private static final String[] clusterIPs = {
@@ -90,7 +90,7 @@ public class DataCollectorService {
         createRawFrameworkToKnowledgeGraph();
     }
 
-    @Scheduled(initialDelay=100000, fixedDelay =500000)
+    @Scheduled(initialDelay=100000, fixedDelay =50000)
     public void updateTracePeriodly() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
         System.out.println("定期刷新调用关系 现在时间：" + dateFormat.format(new Date()));
@@ -98,12 +98,12 @@ public class DataCollectorService {
     }
 
 
-    @Scheduled(initialDelay=100000, fixedDelay =15000)
-    public void updateMetricsPeriodly() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-        System.out.println("定期刷新应用指标数据 现在时间：" + dateFormat.format(new Date()));
-        updateMetrics();
-    }
+//    @Scheduled(initialDelay=100000, fixedDelay =15000)
+//    public void updateMetricsPeriodly() {
+//        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+//        System.out.println("定期刷新应用指标数据 现在时间：" + dateFormat.format(new Date()));
+//        updateMetrics();
+//    }
 
     public String getCurrentTimestamp(){
         return currTimestampString;
@@ -174,6 +174,7 @@ public class DataCollectorService {
                         serviceApi = new ServiceAPI();
                         serviceApi.setHostName(hostService);
                         serviceApi.setName(api);
+                        //API的ID就是API的名字
                         serviceApi.setId(api);
                         serviceApi.setLatestUpdateTimestamp(currTimestampString);
 
@@ -199,6 +200,7 @@ public class DataCollectorService {
                         AppServiceInvokeServiceAPI relationInvoke = new AppServiceInvokeServiceAPI();
                         relationInvoke.setAppService(invokeSvc);
                         relationInvoke.setServiceAPI(serviceApi);
+                        relationInvoke.setCount(1);
                         relationInvoke.setId(serviceApi.getId() + "ApiSvc" + invokeSvc.getId());
                         relationInvoke.setRelation("API_INVOKE_BY");
                         svcInvokeApi.add(relationInvoke);
@@ -533,6 +535,7 @@ public class DataCollectorService {
         Metric metric = new Metric();
         metric.setTime(res.getData().getResult().get(0).getValue().get(0));
         metric.setValue(res.getData().getResult().get(0).getValue().get(1));
+        //metric的ID为container的名字与metric的名字
         metric.setId(containerName + "_" + metricName);
         metric.setName(containerName + "_" + metricName);
         return metric;
@@ -632,7 +635,8 @@ public class DataCollectorService {
     //转换ApiNode到Virtual Machine
     private VirtualMachine convertApiNodeToVm(ApiNode node){
 
-        VirtualMachine vm = new VirtualMachine();//id就用名字
+        VirtualMachine vm = new VirtualMachine();
+        //虚拟机的ID就是虚拟机的名字
         vm.setId(node.getMetadata().getName());
         vm.setAddress(node.getStatus().getAddresses().get(0).getAddress());
         vm.setArchitecture(node.getStatus().getNodeInfo().getArchitecture());
@@ -652,7 +656,8 @@ public class DataCollectorService {
     private Pod convertApiPodToPod(ApiPod apiPod){
 
         Pod pod = new Pod();
-        pod.setId(apiPod.getMetadata().getName());//id就用名字
+        //Pod的ID就是Pod的名字
+        pod.setId(apiPod.getMetadata().getName());
         pod.setDnsPolicy(apiPod.getSpec().getDnsPolicy());
         pod.setNamespace(apiPod.getMetadata().getNamespace());
         pod.setPhase(apiPod.getStatus().getPhase());
@@ -670,7 +675,8 @@ public class DataCollectorService {
     private AppService convertApiAppServiceToAppService(ApiAppService apiAppService){
 
         AppService appService = new AppService();
-        appService.setId(apiAppService.getMetadata().getName());//id就用名字
+        //AppService的ID就是服务的名字
+        appService.setId(apiAppService.getMetadata().getName());
         appService.setClusterIP(apiAppService.getSpec().getClusterIP());
         appService.setNamespace(apiAppService.getMetadata().getNamespace());
         appService.setName(apiAppService.getMetadata().getName());
@@ -689,6 +695,7 @@ public class DataCollectorService {
         container.setStatus(apiContainer.getStatus());
         container.setCreated(apiContainer.getCreated());
         container.setImage(apiContainer.getImage());
+        //使用真正的ID而不是自定义ID
         container.setId(apiContainer.getId());
         container.setName(apiContainer.getNames().get(0));
 
