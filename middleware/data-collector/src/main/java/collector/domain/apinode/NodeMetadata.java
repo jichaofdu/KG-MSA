@@ -6,6 +6,7 @@ public class NodeMetadata {
 
     private String selfLink;
 
+    private String creationTimestamp;
 
     public NodeMetadata() {
     }
@@ -24,5 +25,13 @@ public class NodeMetadata {
 
     public void setSelfLink(String selfLink) {
         this.selfLink = selfLink;
+    }
+
+    public String getCreationTimestamp() {
+        return creationTimestamp;
+    }
+
+    public void setCreationTimestamp(String creationTimestamp) {
+        this.creationTimestamp = creationTimestamp;
     }
 }

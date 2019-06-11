@@ -26,6 +26,9 @@ public class GraphNode {
     @Property(name="latestUpdateTimestamp")
     private String latestUpdateTimestamp;
 
+    @Property(name="creationTimestamp")
+    private String creationTimestamp;
+
     public GraphNode() {
     }
 
@@ -79,6 +82,14 @@ public class GraphNode {
 
     public void setLatestUpdateTimestamp(String latestUpdateTimestamp) {
         this.latestUpdateTimestamp = latestUpdateTimestamp;
+    }
+
+    public String getCreationTimestamp() {
+        return creationTimestamp;
+    }
+
+    public void setCreationTimestamp(String creationTimestamp) {
+        this.creationTimestamp = creationTimestamp;
     }
 
     @Override

@@ -177,7 +177,7 @@ public class DataCollectorService {
                         //API的ID就是API的名字
                         serviceApi.setId(api);
                         serviceApi.setLatestUpdateTimestamp(currTimestampString);
-
+                        serviceApi.setCreationTimestamp("" + new Date().getTime() / 1000);
                         apis.put(serviceApi.getName(), serviceApi);
                     }
 
@@ -332,7 +332,7 @@ public class DataCollectorService {
     //构建一个基础的知识图谱 - 包括pod node svc
     public String createRawFrameworkToKnowledgeGraph(){
         //记录当前时间
-        currTimestampString = "" + new Date().getTime();
+        currTimestampString = "" + new Date().getTime() / 1000;
         System.out.println("CurrTimestampString" + currTimestampString);
         //清空环境
         clearAllInfo();
@@ -538,6 +538,8 @@ public class DataCollectorService {
         //metric的ID为container的名字与metric的名字
         metric.setId(containerName + "_" + metricName);
         metric.setName(containerName + "_" + metricName);
+        metric.setCreationTimestamp("" + new Date().getTime() / 1000);
+
         return metric;
     }
 
@@ -648,6 +650,7 @@ public class DataCollectorService {
         vm.setOsImage(node.getStatus().getNodeInfo().getOsImage());
         vm.setSelflink(node.getMetadata().getSelfLink());
         vm.setName(node.getMetadata().getName());
+        vm.setCreationTimestamp(convertTime(node.getMetadata().getCreationTimestamp()));
 
         return vm;
     }
@@ -667,6 +670,7 @@ public class DataCollectorService {
         pod.setRestartPolicy(apiPod.getSpec().getRestartPolicy());
         pod.setSelflink(apiPod.getMetadata().getSelfLink());
         pod.setTerminationGracePeriodSeconds(apiPod.getSpec().getTerminationGracePeriodSeconds());
+        pod.setCreationTimestamp(convertTime(apiPod.getMetadata().getCreationTimestamp()));
 
         return pod;
     }
@@ -683,6 +687,7 @@ public class DataCollectorService {
         appService.setPort(apiAppService.getSpec().getPorts().get(0).getPort());
         appService.setSelflink(apiAppService.getMetadata().getSelfLink());
         appService.setType(apiAppService.getSpec().getType());
+        appService.setCreationTimestamp(convertTime(apiAppService.getMetadata().getCreationTimestamp()));
 
         return appService;
     }
@@ -698,8 +703,23 @@ public class DataCollectorService {
         //使用真正的ID而不是自定义ID
         container.setId(apiContainer.getId());
         container.setName(apiContainer.getNames().get(0));
-
+        container.setCreationTimestamp(apiContainer.getCreated());
         return container;
     }
 
+    private String convertTime(String timeStr){
+        String utcTime = "2018-01-31T14:32:19Z";
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        //设置时区UTC
+        df.setTimeZone(TimeZone.getTimeZone("UTC"));
+        //格式化，转当地时区时间
+        try{
+            Date after = df.parse(timeStr);
+            return "" + after.getTime() / 1000;
+        }catch (Exception e){
+            e.printStackTrace();
+            return "ConvertTimeFailure";
+        }
+        //Wed Jan 31 22:32:19 GMT+08:00 2018
+    }
 }

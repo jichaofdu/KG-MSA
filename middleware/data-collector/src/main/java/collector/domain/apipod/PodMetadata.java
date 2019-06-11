@@ -10,6 +10,8 @@ public class PodMetadata {
 
     private String selfLink;
 
+    private String creationTimestamp;
+
     private HashMap<String,String> labels;
 
     public PodMetadata() {
@@ -45,5 +47,13 @@ public class PodMetadata {
 
     public void setLabels(HashMap<String, String> labels) {
         this.labels = labels;
+    }
+
+    public String getCreationTimestamp() {
+        return creationTimestamp;
+    }
+
+    public void setCreationTimestamp(String creationTimestamp) {
+        this.creationTimestamp = creationTimestamp;
     }
 }

@@ -18,6 +18,8 @@ public class GraphNode {
 
     private Set<String> labels = new HashSet<>();
 
+    private String creationTimestamp;
+
     private String latestUpdateTimestamp;
 
     public GraphNode() {
@@ -75,6 +77,14 @@ public class GraphNode {
         this.latestUpdateTimestamp = latestUpdateTimestamp;
     }
 
+    public String getCreationTimestamp() {
+        return creationTimestamp;
+    }
+
+    public void setCreationTimestamp(String creationTimestamp) {
+        this.creationTimestamp = creationTimestamp;
+    }
+    
     @Override
     public int hashCode() {
         return name.hashCode();

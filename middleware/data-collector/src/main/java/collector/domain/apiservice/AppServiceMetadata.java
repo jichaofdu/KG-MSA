@@ -8,6 +8,8 @@ public class AppServiceMetadata {
 
     private String selfLink;
 
+    private String creationTimestamp;
+
     public AppServiceMetadata() {
     }
 
@@ -33,5 +35,13 @@ public class AppServiceMetadata {
 
     public void setSelfLink(String selfLink) {
         this.selfLink = selfLink;
+    }
+
+    public String getCreationTimestamp() {
+        return creationTimestamp;
+    }
+
+    public void setCreationTimestamp(String creationTimestamp) {
+        this.creationTimestamp = creationTimestamp;
     }
 }
