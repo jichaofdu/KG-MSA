@@ -707,6 +707,7 @@ public class DataCollectorService {
         return container;
     }
 
+    //把提取出的文字时间格式转换成时间戳
     private String convertTime(String timeStr){
         String utcTime = "2018-01-31T14:32:19Z";
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");

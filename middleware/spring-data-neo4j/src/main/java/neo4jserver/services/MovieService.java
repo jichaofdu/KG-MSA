@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class MovieService {
 
+	private static final int METRIC_MAX_TIME_WINDOW_SIZE = 200;
+
 //	@Autowired
 //	private Neo4jUtil neo4jUtil;
 
@@ -130,6 +132,14 @@ public class MovieService {
 			metricOldEntity.getHistoryValues().add(metricOldEntity.getValue());
 			metricOldEntity.setTime(metric.getTime());
 			metricOldEntity.setValue(metric.getValue());
+			//time frame是200 最多保留两百条数据
+			//多余的数据拿掉（越靠前的数据越离谱）
+			if(metricOldEntity.getHistoryValues() != null &&
+					metricOldEntity.getHistoryValues().size() > METRIC_MAX_TIME_WINDOW_SIZE){
+				metricOldEntity.getHistoryValues().remove(0);
+				metricOldEntity.getHistoryTimestamps().remove(0);
+			}
+
 			metricOldEntity = metricRepository.save(metricOldEntity);
 			returnMetrics.add(metricOldEntity);
 		}
