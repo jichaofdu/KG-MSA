@@ -77,6 +77,7 @@ public class DataCollectorService {
     private static ConcurrentHashMap<String, Pod> pods = new ConcurrentHashMap<>();
     private static ConcurrentHashMap<String, Container> containers = new ConcurrentHashMap<>();
     private static ConcurrentHashMap<String, ServiceAPI> apis = new ConcurrentHashMap<>();
+    private static HashSet<String> tracesRecord = new HashSet<>();
 
     @Autowired
     private RestTemplate restTemplate;
@@ -149,6 +150,13 @@ public class DataCollectorService {
         ArrayList<ArrayList<Span>> traces = getAndParseTrace();
         //遍历每一个trace
         for(ArrayList<Span> trace : traces){
+
+            if(tracesRecord.contains(trace.get(0).getTraceId())){
+                System.out.println("当前Trace已被解析过，跳过");
+                continue;
+            }else{
+                tracesRecord.add(trace.get(0).getTraceId());
+            }
             //遍历一个trace的每一个span
             for(Span span : trace){
                 //istio的输出信息不是我们需要的 忽略
