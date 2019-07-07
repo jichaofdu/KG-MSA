@@ -312,14 +312,17 @@ public class MovieService {
 		Metric metric = metricAndContainer.getMetric();
 		Container container = metricAndContainer.getContainer();
 
-		metric = metricRepository.save(metric);
-		System.out.println(container.getLatestUpdateTimestamp());
-		container = containerRepository.save(container);
-
-		metricAndContainer.setMetric(metric);
-		metricAndContainer.setContainer(container);
-
-		metricAndContainer = metricAndContainerRepository.save(metricAndContainer);
+		if(!metricRepository.findByName(metric.getName()).isPresent() ||
+				!containerRepository.findByName(container.getName()).isPresent()){
+			metric = metricRepository.save(metric);
+			container = containerRepository.save(container);
+			metricAndContainer.setMetric(metric);
+			metricAndContainer.setContainer(container);
+			metricAndContainer = metricAndContainerRepository.save(metricAndContainer);
+			System.out.println("刷新Metric与Container结构");
+		}else{
+			System.out.println("不刷新Metric与Container结构");
+		}
 
 		return metricAndContainer;
 	}

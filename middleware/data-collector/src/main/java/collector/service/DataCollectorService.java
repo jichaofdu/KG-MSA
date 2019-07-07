@@ -30,6 +30,7 @@ import org.springframework.web.client.RestTemplate;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class DataCollectorService {
@@ -71,39 +72,50 @@ public class DataCollectorService {
     private static String currTimestampString = "Not Set Yet";
 
     //当前的实体列表
-    private static HashMap<String, VirtualMachine> vms = new HashMap<>();
-    private static HashMap<String, AppService> svcs = new HashMap<>();
-    private static HashMap<String, Pod> pods = new HashMap<>();
-    private static HashMap<String, Container> containers = new HashMap<>();
-    private static HashMap<String, ServiceAPI> apis = new HashMap<>();
+    private static ConcurrentHashMap<String, VirtualMachine> vms = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, AppService> svcs = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, Pod> pods = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, Container> containers = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, ServiceAPI> apis = new ConcurrentHashMap<>();
 
     @Autowired
     private RestTemplate restTemplate;
     @Autowired
     private Gson gson;
 
+    private final Object objLockForPeriodly = new Object();
 
     @Scheduled(initialDelay=5000, fixedDelay =100000)
     public void updateFrameworkPeriodly() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-        System.out.println("定期刷新应用骨架 现在时间：" + dateFormat.format(new Date()));
-        createRawFrameworkToKnowledgeGraph();
+        synchronized (objLockForPeriodly){
+            SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+            System.out.println("[开始]定期刷新应用骨架 现在时间：" + dateFormat.format(new Date()));
+            createRawFrameworkToKnowledgeGraph();
+            System.out.println("[完成]定期刷新应用骨架 现在时间：" + dateFormat.format(new Date()));
+        }
     }
 
     @Scheduled(initialDelay=100000, fixedDelay =50000)
     public void updateTracePeriodly() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-        System.out.println("定期刷新调用关系 现在时间：" + dateFormat.format(new Date()));
-        uploadApiSvcRelations();
+        synchronized (objLockForPeriodly) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+            System.out.println("[开始]定期刷新调用关系 现在时间：" + dateFormat.format(new Date()));
+            uploadApiSvcRelations();
+            System.out.println("[完成]定期刷新调用关系 现在时间：" + dateFormat.format(new Date()));
+        }
     }
 
 
-//    @Scheduled(initialDelay=100000, fixedDelay =15000)
-//    public void updateMetricsPeriodly() {
-//        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-//        System.out.println("定期刷新应用指标数据 现在时间：" + dateFormat.format(new Date()));
-//        updateMetrics();
-//    }
+    @Scheduled(initialDelay=100000, fixedDelay =15000)
+    public void updateMetricsPeriodly() {
+        synchronized (objLockForPeriodly) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+            System.out.println("[开始]定期刷新应用指标数据 现在时间：" + dateFormat.format(new Date()));
+            updateMetrics();
+            System.out.println("[完成]定期刷新应用指标数据 现在时间：" + dateFormat.format(new Date()));
+
+        }
+    }
 
     public String getCurrentTimestamp(){
         return currTimestampString;
@@ -353,55 +365,27 @@ public class DataCollectorService {
         System.out.println("appServiceAndPodRelations");
         ArrayList<PodAndContainer> podAndContainerRelations = constructPodAndContainerRelation(apiPodList,apiContainerList);
         System.out.println("podAndContainerRelations");
-//        ArrayList<MetricAndContainer> metricAndContainerRelations = constructMetricAndContainer(apiContainerList);
-//        System.out.println("metricAndContainerRelations");
+        ArrayList<MetricAndContainer> metricAndContainerRelations = constructMetricAndContainer(apiContainerList);
+        System.out.println("metricAndContainerRelations");
         //第三步: 上传关系(无需额外上传entity, 关系中包含entity, 对面会自动处理)
         ArrayList<VirtualMachineAndPod> vmPodRelationsResult = new ArrayList<>();
         vmPodRelationsResult = postVmAndPodList(vmPodRelations);
-//        for(VirtualMachineAndPod vmAndPod : vmPodRelations){
-//            //添加更新时间戳以区分新旧时间
-//            vmAndPod.getVirtualMachine().setLatestUpdateTimestamp(currTimestampString);
-//            vmAndPod.getPod().setLatestUpdateTimestamp(currTimestampString);
-//            //上传
-//            VirtualMachineAndPod newVmAndPod = postVmAndPod(vmAndPod);
-//            vmPodRelationsResult.add(newVmAndPod);
-//        }
+
         System.out.println("完成上传VirtualMachineAndPod:" + vmPodRelationsResult.size());
         ArrayList<AppServiceAndPod> appServiceAndPodsResult = new ArrayList<>();
         appServiceAndPodsResult = postSvcAndPodList(appServiceAndPodRelations);
-//        for(AppServiceAndPod svcAndPod : appServiceAndPodRelations){
-//            //添加更新时间戳以区分新旧时间
-//            svcAndPod.getPod().setLatestUpdateTimestamp(currTimestampString);
-//            svcAndPod.getAppService().setLatestUpdateTimestamp(currTimestampString);
-//            //上传
-//            AppServiceAndPod newSvcAndPod = postSvcAndPod(svcAndPod);
-//            appServiceAndPodsResult.add(newSvcAndPod);
-//        }
+
         System.out.println("完成上传AppServiceAndPod:" + appServiceAndPodsResult.size());
         ArrayList<PodAndContainer> podAndContainerResult = new ArrayList<>();
         podAndContainerResult = postPodAndContainerList(podAndContainerRelations);
-//        for(PodAndContainer podAndContainer : podAndContainerRelations){
-//            //添加更新时间戳以区分新旧时间
-//            podAndContainer.getPod().setLatestUpdateTimestamp(currTimestampString);
-//            podAndContainer.getContainer().setLatestUpdateTimestamp(currTimestampString);
-//            //上传
-//            PodAndContainer newPodAndContainer = postPodAndContainer(podAndContainer);
-//            podAndContainerResult.add(newPodAndContainer);
-//        }
+
         System.out.println("完成上传PodAndContainer:" + podAndContainerResult.size());
-//        ArrayList<MetricAndContainer> metricAndContainerResult = new ArrayList<>();
-//        metricAndContainerResult = postMetricAndContainerList(metricAndContainerRelations);
-//        for(MetricAndContainer metricAndContainer : metricAndContainerRelations){
-//            //添加更新时间戳以区分新旧时间
-//            metricAndContainer.getContainer().setLatestUpdateTimestamp(currTimestampString);
-//            metricAndContainer.getMetric().setLatestUpdateTimestamp(currTimestampString);
-//            //上传
-//            MetricAndContainer newMetricAndContainer = postMetricAndContainer(metricAndContainer);
-//            metricAndContainerResult.add(newMetricAndContainer);
-//        }
-//        System.out.println("完成上传MetricAndContainer:" + metricAndContainerResult.size());
+        ArrayList<MetricAndContainer> metricAndContainerResult = new ArrayList<>();
+        metricAndContainerResult = postMetricAndContainerList(metricAndContainerRelations);
+
+        System.out.println("完成上传MetricAndContainer:" + metricAndContainerResult.size());
         System.out.println("虚拟机数量:" + vms.size());
-        System.out.print("服务数量:" + svcs.size());
+        System.out.println("服务数量:" + svcs.size());
         System.out.println("Pod数量:" + pods.size());
         System.out.println("容器数量:" + containers.size());
         return "";

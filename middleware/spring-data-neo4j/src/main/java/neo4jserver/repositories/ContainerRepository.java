@@ -14,6 +14,10 @@ public interface ContainerRepository extends Neo4jRepository<Container, Long> {
     @Query("MATCH (n:Container) where id(n)={0} return labels(n) as labels, n as node")
     ContainerResult getContainerWithLabels(Long id);
 
+
+    @Query("MATCH (n:Container) where n.name={0} RETURN n")
+    Optional<Container> findByName(String name);
+
     @Query("MATCH (n:Container) return n")
     ArrayList<Container> findAllContainers();
 }
