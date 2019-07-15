@@ -20,9 +20,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -36,32 +38,27 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DataCollectorService {
 
     //集群master机器的地址
-    private static final String masterIP =
-            "http://10.141.211.162:8082/";
+    @Value("${k8s.master.ip}")
+    private String masterIP;
 
     //neo4j的api服务器的地址
-    private static final String neo4jDaoIP =
-            "http://localhost:19872";
+    @Value("${database.neo4j.ip}")
+    private String neo4jDaoIP;
 
     //promethsus的查询地址
-    private static final String promethsusQuery =
-            "http://10.141.211.162:31999/api/v1/query";
+    @Value("${k8s.promethsus.ip}")
+    private String promethsusQuery;
 
     //zipkin的查询地址
-    private static final String zipkinQuery =
-            "http://10.141.211.162:31879/zipkin/api/v1/traces?limit=100";
+    @Value("${k8s.zipkin.ip}")
+    private String zipkinQuery;
 
     //集群全部机器的ip地址
-    private static final String[] clusterIPs = {
-            "http://10.141.212.24",
-            "http://10.141.212.25",
-            "http://10.141.211.162",
-            "http://10.141.212.133",
-            "http://10.141.212.136",
-    };
+    @Value("${k8s.cluster.ips}")
+    private String[] clusterIPs;
 
     //需要查询的容器的metric指标名称
-    private static final String[] containerMetricsNameVector = {
+    private final String[] containerMetricsNameVector = {
             "container_memory_usage_bytes",
             "container_fs_usage_bytes",
     };
@@ -89,8 +86,11 @@ public class DataCollectorService {
 
     private final Object objLockForPeriodly = new Object();
 
+
     @Scheduled(initialDelay=5000, fixedDelay =100000)
     public void updateFrameworkPeriodly() {
+        System.out.println(masterIP);
+        System.out.println(neo4jDaoIP);
         synchronized (objLockForPeriodly){
             SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
             System.out.println("[开始]定期刷新应用骨架 现在时间：" + dateFormat.format(new Date()));
