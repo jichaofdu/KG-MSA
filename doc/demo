@@ -1,0 +1,132 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/go-xorm/xorm"
+	"log"
+	"net/http"
+	"time"
+)
+
+type User struct {
+	Name string  `uri:"msg1" binding:"required" xorm:"varchar(200)"`
+	Password string  `uri:"msg1" binding:"required" xorm:"varchar(200)"`
+
+}
+
+const DriverName = "mysql"
+const DataSourceName = "root:root@tcp(mysql:3306)/demo?charset=utf8"
+//const DataSourceName = "root:root@/demo?charset=utf8"
+
+func main() {
+
+
+	//XORM连接数据库的部分- 主要分两步
+	//1.创建引擎，driverName, dataSourceName和database/sql接口相同
+	engine, errEngine := xorm.NewEngine(DriverName, DataSourceName)
+	if errEngine != nil {
+		fmt.Println(errEngine.Error())
+		return
+	}
+
+	//2.定义一个和表同步的结构体，并且自动同步结构体到数据库
+	errSync := engine.Sync2(new(User))
+	if errSync != nil {
+		fmt.Println(errSync.Error())
+		return
+	}
+
+	//构建Web Server的部分
+	router := gin.New()
+
+	// LoggerWithFormatter middleware will write the logs to gin.DefaultWriter
+	// By default gin.DefaultWriter = os.Stdout
+	router.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
+
+		// your custom format
+		return fmt.Sprintf("%s - [%s] \"%s %s %s %d %s \"%s\" %s\"\n",
+			param.ClientIP,
+			param.TimeStamp.Format(time.RFC1123),
+			param.Method,
+			param.Path,
+			param.Request.Proto,
+			param.StatusCode,
+			param.Latency,
+			param.Request.UserAgent(),
+			param.ErrorMessage,
+		)
+	}))
+	router.Use(gin.Recovery())
+
+	router.GET("/helloWorld", func(c *gin.Context) {
+		c.String(http.StatusOK, "Hello World")
+	})
+	
+	router.GET("/user", func(c *gin.Context) {
+		var users []User
+
+		// SELECT * FROM user 
+		err := engine.Find(&users)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+
+		usersJson, errJson := json.Marshal(users) //转换成JSON返回的是byte[]
+		if errJson != nil {
+			fmt.Println(errJson.Error())
+			return
+		}
+
+		result := string(usersJson)
+		log.Println(result)
+		c.String(http.StatusOK, result)
+	})
+
+	router.GET("/user/:name", func(c *gin.Context) {
+
+		queryName := c.Param("name")
+
+		var user User
+		_, errGet := engine.Table(&user).Where("name = ?", queryName).Get(&user)
+		if errGet != nil{
+			fmt.Println(errGet.Error())
+			return
+		}
+
+		userJson, errJson := json.Marshal(user) //转换成JSON返回的是byte[]
+		if errJson != nil {
+			fmt.Println(errJson.Error())
+			return
+		}
+		result := string(userJson)
+		log.Println(result)
+		c.String(http.StatusOK, result)
+	})
+
+	router.POST("/user", func(c *gin.Context) {
+		var user User
+		err := c.ShouldBind(&user)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+
+		affected, err := engine.Table(&user).Insert(&user)
+		fmt.Println(affected)
+		if err != nil{
+			fmt.Println(err.Error())
+			return
+		}
+
+		result := "Add User Success"
+		log.Println(result)
+		c.String(http.StatusOK, result)
+	})
+
+	router.Run(":8088")
+
+}
