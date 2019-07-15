@@ -258,6 +258,7 @@ public class DataCollectorService {
                 relation.setSpanId(span.getId());
                 relation.setTraceId(span.getTraceId());
                 relation.setRelation("TRACE");
+                relation.setTimestamp(span.getTimestamp());
                 relation.setId(span.getTraceId() + "_" + span.getId() + "_" + api + "_" + podId);
                 traceApiToPod.add(relation);
                 System.out.println("Trace连接 API TO POD:" + relation.getId());
@@ -269,6 +270,7 @@ public class DataCollectorService {
                 relation.setSpanId(span.getId());
                 relation.setTraceId(span.getTraceId());
                 relation.setRelation("TRACE");
+                relation.setTimestamp(span.getTimestamp());
                 relation.setId(span.getTraceId() + "_" + span.getId() + "_" + podId + "_" + api);
                 tracePodToApi.add(relation);
                 System.out.println("Trace连接 POD TO API:" + relation.getId());

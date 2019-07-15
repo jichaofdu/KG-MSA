@@ -21,6 +21,8 @@ public class TraceInvokeApiToPod {
 
     private String spanId;
 
+    private String timestamp;
+
     private String className = this.getClass().toString();
 
     public TraceInvokeApiToPod() {
@@ -80,5 +82,13 @@ public class TraceInvokeApiToPod {
 
     public void setClassName(String className) {
         this.className = className;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
     }
 }
