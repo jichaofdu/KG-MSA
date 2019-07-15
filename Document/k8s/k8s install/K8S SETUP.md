@@ -37,7 +37,7 @@ name=Kubernetes
 baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64
 enabled=1
 gpgcheck=0
-
+EOF
 setenforce 0    
 yum install -y kubelet kubeadm kubectl
 systemctl enable kubelet && systemctl start kubelet  
@@ -59,9 +59,14 @@ sudo swapoff -a
 # ==For Master==
 
 ## Step 9: Init kubeadm
+yum install -y kubernetes-cni-0.6.0  kubelet-1.14.1 kubeadm-1.14.1 kubectl-1.14.1 --disableexcludes=kubernete
 Use the follow instructions to init kubeadm  
 kubeadm reset  
 kubeadm init --pod-network-cidr=10.244.0.0/16   
+
+kubeadm init --kubernetes-version=v1.14.1   --pod-network-cidr=10.244.0.0/16 
+kubeadm join 192.168.193.128:6443 --token 83ln77.5jehuwn2bqwalw91 \
+    --discovery-token-ca-cert-hash sha256:2f74e2f48187381b6129a37132b3ac6bd47490b89bf9e30517aaf0fc264dcaa0
 
 ## Step 10: Record the instructions
 After step 9, you will get an instruction printed on the screen like:   
