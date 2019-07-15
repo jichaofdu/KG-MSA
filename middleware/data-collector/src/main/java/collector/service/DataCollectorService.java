@@ -77,7 +77,10 @@ public class DataCollectorService {
     private static ConcurrentHashMap<String, Pod> pods = new ConcurrentHashMap<>();
     private static ConcurrentHashMap<String, Container> containers = new ConcurrentHashMap<>();
     private static ConcurrentHashMap<String, ServiceAPI> apis = new ConcurrentHashMap<>();
+    //记录已经统计过 服务间调用数量 的Trace
     private static HashSet<String> tracesRecord = new HashSet<>();
+    //记录一个个上传到数据库的Trace
+    private static HashSet<String> uploadedTraces = new HashSet<>();
 
     @Autowired
     private RestTemplate restTemplate;
@@ -96,7 +99,17 @@ public class DataCollectorService {
         }
     }
 
-    @Scheduled(initialDelay=100000, fixedDelay =50000)
+    @Scheduled(initialDelay = 100000, fixedDelay = 100000)
+    public void uploadTracesPeriodly(){
+        synchronized (objLockForPeriodly) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+            System.out.println("[开始]定期上传Trace 现在时间：" + dateFormat.format(new Date()));
+            uploadEveryTrace();
+            System.out.println("[完成]定期上传Trace 现在时间：" + dateFormat.format(new Date()));
+        }
+    }
+
+    @Scheduled(initialDelay=50000, fixedDelay =50000)
     public void updateTracePeriodly() {
         synchronized (objLockForPeriodly) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
@@ -107,16 +120,16 @@ public class DataCollectorService {
     }
 
 
-    @Scheduled(initialDelay=100000, fixedDelay =15000)
-    public void updateMetricsPeriodly() {
-        synchronized (objLockForPeriodly) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-            System.out.println("[开始]定期刷新应用指标数据 现在时间：" + dateFormat.format(new Date()));
-            updateMetrics();
-            System.out.println("[完成]定期刷新应用指标数据 现在时间：" + dateFormat.format(new Date()));
-
-        }
-    }
+//    @Scheduled(initialDelay=100000, fixedDelay =15000)
+//    public void updateMetricsPeriodly() {
+//        synchronized (objLockForPeriodly) {
+//            SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+//            System.out.println("[开始]定期刷新应用指标数据 现在时间：" + dateFormat.format(new Date()));
+//            updateMetrics();
+//            System.out.println("[完成]定期刷新应用指标数据 现在时间：" + dateFormat.format(new Date()));
+//
+//        }
+//    }
 
     public String getCurrentTimestamp(){
         return currTimestampString;
@@ -127,6 +140,36 @@ public class DataCollectorService {
         String list = restTemplate.getForObject(zipkinQuery, String.class);
         Type founderListType = new TypeToken<ArrayList<ArrayList<Span>>>(){}.getType();
         return gson.fromJson(list, founderListType);
+    }
+
+    public void uploadEveryTrace(){
+        //1.获得所有的Trace
+        ArrayList<ArrayList<Span>> traces = getAndParseTrace();
+        //2.依次解析每一条trace
+        for(ArrayList<Span> trace : traces){
+            //这条trace如果已经被处理过的话 就不再处理了
+            if(uploadedTraces.contains(trace.get(0).getTraceId())){
+                System.out.println("TRACE已上传过 忽略此条:" + trace.get(0).getTraceId());
+                continue;
+            }
+            //3.每一条trace会被解析成两个部分
+            ArrayList<TraceInvokeApiToPod> traceApiToPod = new ArrayList<>();
+            ArrayList<TraceInvokePodToApi> tracePodToApi = new ArrayList<>();
+
+            getTraceInvokeInformation(trace, traceApiToPod, tracePodToApi);
+
+            //3.两个部分分别上传
+            if(!traceApiToPod.isEmpty()){
+                restTemplate.postForObject(neo4jDaoIP + "/traceApiToPod", traceApiToPod, traceApiToPod.getClass());
+            }
+            if(!tracePodToApi.isEmpty()){
+                restTemplate.postForObject(neo4jDaoIP + "/tracePodToApi", tracePodToApi, tracePodToApi.getClass());
+            }
+            uploadedTraces.add(trace.get(0).getTraceId());
+            System.out.println("上传Trace " + trace.get(0).getTraceId());
+        }
+        //4.完成
+        System.out.println("Trace上传完成");
     }
 
 
@@ -144,6 +187,95 @@ public class DataCollectorService {
 
     }
 
+    public void getTraceInvokeInformation(ArrayList<Span> trace, ArrayList<TraceInvokeApiToPod> traceApiToPod, ArrayList<TraceInvokePodToApi> tracePodToApi){
+        //遍历一个trace的每一个span
+        for(Span span : trace) {
+            //istio的输出信息不是我们需要的 忽略
+            if (span.getName().contains("istio-policy")) {
+                continue;
+            }
+            // Client-Send或者Client-Receive才是我们需要的
+            if (!span.getAnnotations().get(0).getValue().equals("cr") &&
+                    !span.getAnnotations().get(0).getValue().equals("cs")) {
+                continue;
+            }
+            //开始处理我们需要的内容
+            //找到key=http.url的那个binary-annotation与key: "node_id" 从node_id中提取podId
+            String api = "";
+            String apiHostService = "";
+            String podId = "";
+            for(BinaryAnnotation bn : span.getBinaryAnnotations()){
+                //不是http.url就跳过吧
+                if(!"http.url".equals(bn.getKey()) && !"node_id".equals(bn.getKey())){
+                    continue;
+                }
+                if("http.url".equals(bn.getKey())){
+                    String totalInvokeAddress = bn.getValue();
+                    apiHostService = getHostFromLink(totalInvokeAddress);
+                    api = getApiFromLink(totalInvokeAddress);
+                }
+                if("node_id".equals(bn.getKey())){
+                    String fullPodName = bn.getValue();
+                    podId = fetchPodName(fullPodName);
+                }
+            }
+            System.out.println("API:" + api + " ApiHostService:" + apiHostService + " PodId" + podId);
+            if(/**invokeService.equals(hostService) ||**/ apiHostService.contains("10.")){
+                continue;
+            }
+            //将trace的两部分组装好
+            //看下API在吗，不在的话重组一个
+            System.out.println("Trace复现过程中发现API " + api);
+            ServiceAPI serviceApi;
+            if(apis.get(api) != null){
+                serviceApi = apis.get(api);
+                System.out.println("使用已有API " + api);
+            }else{
+                serviceApi = new ServiceAPI();
+                serviceApi.setHostName(apiHostService);
+                serviceApi.setName(api);
+                //API的ID就是API的名字
+                serviceApi.setId(api);
+                serviceApi.setLatestUpdateTimestamp(currTimestampString);
+                serviceApi.setCreationTimestamp("" + new Date().getTime() / 1000);
+                apis.put(serviceApi.getName(), serviceApi);
+                System.out.println("使用新建API " + api);
+
+            }
+
+            Pod pod = pods.get(podId);
+            if(pod == null){
+                System.out.println("Pod找不到 此Trace将被跳过");
+                continue;
+            }
+
+
+            //这种情况下应该给创建一个API指向pod的连接
+            if(podId.contains(apiHostService)){
+                TraceInvokeApiToPod relation = new TraceInvokeApiToPod();
+                relation.setPod(pod);
+                relation.setServiceAPI(serviceApi);
+                relation.setSpanId(span.getId());
+                relation.setTraceId(span.getTraceId());
+                relation.setRelation("TRACE");
+                relation.setId(span.getTraceId() + "_" + span.getId() + "_" + api + "_" + podId);
+                traceApiToPod.add(relation);
+                System.out.println("Trace连接 API TO POD:" + relation.getId());
+            }else{
+            //这种情况下应该创建一个POD指向API的连接
+                TraceInvokePodToApi relation = new TraceInvokePodToApi();
+                relation.setPod(pod);
+                relation.setServiceAPI(serviceApi);
+                relation.setSpanId(span.getId());
+                relation.setTraceId(span.getTraceId());
+                relation.setRelation("TRACE");
+                relation.setId(span.getTraceId() + "_" + span.getId() + "_" + podId + "_" + api);
+                tracePodToApi.add(relation);
+                System.out.println("Trace连接 POD TO API:" + relation.getId());
+            }
+        }
+    }
+
     public void getServiceHostApiAndServiceInvokeApi(ArrayList<AppServiceHostServiceAPI> svcHostApi,
                                                      ArrayList<AppServiceInvokeServiceAPI> svcInvokeApi){
         //获取trace
@@ -152,9 +284,10 @@ public class DataCollectorService {
         for(ArrayList<Span> trace : traces){
 
             if(tracesRecord.contains(trace.get(0).getTraceId())){
-                System.out.println("当前Trace已被解析过，跳过");
+                System.out.println("Trace ID已解析:" + trace.get(0).getTraceId());
                 continue;
             }else{
+                System.out.println("Trace ID待解析:" + trace.get(0).getTraceId());
                 tracesRecord.add(trace.get(0).getTraceId());
             }
             //遍历一个trace的每一个span
@@ -181,7 +314,8 @@ public class DataCollectorService {
                     String invokeService = getSvcNameFromTotalName(invokeSource);
                     String hostService = getHostFromLink(totalInvokeAddress);
                     String api = getApiFromLink(totalInvokeAddress);
-                    //自己调自己的不要 开头是ip的不要
+                    //开头是ip的不要
+                    //TODO 这里可能有bug
                     if(/**invokeService.equals(hostService) ||**/ hostService.contains("10.")){
                         continue;
                     }
@@ -408,8 +542,6 @@ public class DataCollectorService {
     }
 
     private ArrayList<VirtualMachineAndPod> postVmAndPodList(ArrayList<VirtualMachineAndPod> relations){
-//        ArrayList<VirtualMachineAndPod> result =
-//            restTemplate.postForObject(neo4jDaoIP + "/virtualMachineAndPodRelations",relations,relations.getClass());
         String str = restTemplate.postForObject(neo4jDaoIP + "/virtualMachineAndPodRelations",relations,String.class);
         Type founderListType = new TypeToken<ArrayList<VirtualMachineAndPod>>(){}.getType();
         ArrayList<VirtualMachineAndPod> result = gson.fromJson(str, founderListType);
@@ -430,8 +562,6 @@ public class DataCollectorService {
     }
 
     private ArrayList<AppServiceAndPod> postSvcAndPodList(ArrayList<AppServiceAndPod> relations){
-//        ArrayList<AppServiceAndPod> result =
-//                restTemplate.postForObject(neo4jDaoIP + "/appServiceAndPodRelations",relations,relations.getClass());
         String str = restTemplate.postForObject(neo4jDaoIP + "/appServiceAndPodRelations",relations,String.class);
         Type founderListType = new TypeToken<ArrayList<AppServiceAndPod>>(){}.getType();
         ArrayList<AppServiceAndPod> result = gson.fromJson(str, founderListType);
@@ -453,8 +583,6 @@ public class DataCollectorService {
 
 
     private ArrayList<PodAndContainer> postPodAndContainerList(ArrayList<PodAndContainer> relations){
-//        ArrayList<PodAndContainer> result =
-//                restTemplate.postForObject(neo4jDaoIP + "/podAndContainerRelations",relations,relations.getClass());
         String str = restTemplate.postForObject(neo4jDaoIP + "/podAndContainerRelations",relations,String.class);
         Type founderListType = new TypeToken<ArrayList<PodAndContainer>>(){}.getType();
         ArrayList<PodAndContainer> result = gson.fromJson(str, founderListType);
@@ -474,8 +602,6 @@ public class DataCollectorService {
     }
 
     private ArrayList<MetricAndContainer> postMetricAndContainerList(ArrayList<MetricAndContainer> relations){
-//        ArrayList<MetricAndContainer> result =
-//                restTemplate.postForObject(neo4jDaoIP + "/metricAndContainerRelations",relations,relations.getClass());
         String str = restTemplate.postForObject(neo4jDaoIP + "/metricAndContainerRelations",relations,String.class);
         Type founderListType = new TypeToken<ArrayList<MetricAndContainer>>(){}.getType();
         ArrayList<MetricAndContainer> result = gson.fromJson(str, founderListType);
@@ -714,5 +840,17 @@ public class DataCollectorService {
             return "ConvertTimeFailure";
         }
         //Wed Jan 31 22:32:19 GMT+08:00 2018
+    }
+
+    //"sidecar~10.38.0.12~ts-order-service-76f9cd9879-j45ls.default~default.svc.cluster.local"
+    private static String fetchPodName(String fullPodName){
+        fullPodName = fullPodName.substring(fullPodName.indexOf("~") + 1);
+        fullPodName = fullPodName.substring(fullPodName.indexOf("~") + 1);
+        int podTo = fullPodName.indexOf("~");
+
+        String podNameWithNamespace = fullPodName.substring(0, podTo);
+        int podEnd = fullPodName.indexOf(".");
+
+        return fullPodName.substring(0, podEnd);
     }
 }

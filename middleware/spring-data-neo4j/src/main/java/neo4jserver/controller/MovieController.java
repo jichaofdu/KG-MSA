@@ -1,7 +1,6 @@
 package neo4jserver.controller;
 
 import java.util.*;
-
 import neo4jserver.domain.entities.*;
 import neo4jserver.domain.relationships.*;
 import neo4jserver.services.MovieService;
@@ -17,6 +16,15 @@ public class MovieController {
 		this.movieService = movieService;
 	}
 
+	@PostMapping("/traceApiToPod")
+	public ArrayList<TraceInvokeApiToPod> postTraceApiToPod(@RequestBody ArrayList<TraceInvokeApiToPod> relations){
+		return movieService.postTraceApiToPod(relations);
+	}
+
+	@PostMapping("/tracePodToApi")
+	public ArrayList<TraceInvokePodToApi> postTracePodToApi(@RequestBody ArrayList<TraceInvokePodToApi> relations){
+		return movieService.postTracePodToApi(relations);
+	}
 
 	@PostMapping("/apiHostService")
 	public ArrayList<AppServiceHostServiceAPI> postAppServiceAndServiceApi(@RequestBody ArrayList<AppServiceHostServiceAPI> relations){

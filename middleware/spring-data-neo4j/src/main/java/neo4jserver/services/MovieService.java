@@ -40,6 +40,10 @@ public class MovieService {
 
 	private final AppServiceInvokeApiRepository appServiceInvokeApiRepository;
 
+	private final TraceInvokeApiToPodRepository traceInvokeApiToPodRepository;
+
+	private final TraceInvokePodToApiRepository traceInvokePodToApiRepository;
+
 	public MovieService(PodRepository podRepository,
 						ContainerRepository containerRepository,
 						AppServiceRepository appServiceRepository,
@@ -51,7 +55,9 @@ public class MovieService {
 						MetricAndContainerRepository metricAndContainerRepository,
 						ServiceApiRepository serviceApiRepository,
 						AppServiceHostApiRepository appServiceHostApiRepository,
-						AppServiceInvokeApiRepository appServiceInvokeApiRepository) {
+						AppServiceInvokeApiRepository appServiceInvokeApiRepository,
+						TraceInvokeApiToPodRepository traceInvokeApiToPodRepository,
+						TraceInvokePodToApiRepository traceInvokePodToApiRepository) {
 		this.podRepository = podRepository;
 		this.virtualMachineRepository = virtualMachineRepository;
 		this.virtualMachineAndPodRepository = virtualMachineAndPodRepository;
@@ -64,6 +70,36 @@ public class MovieService {
 		this.serviceApiRepository = serviceApiRepository;
 		this.appServiceHostApiRepository = appServiceHostApiRepository;
 		this.appServiceInvokeApiRepository = appServiceInvokeApiRepository;
+		this.traceInvokeApiToPodRepository = traceInvokeApiToPodRepository;
+		this.traceInvokePodToApiRepository = traceInvokePodToApiRepository;
+	}
+
+	@Transactional(readOnly = true)
+	public ArrayList<TraceInvokeApiToPod> postTraceApiToPod(ArrayList<TraceInvokeApiToPod> relations){
+		ArrayList<TraceInvokeApiToPod> result = new ArrayList<>();
+		for(TraceInvokeApiToPod relation : relations) {
+			if(traceInvokeApiToPodRepository.findById(relation.getId()).isPresent()){
+				System.out.println("TraceInvokeApiToPod已存在,跳过:" + relation.getId());
+				continue;
+			}
+			relation = traceInvokeApiToPodRepository.save(relation);
+			result.add(relation);
+		}
+		return result;
+	}
+
+	@Transactional(readOnly = true)
+	public ArrayList<TraceInvokePodToApi> postTracePodToApi(ArrayList<TraceInvokePodToApi> relations){
+		ArrayList<TraceInvokePodToApi> result = new ArrayList<>();
+		for(TraceInvokePodToApi relation : relations) {
+			if(traceInvokePodToApiRepository.findById(relation.getId()).isPresent()){
+				System.out.println("TraceInvokePodToApi已存在,跳过:" + relation.getId());
+				continue;
+			}
+			relation = traceInvokePodToApiRepository.save(relation);
+			result.add(relation);
+		}
+		return result;
 	}
 
 	@Transactional(readOnly = true)
