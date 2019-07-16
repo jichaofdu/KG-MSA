@@ -30,6 +30,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import java.lang.reflect.Type;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -282,6 +283,7 @@ public class DataCollectorService {
                                                      ArrayList<AppServiceInvokeServiceAPI> svcInvokeApi){
         //获取trace
         ArrayList<ArrayList<Span>> traces = getAndParseTrace();
+        System.out.println("Trace数量:" + traces.size());
         //遍历每一个trace
         for(ArrayList<Span> trace : traces){
 
@@ -372,6 +374,8 @@ public class DataCollectorService {
 
     private String getHostFromLink(String url){
         String api = MatcherUrlRouterUtil.matcherPattern(url);
+        System.out.println("API:" + api);
+        System.out.println("URL:" + url);
         int index1 = url.indexOf("http://");
         int index2 = url.indexOf(api);
         String svc = url.substring(index1, index2).substring("http://".length());
