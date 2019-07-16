@@ -24,13 +24,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import java.lang.reflect.Type;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -90,9 +88,11 @@ public class DataCollectorService {
 
     @Scheduled(initialDelay=5000, fixedDelay =100000)
     public void updateFrameworkPeriodly() {
-        System.out.println(masterIP);
-        System.out.println(neo4jDaoIP);
         synchronized (objLockForPeriodly){
+            //记录当前时间
+            currTimestampString = "" + new Date().getTime() / 1000;
+            System.out.println("CurrTimestampString" + currTimestampString);
+            //
             SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
             System.out.println("[开始]定期刷新应用骨架 现在时间：" + dateFormat.format(new Date()));
             createRawFrameworkToKnowledgeGraph();
@@ -238,7 +238,7 @@ public class DataCollectorService {
                 //API的ID就是API的名字
                 serviceApi.setId(api);
                 serviceApi.setLatestUpdateTimestamp(currTimestampString);
-                serviceApi.setCreationTimestamp("" + new Date().getTime() / 1000);
+                serviceApi.setCreationTimestamp(currTimestampString);
                 apis.put(serviceApi.getName(), serviceApi);
                 System.out.println("使用新建API " + api);
 
@@ -327,6 +327,7 @@ public class DataCollectorService {
                     ServiceAPI serviceApi;
                     if(apis.get(api) != null){
                         serviceApi = apis.get(api);
+                        serviceApi.setLatestUpdateTimestamp(currTimestampString);
                     }else{
                         serviceApi = new ServiceAPI();
                         serviceApi.setHostName(hostService);
@@ -334,7 +335,7 @@ public class DataCollectorService {
                         //API的ID就是API的名字
                         serviceApi.setId(api);
                         serviceApi.setLatestUpdateTimestamp(currTimestampString);
-                        serviceApi.setCreationTimestamp("" + new Date().getTime() / 1000);
+                        serviceApi.setCreationTimestamp(currTimestampString);
                         apis.put(serviceApi.getName(), serviceApi);
                     }
 
@@ -490,9 +491,6 @@ public class DataCollectorService {
 
     //构建一个基础的知识图谱 - 包括pod node svc
     public String createRawFrameworkToKnowledgeGraph(){
-        //记录当前时间
-        currTimestampString = "" + new Date().getTime() / 1000;
-        System.out.println("CurrTimestampString" + currTimestampString);
         //清空环境
         clearAllInfo();
         System.out.println("Clear");
