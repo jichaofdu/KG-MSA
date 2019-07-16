@@ -318,9 +318,8 @@ public class DataCollectorService {
                     String invokeService = getSvcNameFromTotalName(invokeSource);
                     String hostService = getHostFromLink(totalInvokeAddress);
                     String api = getApiFromLink(totalInvokeAddress);
-                    //开头是ip的不要
-                    //TODO 这里可能有bug
-                    if(/**invokeService.equals(hostService) ||**/ hostService.contains("10.")){
+                    //开头是ip的不要 服务指向自己的也不要
+                    if(invokeService.equals(hostService) || hostService.contains("10.")){
                         continue;
                     }
                     //看下API在吗，不在的话重组一个
