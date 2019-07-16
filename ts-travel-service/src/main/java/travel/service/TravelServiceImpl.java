@@ -412,10 +412,6 @@ public class TravelServiceImpl implements TravelService{
                 requestEntity,
                 Integer.class);
         int restNumber = re.getBody();
-//        int restNumber = restTemplate.postForObject(
-//                "http://ts-seat-service:18898/seat/getLeftTicketOfInterval",
-//                seatRequest,Integer.class
-//        );
 
         return restNumber;
     }

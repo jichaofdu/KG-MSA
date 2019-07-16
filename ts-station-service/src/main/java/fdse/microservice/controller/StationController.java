@@ -53,31 +53,38 @@ public class StationController {
         return stationService.queryForId(info,headers);
     }
 
-    @CrossOrigin(origins = "*")
     @RequestMapping(value="/station/queryForIdBatch", method = RequestMethod.POST)
     public ArrayList<String> queryForIdBatch(@RequestBody QueryForIdBatch queryForIdBatch, @RequestHeader HttpHeaders headers){
         return stationService.queryForIdBatch(queryForIdBatch, headers);
     }
 
 
-    @CrossOrigin(origins = "*")
     @RequestMapping(value = "/station/queryById",method = RequestMethod.POST)
     public QueryStation queryById(@RequestBody QueryById queryById,@RequestHeader HttpHeaders headers){
         System.out.println("[Station Service] Query By Id:" + queryById.getStationId());
         return stationService.queryById(queryById.getStationId(),headers);
     }
 
-    @CrossOrigin(origins = "*")
     @RequestMapping(value="/station/queryByIdBatch", method = RequestMethod.POST)
     public QueryByIdBatchResult queryByIdBatch(@RequestBody QueryByIdBatch queryByIdBatch, @RequestHeader HttpHeaders headers){
         QueryByIdBatchResult result = new QueryByIdBatchResult(stationService.queryByIdBatch(queryByIdBatch, headers));
         return result;
     }
 
-    @CrossOrigin(origins = "*")
+
     @RequestMapping(value = "/station/queryByIdForName",method = RequestMethod.POST)
     public String queryByIdForName(@RequestBody QueryById queryById,@RequestHeader HttpHeaders headers){
         System.out.println("[Station Service] Query By Id For Name:" + queryById.getStationId());
         return stationService.queryById(queryById.getStationId(),headers).getName();
     }
+
+    @RequestMapping(value = "/station/queryByIdForNames",method = RequestMethod.POST)
+    public ArrayList<String> queryByIdForNames(@RequestBody ArrayList<QueryById> queryByIds,@RequestHeader HttpHeaders headers){
+        ArrayList<String> result = new ArrayList<>();
+        for(QueryById queryById : queryByIds){
+            result.add(stationService.queryById(queryById.getStationId(),headers).getName());
+        }
+        return result;
+    }
+
 }

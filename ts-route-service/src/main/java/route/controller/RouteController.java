@@ -5,6 +5,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 import route.domain.*;
 import route.service.RouteService;
+import java.util.ArrayList;
 
 @RestController
 public class RouteController {
@@ -31,6 +32,16 @@ public class RouteController {
     public GetRouteByIdResult queryById(@PathVariable String routeId,@RequestHeader HttpHeaders headers){
         return routeService.getRouteById(routeId, headers);
     }
+
+    @RequestMapping(path = "/route/queryByIds", method = RequestMethod.POST)
+    public ArrayList<GetRouteByIdResult> queryRoutesByIds(@RequestBody ArrayList<String> ids, @RequestHeader HttpHeaders headers){
+        ArrayList<GetRouteByIdResult> result = new ArrayList<>();
+        for(String id : ids){
+            result.add(routeService.getRouteById(id, headers));
+        }
+        return result;
+    }
+
 
     @RequestMapping(path = "/route/queryAll", method = RequestMethod.GET)
     public GetRoutesListlResult queryAll(@RequestHeader HttpHeaders headers){

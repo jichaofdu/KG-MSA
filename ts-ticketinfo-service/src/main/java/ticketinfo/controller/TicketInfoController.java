@@ -12,6 +12,8 @@ import ticketinfo.domain.QueryForTravel;
 import ticketinfo.domain.ResultForTravel;
 import ticketinfo.service.TicketInfoService;
 
+import java.util.ArrayList;
+
 @RestController
 public class TicketInfoController {
 
@@ -28,8 +30,27 @@ public class TicketInfoController {
         return service.queryForTravel(info,headers);
     }
 
+    @RequestMapping(value="/ticketinfo/queryForTravels", method = RequestMethod.POST)
+    public ArrayList<ResultForTravel> queryForTravels(@RequestBody ArrayList<QueryForTravel> infos, @RequestHeader HttpHeaders headers) {
+        ArrayList<ResultForTravel> result = new ArrayList<>();
+        for(QueryForTravel info : infos){
+            result.add(service.queryForTravel(info, headers));
+        }
+        return result;
+    }
+
     @RequestMapping(value="/ticketinfo/queryForStationId", method = RequestMethod.POST)
     public String queryForStationId(@RequestBody QueryForStationId info,@RequestHeader HttpHeaders headers){
         return service.queryForStationId(info,headers);
     }
+
+    @RequestMapping(value="/ticketinfo/queryForStationIds", method = RequestMethod.POST)
+    public ArrayList<String> queryForStationIds(@RequestBody ArrayList<QueryForStationId> infos,@RequestHeader HttpHeaders headers){
+        ArrayList<String> result = new ArrayList<>();
+        for(QueryForStationId info : infos){
+            result.add(service.queryForStationId(info,headers));
+        }
+        return result;
+    }
+
 }
