@@ -85,7 +85,7 @@ public class DataCollectorService {
 
     private final Object objLockForPeriodly = new Object();
 
-
+    //平均耗时25秒
     @Scheduled(initialDelay=5000, fixedDelay =100000)
     public void updateFrameworkPeriodly() {
         synchronized (objLockForPeriodly){
@@ -100,6 +100,7 @@ public class DataCollectorService {
         }
     }
 
+    //6秒？
     @Scheduled(initialDelay = 100000, fixedDelay = 100000)
     public void uploadTracesPeriodly(){
         synchronized (objLockForPeriodly) {
@@ -109,6 +110,7 @@ public class DataCollectorService {
             System.out.println("[完成]定期上传Trace 现在时间：" + dateFormat.format(new Date()));
         }
     }
+
 
     @Scheduled(initialDelay=50000, fixedDelay =50000)
     public void updateTracePeriodly() {
@@ -120,17 +122,17 @@ public class DataCollectorService {
         }
     }
 
+    //平均耗时14秒
+    @Scheduled(initialDelay=100000, fixedDelay =15000)
+    public void updateMetricsPeriodly() {
+        synchronized (objLockForPeriodly) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+            System.out.println("[开始]定期刷新应用指标数据 现在时间：" + dateFormat.format(new Date()));
+            updateMetrics();
+            System.out.println("[完成]定期刷新应用指标数据 现在时间：" + dateFormat.format(new Date()));
 
-//    @Scheduled(initialDelay=100000, fixedDelay =15000)
-//    public void updateMetricsPeriodly() {
-//        synchronized (objLockForPeriodly) {
-//            SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-//            System.out.println("[开始]定期刷新应用指标数据 现在时间：" + dateFormat.format(new Date()));
-//            updateMetrics();
-//            System.out.println("[完成]定期刷新应用指标数据 现在时间：" + dateFormat.format(new Date()));
-//
-//        }
-//    }
+        }
+    }
 
     public String getCurrentTimestamp(){
         return currTimestampString;
@@ -226,11 +228,11 @@ public class DataCollectorService {
             }
             //将trace的两部分组装好
             //看下API在吗，不在的话重组一个
-            System.out.println("Trace复现过程中发现API " + api);
+            //System.out.println("Trace复现过程中发现API " + api);
             ServiceAPI serviceApi;
             if(apis.get(api) != null){
                 serviceApi = apis.get(api);
-                System.out.println("使用已有API " + api);
+                //System.out.println("使用已有API " + api);
             }else{
                 serviceApi = new ServiceAPI();
                 serviceApi.setHostName(apiHostService);
@@ -240,7 +242,7 @@ public class DataCollectorService {
                 serviceApi.setLatestUpdateTimestamp(currTimestampString);
                 serviceApi.setCreationTimestamp(currTimestampString);
                 apis.put(serviceApi.getName(), serviceApi);
-                System.out.println("使用新建API " + api);
+                //System.out.println("使用新建API " + api);
 
             }
 
@@ -323,7 +325,7 @@ public class DataCollectorService {
                         continue;
                     }
                     //看下API在吗，不在的话重组一个
-                    System.out.println("发现API " + api);
+                    //System.out.println("发现API " + api);
                     ServiceAPI serviceApi;
                     if(apis.get(api) != null){
                         serviceApi = apis.get(api);
@@ -340,7 +342,7 @@ public class DataCollectorService {
                     }
 
                     //看看host serivice在吗 不在的话就不管了 在的话组装一下relation
-                    System.out.println("发现API的所属关系 " + hostService);
+                    //System.out.println("发现API的所属关系 " + hostService);
                     if(svcs.get(hostService)!= null){
                        AppService hostSvc = svcs.get(hostService);
                        AppServiceHostServiceAPI relationHost = new AppServiceHostServiceAPI();
@@ -352,7 +354,7 @@ public class DataCollectorService {
                     }
 
                     //看看invoke service在吗 不在的话就不管了 在的话组装一下relation
-                    System.out.println("发现API的被调关系 " + invokeService);
+                    //System.out.println("发现API的被调关系 " + invokeService);
                     if(svcs.get(invokeService)!= null){
                         AppService invokeSvc = svcs.get(invokeService);
                         AppServiceInvokeServiceAPI relationInvoke = new AppServiceInvokeServiceAPI();
@@ -396,7 +398,9 @@ public class DataCollectorService {
     //如果要依据最新的container需要先更新containers
     public ArrayList<Metric> updateMetrics(){
         ArrayList<Metric> newMetrics = new ArrayList<>();
+        //遍历需要取的指标数据
         for(String containerMetricName : containerMetricsNameVector){
+            //每个container都需要取这些数据
             for(Container container : containers.values()){
                 String containerName = container.getName();
                 if(containerName.startsWith("/")){
@@ -410,7 +414,7 @@ public class DataCollectorService {
                     newMetrics.add(metric);
 
                 }catch (Exception e){
-                    System.out.println("Metric未查到 容器名称:" + containerName + " Metric名称:" +containerMetricName);
+                    System.out.println("[错误]为查到此容器的此Metric 容器名称:" + containerName + " Metric名称:" +containerMetricName);
                 }
             }
         }
@@ -419,6 +423,7 @@ public class DataCollectorService {
         return updatedMetrics;
     }
 
+    //向Promethsus发送并取数据
     //container_memory_usage_bytes{name="k8s_ts-order-service_ts-order-service-68d9c9b878-vgzhl_default_ff88298e-777c-11e9-bb23-005056a4ea84_26"}
     private ExpressionQueriesVectorResponse getMetric(String metricName, String containerName){
 
@@ -432,31 +437,33 @@ public class DataCollectorService {
 
         String str = restTemplate.postForObject(promethsusQuery,r,String.class);
 
-        ExpressionQueriesVectorResponse res = gson.fromJson(str,ExpressionQueriesVectorResponse.class);
+        if(str.contains("\"resultType\":\"vector\"")){
+            ExpressionQueriesVectorResponse res = gson.fromJson(str,ExpressionQueriesVectorResponse.class);
+            return res;
+        }else{
+            System.out.println("[错误]Promethsus数据不合规 无法解析");
+            return null;
+        }
 
-        return res;
     }
 
     public ContainerList getContainerList(){
         ArrayList<ApiContainer> containers = new ArrayList<>();
         for(String clusterIP : clusterIPs) {
+
             String list = restTemplate.getForObject(clusterIP + ":5678/containers/json", String.class);
 
-            //Json的解析类对象
             JsonParser parser = new JsonParser();
-            //将JSON的String 转成一个JsonArray对象
             JsonArray jsonArray = parser.parse(list).getAsJsonArray();
-
             Gson gson = new Gson();
-            ArrayList<ApiContainer> tempList = new ArrayList<>();
 
+            ArrayList<ApiContainer> tempList = new ArrayList<>();
             //加强for循环遍历JsonArray
             for (JsonElement user : jsonArray) {
                 //使用GSON，直接转成Bean对象
                 ApiContainer apiContainer = gson.fromJson(user, ApiContainer.class);
                 tempList.add(apiContainer);
             }
-
             containers.addAll(tempList);
         }
         ContainerList containerList = new ContainerList();

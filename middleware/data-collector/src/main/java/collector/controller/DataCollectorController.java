@@ -45,10 +45,10 @@ public class DataCollectorController {
         return dataCollectorService.getAppServiceList();
     }
 
-    @GetMapping("/updateMetrics")
-    public ArrayList<Metric> updateMetrics(){
-        return dataCollectorService.updateMetrics();
-    }
+//    @GetMapping("/updateMetrics")
+//    public ArrayList<Metric> updateMetrics(){
+//        return dataCollectorService.updateMetrics();
+//    }
 
     @GetMapping("/buildFramework")
     public String buildFrameWork(){
@@ -57,9 +57,8 @@ public class DataCollectorController {
 
     @GetMapping("/trace")
     public ArrayList<AppServiceHostServiceAPI> getTraces(){
-
-
         return dataCollectorService.uploadApiSvcRelations();
     }
+
 
 }
