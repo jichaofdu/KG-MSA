@@ -92,7 +92,7 @@ public class DataCollectorService {
             //记录当前时间
             currTimestampString = "" + new Date().getTime() / 1000;
             System.out.println("CurrTimestampString" + currTimestampString);
-            //
+
             SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
             System.out.println("[开始]定期刷新应用骨架 现在时间：" + dateFormat.format(new Date()));
             createRawFrameworkToKnowledgeGraph();
@@ -232,7 +232,6 @@ public class DataCollectorService {
             ServiceAPI serviceApi;
             if(apis.get(api) != null){
                 serviceApi = apis.get(api);
-                //System.out.println("使用已有API " + api);
             }else{
                 serviceApi = new ServiceAPI();
                 serviceApi.setHostName(apiHostService);
@@ -242,39 +241,40 @@ public class DataCollectorService {
                 serviceApi.setLatestUpdateTimestamp(currTimestampString);
                 serviceApi.setCreationTimestamp(currTimestampString);
                 apis.put(serviceApi.getName(), serviceApi);
-                //System.out.println("使用新建API " + api);
-
             }
 
             Pod pod = pods.get(podId);
             if(pod == null){
-                System.out.println("Pod找不到 此Trace将被跳过");
+                System.out.println("[意外情况]Pod找不到 此Trace将被跳过");
                 continue;
             }
-
 
             //这种情况下应该给创建一个API指向pod的连接
             if(podId.contains(apiHostService)){
                 TraceInvokeApiToPod relation = new TraceInvokeApiToPod();
+                relation.setId(pod.getId() + "_" + serviceApi.getId());
                 relation.setPod(pod);
                 relation.setServiceAPI(serviceApi);
-                relation.setSpanId(span.getId());
-                relation.setTraceId(span.getTraceId());
                 relation.setRelation("TRACE");
-                relation.setTimestamp(span.getTimestamp());
-                relation.setId(span.getTraceId() + "_" + span.getId() + "_" + api + "_" + podId);
+
+                HashSet<String> passingTracesAndSpans = new HashSet<>();
+                passingTracesAndSpans.add(span.getTraceId() + ":" + span.getId());
+                relation.setTraceIdAndSpanIds(passingTracesAndSpans);
+
                 traceApiToPod.add(relation);
                 System.out.println("Trace连接 API TO POD:" + relation.getId());
             }else{
             //这种情况下应该创建一个POD指向API的连接
                 TraceInvokePodToApi relation = new TraceInvokePodToApi();
+                relation.setId(pod.getId() + "_" + serviceApi.getId());
                 relation.setPod(pod);
                 relation.setServiceAPI(serviceApi);
-                relation.setSpanId(span.getId());
-                relation.setTraceId(span.getTraceId());
                 relation.setRelation("TRACE");
-                relation.setTimestamp(span.getTimestamp());
-                relation.setId(span.getTraceId() + "_" + span.getId() + "_" + podId + "_" + api);
+
+                HashSet<String> passingTracesAndSpans = new HashSet<>();
+                passingTracesAndSpans.add(span.getTraceId() + ":" + span.getId());
+                relation.setTraceIdAndSpanIds(passingTracesAndSpans);
+
                 tracePodToApi.add(relation);
                 System.out.println("Trace连接 POD TO API:" + relation.getId());
             }

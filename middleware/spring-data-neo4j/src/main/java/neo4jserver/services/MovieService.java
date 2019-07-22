@@ -78,9 +78,12 @@ public class MovieService {
 	public ArrayList<TraceInvokeApiToPod> postTraceApiToPod(ArrayList<TraceInvokeApiToPod> relations){
 		ArrayList<TraceInvokeApiToPod> result = new ArrayList<>();
 		for(TraceInvokeApiToPod relation : relations) {
-			if(traceInvokeApiToPodRepository.findById(relation.getId()).isPresent()){
-				System.out.println("TraceInvokeApiToPod已存在,跳过:" + relation.getId());
-				continue;
+			Optional<TraceInvokeApiToPod> savedRelationOptional =
+					traceInvokeApiToPodRepository.findById(relation.getId());
+			if(savedRelationOptional.isPresent()){
+				TraceInvokeApiToPod savedRelation = savedRelationOptional.get();
+				savedRelation.getTraceIdAndSpanIds().addAll(relation.getTraceIdAndSpanIds());
+				relation = savedRelation;
 			}
 			relation = traceInvokeApiToPodRepository.save(relation);
 			result.add(relation);
@@ -92,9 +95,12 @@ public class MovieService {
 	public ArrayList<TraceInvokePodToApi> postTracePodToApi(ArrayList<TraceInvokePodToApi> relations){
 		ArrayList<TraceInvokePodToApi> result = new ArrayList<>();
 		for(TraceInvokePodToApi relation : relations) {
-			if(traceInvokePodToApiRepository.findById(relation.getId()).isPresent()){
-				System.out.println("TraceInvokePodToApi已存在,跳过:" + relation.getId());
-				continue;
+			Optional<TraceInvokePodToApi> savedRelationOptional =
+					traceInvokePodToApiRepository.findById(relation.getId());
+			if(savedRelationOptional.isPresent()){
+				TraceInvokePodToApi savedRelation = savedRelationOptional.get();
+				savedRelation.getTraceIdAndSpanIds().addAll(relation.getTraceIdAndSpanIds());
+				relation = savedRelation;
 			}
 			relation = traceInvokePodToApiRepository.save(relation);
 			result.add(relation);
