@@ -5,17 +5,17 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>fdse.microservice</groupId>
-    <artifactId>ts-config-service</artifactId>
+    <artifactId>ts-admin-user-service</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
-    <name>ts-config-service</name>
+    <name>ts-admin-user-service</name>
 
     <parent>
-        <groupId>org.services</groupId>
         <artifactId>ts-service</artifactId>
+        <groupId>org.services</groupId>
         <version>0.1.0</version>
-        <relativePath>../</relativePath>
+        <relativePath>../..</relativePath>
     </parent>
 
     <properties>
@@ -24,10 +24,7 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-mongodb</artifactId>
-        </dependency>
+
     </dependencies>
 
     <build>
@@ -38,4 +35,6 @@
             </plugin>
         </plugins>
     </build>
+
+
 </project>

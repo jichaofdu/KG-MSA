@@ -85,7 +85,7 @@ public class DataCollectorService {
 
     private final Object objLockForPeriodly = new Object();
 
-    //平均耗时25秒
+    //平均耗时23秒
     @Scheduled(initialDelay=5000, fixedDelay =100000)
     public void updateFrameworkPeriodly() {
         synchronized (objLockForPeriodly){
@@ -290,10 +290,10 @@ public class DataCollectorService {
         for(ArrayList<Span> trace : traces){
 
             if(tracesRecord.contains(trace.get(0).getTraceId())){
-                System.out.println("Trace ID已解析:" + trace.get(0).getTraceId());
+//                System.out.println("Trace ID已解析:" + trace.get(0).getTraceId());
                 continue;
             }else{
-                System.out.println("Trace ID待解析:" + trace.get(0).getTraceId());
+//                System.out.println("Trace ID待解析:" + trace.get(0).getTraceId());
                 tracesRecord.add(trace.get(0).getTraceId());
             }
             //遍历一个trace的每一个span
@@ -376,8 +376,8 @@ public class DataCollectorService {
 
     private String getHostFromLink(String url){
         String api = MatcherUrlRouterUtil.matcherPattern(url);
-        System.out.println("API:" + api);
-        System.out.println("URL:" + url);
+//        System.out.println("API:" + api);
+//        System.out.println("URL:" + url);
         int index1 = url.indexOf("http://");
         int index2 = url.indexOf(api);
         String svc = url.substring(index1, index2).substring("http://".length());

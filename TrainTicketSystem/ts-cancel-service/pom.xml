@@ -5,17 +5,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>fdse.microservice</groupId>
-    <artifactId>ts-admin-user-service</artifactId>
+    <artifactId>ts-cancel-service</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
-
-    <name>ts-admin-user-service</name>
+    <name>ts-cancel-service</name>
 
     <parent>
-        <artifactId>ts-service</artifactId>
         <groupId>org.services</groupId>
+        <artifactId>ts-service</artifactId>
         <version>0.1.0</version>
-        <relativePath>../</relativePath>
+        <relativePath>../..</relativePath>
     </parent>
 
     <properties>
@@ -35,6 +34,5 @@
             </plugin>
         </plugins>
     </build>
-
 
 </project>

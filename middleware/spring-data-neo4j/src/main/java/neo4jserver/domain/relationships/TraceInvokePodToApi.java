@@ -4,7 +4,7 @@ import neo4jserver.domain.entities.Pod;
 import neo4jserver.domain.entities.ServiceAPI;
 import org.neo4j.ogm.annotation.*;
 
-@RelationshipEntity(type = "TraceInvokePodToApi")
+@RelationshipEntity(type = "Traces")
 public class TraceInvokePodToApi {
 
     @Id

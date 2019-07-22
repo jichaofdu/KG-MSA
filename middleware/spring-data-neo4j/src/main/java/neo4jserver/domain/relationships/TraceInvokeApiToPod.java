@@ -8,7 +8,7 @@ import org.neo4j.ogm.annotation.*;
 // Pod A -> Api -> PodB
 // TraceInvokeApiToPod 负责从Api到Pod-B的一段
 // TraceInvokePodToApi 负责Pod-A到API的一段
-@RelationshipEntity(type = "TraceInvokeApiToPod")
+@RelationshipEntity(type = "Traces")
 public class TraceInvokeApiToPod {
 
     @Id

@@ -5,17 +5,17 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>fdse.microservice</groupId>
-    <artifactId>ts-admin-travel-service</artifactId>
+    <artifactId>ts-admin-route-service</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
-    <name>ts-admin-travel-service</name>
+    <name>ts-admin-route-service</name>
 
     <parent>
         <artifactId>ts-service</artifactId>
         <groupId>org.services</groupId>
         <version>0.1.0</version>
-        <relativePath>../</relativePath>
+        <relativePath>../..</relativePath>
     </parent>
 
     <properties>
@@ -35,6 +35,5 @@
             </plugin>
         </plugins>
     </build>
-
 
 </project>
