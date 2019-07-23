@@ -28,7 +28,7 @@ public class TraceInvokeApiToPod {
     @Property(name="className")
     private String className = this.getClass().toString();
 
-    @Property(name="traceId:spanId")
+    @Property(name="traceIdSpanId")
     private HashSet<String> traceIdAndSpanIds;
 
     public TraceInvokeApiToPod() {

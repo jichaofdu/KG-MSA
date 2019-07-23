@@ -21,7 +21,7 @@ public class TraceInvokePodToApi {
     @Property(name="relation")
     private String relation;
 
-    @Property(name="traceId:spanId")
+    @Property(name="traceIdSpanId")
     private HashSet<String> traceIdAndSpanIds;
 
     @Property(name="className")

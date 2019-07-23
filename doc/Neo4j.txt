@@ -32,3 +32,22 @@ dbms.connectors.default_listen_address=0.0.0.0
     MATCH (n)
             OPTIONAL MATCH (n)-[r]-()
             DELETE n,r
+
+
+ATCH(a)
+WHERE a.name = "Eskil" AND ANY(x IN a.array WHERE x = "one")
+RETURN a
+返回路径中的所有节点的array数组属性中至少有一个值为"one"
+
+MATCH ()-[r:Traces]->()
+WHERE r IN ['Joe', 'John', 'Sara'] AND
+follwer.name =~ 'S.*'
+RETURN user.name, follwer.name
+
+MATCH ()-[r:Traces]->()
+WHERE ANY(x IN r.traceIdSpanId WHERE x =~ '319bbc7da0a4612347afb75412674fcd-.*')
+RETURN r
+
+MATCH (n)-[r:Traces]->(m)
+WHERE ANY(x IN r.traceIdSpanId WHERE x =~ '319bbc7da0a4612347afb75412674fcd.*')
+RETURN n,r,m

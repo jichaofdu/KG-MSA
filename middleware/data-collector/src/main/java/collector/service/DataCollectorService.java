@@ -258,7 +258,7 @@ public class DataCollectorService {
                 relation.setRelation("TRACE");
 
                 HashSet<String> passingTracesAndSpans = new HashSet<>();
-                passingTracesAndSpans.add(span.getTraceId() + ":" + span.getId());
+                passingTracesAndSpans.add(span.getTraceId() + "-" + span.getId());
                 relation.setTraceIdAndSpanIds(passingTracesAndSpans);
 
                 traceApiToPod.add(relation);
@@ -272,7 +272,7 @@ public class DataCollectorService {
                 relation.setRelation("TRACE");
 
                 HashSet<String> passingTracesAndSpans = new HashSet<>();
-                passingTracesAndSpans.add(span.getTraceId() + ":" + span.getId());
+                passingTracesAndSpans.add(span.getTraceId() + "-" + span.getId());
                 relation.setTraceIdAndSpanIds(passingTracesAndSpans);
 
                 tracePodToApi.add(relation);
