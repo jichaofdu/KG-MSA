@@ -23,6 +23,17 @@ neo4j开放外部端口访问
 dbms.connectors.default_listen_address=0.0.0.0
 
 
+neo4j数据的迁移
+1.数据的Source和Destination都需要首先关闭
+./neo4j stop
+2.备份数据
+./neo4j-admin  dump --database=graph.db --to=/home/2018.dump
+3.导入数据
+./neo4j-admin load --from=/home/2016-10-02.dump --database=graph.db --force
+4.重启服务
+./neo4j start
+
+
 删除GraphNode标签
     MATCH(m)
             REMOVE m:GraphNode
@@ -48,6 +59,8 @@ MATCH ()-[r:Traces]->()
 WHERE ANY(x IN r.traceIdSpanId WHERE x =~ '319bbc7da0a4612347afb75412674fcd-.*')
 RETURN r
 
+
+Trace指令
 MATCH (n)-[r:Traces]->(m)
-WHERE ANY(x IN r.traceIdSpanId WHERE x =~ '319bbc7da0a4612347afb75412674fcd.*')
+WHERE ANY(x IN r.traceIdSpanId WHERE x =~ '319bbc7da0a4612347afb75412674fcd-.*')
 RETURN n,r,m
