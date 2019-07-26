@@ -543,14 +543,6 @@ public class DataCollectorService {
         return "";
     }
 
-    private VirtualMachineAndPod postVmAndPod(VirtualMachineAndPod vmAndPod){
-        VirtualMachineAndPod newObj =
-                restTemplate.postForObject(neo4jDaoIP + "/virtualMachineAndPod",vmAndPod,VirtualMachineAndPod.class);
-        vms.put(newObj.getVirtualMachine().getName(), newObj.getVirtualMachine());
-        pods.put(newObj.getPod().getName(), newObj.getPod());
-        return newObj;
-    }
-
     private ArrayList<VirtualMachineAndPod> postVmAndPodList(ArrayList<VirtualMachineAndPod> relations){
         String str = restTemplate.postForObject(neo4jDaoIP + "/virtualMachineAndPodRelations",relations,String.class);
         Type founderListType = new TypeToken<ArrayList<VirtualMachineAndPod>>(){}.getType();
@@ -561,14 +553,6 @@ public class DataCollectorService {
             pods.put(relation.getPod().getName(), relation.getPod());
         }
         return result;
-    }
-
-    private AppServiceAndPod postSvcAndPod(AppServiceAndPod svcAndPod){
-        AppServiceAndPod newObj =
-                restTemplate.postForObject(neo4jDaoIP + "/appServiceAndPod", svcAndPod, AppServiceAndPod.class);
-        svcs.put(newObj.getAppService().getName(), newObj.getAppService());
-        pods.put(newObj.getPod().getName(), newObj.getPod());
-        return newObj;
     }
 
     private ArrayList<AppServiceAndPod> postSvcAndPodList(ArrayList<AppServiceAndPod> relations){
@@ -583,15 +567,6 @@ public class DataCollectorService {
         return result;
     }
 
-    private PodAndContainer postPodAndContainer(PodAndContainer podAndContainer){
-        PodAndContainer newObj =
-                restTemplate.postForObject(neo4jDaoIP + "/podAndContainer", podAndContainer, PodAndContainer.class);
-        pods.put(newObj.getPod().getName(), newObj.getPod());
-        containers.put(newObj.getContainer().getName(), newObj.getContainer());
-        return newObj;
-    }
-
-
     private ArrayList<PodAndContainer> postPodAndContainerList(ArrayList<PodAndContainer> relations){
         String str = restTemplate.postForObject(neo4jDaoIP + "/podAndContainerRelations",relations,String.class);
         Type founderListType = new TypeToken<ArrayList<PodAndContainer>>(){}.getType();
@@ -603,12 +578,6 @@ public class DataCollectorService {
             containers.put(relation.getContainer().getName(), relation.getContainer());
         }
         return result;
-    }
-
-    private MetricAndContainer postMetricAndContainer(MetricAndContainer metricAndContainer){
-        MetricAndContainer newObj =
-                restTemplate.postForObject(neo4jDaoIP + "/metricAndContainer", metricAndContainer, MetricAndContainer.class);
-        return newObj;
     }
 
     private ArrayList<MetricAndContainer> postMetricAndContainerList(ArrayList<MetricAndContainer> relations){
@@ -830,7 +799,11 @@ public class DataCollectorService {
         container.setImage(apiContainer.getImage());
         //使用真正的ID而不是自定义ID
         container.setId(apiContainer.getId());
-        container.setName(apiContainer.getNames().get(0));
+        if(apiContainer.getNames().get(0).startsWith("/")){
+            container.setName(apiContainer.getNames().get(0).substring(1));
+        }else{
+            container.setName(apiContainer.getNames().get(0));
+        }
         container.setCreationTimestamp(apiContainer.getCreated());
         return container;
     }
