@@ -1,0 +1,25 @@
+10.141.211.175:5000/jichao/cluster-ts-admin-basic-info-service
+
+
+
+
+
+demo/demo-service-5                                               latest              121a5afe4ece        2 minutes ago       334 MB
+demo/demo-service-4                                               latest              51e1253c8340        2 minutes ago       334 MB
+demo/demo-service-3                                               latest              cf3148929f9b        3 minutes ago       334 MB
+demo/demo-service-2                                               latest              bb3970214900        3 minutes ago       334 MB
+demo/demo-service-1
+
+
+
+docker tag demo/demo-service-1 10.141.211.175:5000/jichao/demo-service-1
+docker tag demo/demo-service-2 10.141.211.175:5000/jichao/demo-service-2
+docker tag demo/demo-service-3 10.141.211.175:5000/jichao/demo-service-3
+docker tag demo/demo-service-4 10.141.211.175:5000/jichao/demo-service-4
+docker tag demo/demo-service-5 10.141.211.175:5000/jichao/demo-service-5
+
+docker push 10.141.211.175:5000/jichao/demo-service-1
+docker push 10.141.211.175:5000/jichao/demo-service-2
+docker push 10.141.211.175:5000/jichao/demo-service-3
+docker push 10.141.211.175:5000/jichao/demo-service-4
+docker push 10.141.211.175:5000/jichao/demo-service-5

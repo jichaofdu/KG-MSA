@@ -1,0 +1,162 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: demo-service-1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: demo-service-1
+    spec:
+      containers:
+        - name: demo-service-1
+          image: 10.141.211.175:5000/jichao/demo-service-1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 18081
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: demo-service-2
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: demo-service-2
+    spec:
+      containers:
+        - name: demo-service-2
+          image: 10.141.211.175:5000/jichao/demo-service-2
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 18082
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: demo-service-3
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: demo-service-3
+    spec:
+      containers:
+        - name: demo-service-3
+          image: 10.141.211.175:5000/jichao/demo-service-3
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 18083
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: demo-service-4
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: demo-service-4
+    spec:
+      containers:
+        - name: demo-service-4
+          image: 10.141.211.175:5000/jichao/demo-service-4
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 18084
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: demo-service-5
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: demo-service-5
+    spec:
+      containers:
+        - name: demo-service-5
+          image: 10.141.211.175:5000/jichao/demo-service-5
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 18085
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-service-1
+spec:
+  ports:
+    - name: http
+      port: 18081
+  selector:
+    app: demo-service-1
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-service-2
+spec:
+  ports:
+    - name: http
+      port: 18082
+  selector:
+    app: demo-service-2
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-service-3
+spec:
+  ports:
+    - name: http
+      port: 18083
+  selector:
+    app: demo-service-3
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-service-4
+spec:
+  ports:
+    - name: http
+      port: 18084
+  selector:
+    app: demo-service-4
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-service-5
+spec:
+  ports:
+    - name: http
+      port: 18085
+  selector:
+    app: demo-service-5
