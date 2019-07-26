@@ -1,0 +1,70 @@
+version: '3'
+services:
+
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - 9411:9411
+    networks:
+      - my-network
+
+  demo-service-1:
+    build: demo-service-1
+    image: demo/demo-service-1
+    restart: always
+    ports:
+      - 18081:18081
+    networks:
+      - my-network
+
+  demo-service-2:
+    build: demo-service-2
+    image: demo/demo-service-2
+    restart: always
+    ports:
+      - 18082:18082
+    networks:
+      - my-network
+
+  demo-service-3:
+    build: demo-service-3
+    image: demo/demo-service-3
+    restart: always
+    ports:
+      - 18083:18083
+    networks:
+      - my-network
+
+  demo-service-4:
+    build: demo-service-4
+    image: demo/demo-service-4
+    restart: always
+    ports:
+      - 18084:18084
+    networks:
+      - my-network
+
+  demo-service-5:
+    build: demo-service-5
+    image: demo/demo-service-5
+    restart: always
+    ports:
+      - 18085:18085
+    networks:
+      - my-network
+
+  demo-service-mongo:
+    image: mongo
+    networks:
+      - my-network
+
+
+networks:
+    my-network:
+      # driver: overlay
+      driver: bridge
+
+
+
+
+
