@@ -15,7 +15,6 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 18081
-
 ---
 
 apiVersion: extensions/v1beta1
@@ -55,6 +54,10 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 18083
+          requests:
+            memory: 200Mi
+          limits:
+            memory: 300Mi
 
 ---
 
@@ -74,7 +77,7 @@ spec:
           image: 10.141.211.175:5000/jichao/demo-service-4
           imagePullPolicy: Always
           ports:
-            - containerPort: 18084
+          - containerPort: 18084
 
 ---
 
@@ -94,7 +97,7 @@ spec:
           image: 10.141.211.175:5000/jichao/demo-service-5
           imagePullPolicy: Always
           ports:
-            - containerPort: 18085
+          - containerPort: 18085
 
 ---
 

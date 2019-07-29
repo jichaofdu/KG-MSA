@@ -23,3 +23,7 @@ docker push 10.141.211.175:5000/jichao/demo-service-2
 docker push 10.141.211.175:5000/jichao/demo-service-3
 docker push 10.141.211.175:5000/jichao/demo-service-4
 docker push 10.141.211.175:5000/jichao/demo-service-5
+
+Istio指令相关
+export PATH=$PWD/bin:$PATH
+istioctl kube-inject -f <your-app-spec>.yaml | kubectl apply -f -
