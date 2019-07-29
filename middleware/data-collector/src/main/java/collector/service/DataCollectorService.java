@@ -57,10 +57,8 @@ public class DataCollectorService {
     private String[] clusterIPs;
 
     //需要查询的容器的metric指标名称
-    private final String[] containerMetricsNameVector = {
-            "container_memory_usage_bytes",
-            "container_fs_usage_bytes",
-    };
+    @Value("${promethesus.metrics}")
+    private String[] containerMetricsNameVector;
 
     //时间戳 在图谱更新的时候会附加在节点上
     //在图谱重整的时候此值将会被刷新
@@ -145,6 +143,9 @@ public class DataCollectorService {
         return gson.fromJson(list, founderListType);
     }
 
+    //将Trace的各个Span解析出来并上传到图中 包括这个Trace经过的Pod和API
+    //示例： Service A Pod 1 -> Service B Api 1 -> Service B Pod 1
+    //注意：这个函数上传的是这个Trace 是针对单独trace而言的
     public void uploadEveryTrace(){
         //1.获得所有的Trace
         ArrayList<ArrayList<Span>> traces = getAndParseTrace();
@@ -152,7 +153,6 @@ public class DataCollectorService {
         for(ArrayList<Span> trace : traces){
             //这条trace如果已经被处理过的话 就不再处理了
             if(uploadedTraces.contains(trace.get(0).getTraceId())){
-                System.out.println("TRACE已上传过 忽略此条:" + trace.get(0).getTraceId());
                 continue;
             }
             //3.每一条trace会被解析成两个部分
@@ -175,8 +175,11 @@ public class DataCollectorService {
         System.out.println("Trace上传完成");
     }
 
-
-    public ArrayList<AppServiceHostServiceAPI> uploadApiSvcRelations(){
+    //从Trace中抽取API和Service之间的关系并上传
+    //可以从Trace中抽取出API所属于哪个Service以及API被哪些Service调用过
+    //这些信息的统计量将会被上传到图中
+    //上传的是统计量而不是Trace本身
+    public void uploadApiSvcRelations(){
         ArrayList<AppServiceHostServiceAPI> svcApiRelations = new ArrayList<>();
         ArrayList<AppServiceInvokeServiceAPI> svcInvokeApiRelations = new ArrayList<>();
         getServiceHostApiAndServiceInvokeApi(svcApiRelations, svcInvokeApiRelations);
@@ -185,11 +188,11 @@ public class DataCollectorService {
                 neo4jDaoIP + "/apiHostService", svcApiRelations, svcApiRelations.getClass());
         ArrayList<AppServiceInvokeServiceAPI> updatedSvcInvokeApiRelations = restTemplate.postForObject(
                 neo4jDaoIP + "/apiInvokeService", svcInvokeApiRelations, svcInvokeApiRelations.getClass());
-        System.out.println("API数量:" + apis.size());
-        return updatedSvcApiRelations;
-
+        System.out.println("API->Host 数量:" + apis.size());
     }
 
+    //提供一个Trace 从中抽取出API与Pod之间关系
+    //抽取结果的容器也在参数中
     public void getTraceInvokeInformation(ArrayList<Span> trace, ArrayList<TraceInvokeApiToPod> traceApiToPod, ArrayList<TraceInvokePodToApi> tracePodToApi){
         //遍历一个trace的每一个span
         for(Span span : trace) {
@@ -258,7 +261,7 @@ public class DataCollectorService {
                 relation.setRelation("TRACE");
 
                 HashSet<String> passingTracesAndSpans = new HashSet<>();
-                passingTracesAndSpans.add(span.getTraceId() + "-" + span.getId());
+                passingTracesAndSpans.add(span.getTraceId() + "-" + span.getId() + "-" + span.getDuration());
                 relation.setTraceIdAndSpanIds(passingTracesAndSpans);
 
                 traceApiToPod.add(relation);
@@ -272,7 +275,7 @@ public class DataCollectorService {
                 relation.setRelation("TRACE");
 
                 HashSet<String> passingTracesAndSpans = new HashSet<>();
-                passingTracesAndSpans.add(span.getTraceId() + "-" + span.getId());
+                passingTracesAndSpans.add(span.getTraceId() + "-" + span.getId() + "-" + span.getDuration());
                 relation.setTraceIdAndSpanIds(passingTracesAndSpans);
 
                 tracePodToApi.add(relation);
@@ -281,6 +284,8 @@ public class DataCollectorService {
         }
     }
 
+    //收集所有的Trace 解析服务及其API 以及服务与API的调用关系
+    //抽取结果放进了参数中提供的容器中
     public void getServiceHostApiAndServiceInvokeApi(ArrayList<AppServiceHostServiceAPI> svcHostApi,
                                                      ArrayList<AppServiceInvokeServiceAPI> svcInvokeApi){
         //获取trace
@@ -370,14 +375,14 @@ public class DataCollectorService {
         }
     }
 
+    //从一个链接中提取API名称
     private String getApiFromLink(String url){
         return MatcherUrlRouterUtil.matcherPattern(url);
     }
 
+    //从一个链接中提取Host服务的名称
     private String getHostFromLink(String url){
         String api = MatcherUrlRouterUtil.matcherPattern(url);
-//        System.out.println("API:" + api);
-//        System.out.println("URL:" + url);
         int index1 = url.indexOf("http://");
         int index2 = url.indexOf(api);
         String svc = url.substring(index1, index2).substring("http://".length());
@@ -386,11 +391,11 @@ public class DataCollectorService {
         return svc;
     }
 
+    //从服务的全限定名中提取服务的名称
     private String getSvcNameFromTotalName(String s){
         int index = s.indexOf(".");
         return s.substring(0, index);
     }
-
 
 
     //更新所有metrics
@@ -446,6 +451,7 @@ public class DataCollectorService {
         }
 
     }
+
 
     public ContainerList getContainerList(){
         ArrayList<ApiContainer> containers = new ArrayList<>();
