@@ -16,6 +16,11 @@ public class MovieController {
 		this.movieService = movieService;
 	}
 
+	@PostMapping("/serviceApiMetrics")
+	public ArrayList<ServiceApiAndMetric> postMetricOfItsServiceApi(@RequestBody ArrayList<ServiceApiAndMetric> relations){
+		return movieService.postMetricsOfServiceApi(relations);
+	}
+
 	@PostMapping("/traceApiToPod")
 	public ArrayList<TraceInvokeApiToPod> postTraceApiToPod(@RequestBody ArrayList<TraceInvokeApiToPod> relations){
 		return movieService.postTraceApiToPod(relations);

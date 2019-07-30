@@ -70,6 +70,7 @@ public class DataCollectorService {
     private static ConcurrentHashMap<String, AppService> svcs = new ConcurrentHashMap<>();
     private static ConcurrentHashMap<String, Pod> pods = new ConcurrentHashMap<>();
     private static ConcurrentHashMap<String, Container> containers = new ConcurrentHashMap<>();
+    //放的是name到实体的映射
     private static ConcurrentHashMap<String, ServiceAPI> apis = new ConcurrentHashMap<>();
     //记录已经统计过 服务间调用数量 的Trace
     private static HashSet<String> tracesRecord = new HashSet<>();
@@ -186,6 +187,8 @@ public class DataCollectorService {
     //提供一个Trace 从中抽取出API与Pod之间关系
     //抽取结果的容器也在参数中
     public void getTraceInvokeInformation(ArrayList<Span> trace, ArrayList<TraceInvokeApiToPod> traceApiToPod, ArrayList<TraceInvokePodToApi> tracePodToApi){
+        //统计一个个的span对API的调用时长的
+        HashMap<String, ArrayList<Integer>> apiMetricsMap = new HashMap<>();
         //遍历一个trace的每一个span
         for(Span span : trace) {
             //istio的输出信息不是我们需要的 忽略
@@ -217,7 +220,6 @@ public class DataCollectorService {
                     podId = fetchPodName(fullPodName);
                 }
             }
-            System.out.println("API:" + api + " ApiHostService:" + apiHostService + " PodId" + podId);
             if(/**invokeService.equals(hostService) ||**/ apiHostService.contains("10.")){
                 continue;
             }
@@ -253,11 +255,10 @@ public class DataCollectorService {
                 relation.setRelation("TRACE");
 
                 HashSet<String> passingTracesAndSpans = new HashSet<>();
-                passingTracesAndSpans.add(span.getTraceId() + "-" + span.getId() + "-" + span.getDuration());
+                passingTracesAndSpans.add(span.getTraceId() + "-" + span.getId());
                 relation.setTraceIdAndSpanIds(passingTracesAndSpans);
 
                 traceApiToPod.add(relation);
-                System.out.println("Trace连接 API TO POD:" + relation.getId());
             }else{
             //这种情况下应该创建一个POD指向API的连接
                 TraceInvokePodToApi relation = new TraceInvokePodToApi();
@@ -267,14 +268,63 @@ public class DataCollectorService {
                 relation.setRelation("TRACE");
 
                 HashSet<String> passingTracesAndSpans = new HashSet<>();
-                passingTracesAndSpans.add(span.getTraceId() + "-" + span.getId() + "-" + span.getDuration());
+                passingTracesAndSpans.add(span.getTraceId() + "-" + span.getId());
+
+                //Metric - duration处理api调用时间长度的问题
+                //Metric -> Api
+                ArrayList<Integer> apiMetricList = apiMetricsMap.getOrDefault(serviceApi.getName(), new ArrayList<>());
+                apiMetricList.add(Integer.parseInt(span.getDuration()));
+                apiMetricsMap.put(serviceApi.getName(), apiMetricList);
+
                 relation.setTraceIdAndSpanIds(passingTracesAndSpans);
 
                 tracePodToApi.add(relation);
-                System.out.println("Trace连接 POD TO API:" + relation.getId());
             }
+
         }
+
+        //处理一下span响应时间的问题
+        handleApiMetrics(apiMetricsMap);
     }
+
+
+    private void handleApiMetrics(HashMap<String, ArrayList<Integer>> apiMetricsMap){
+
+        System.out.println("=====handleApiMetrics=====");
+
+        ArrayList<ServiceApiAndMetric> relations = new ArrayList<>();
+
+        for(String serviceApiName : apiMetricsMap.keySet()){
+
+            ArrayList<Integer> moreApiMetrics = apiMetricsMap.get(serviceApiName);
+            ServiceApiMetric apiMetric = new ServiceApiMetric();
+            apiMetric.setValues(moreApiMetrics);
+            apiMetric.setCreationTimestamp(getCurrentTimestamp());
+            apiMetric.setLatestUpdateTimestamp(getCurrentTimestamp());
+            apiMetric.setName(serviceApiName + "_" + "duration");
+            apiMetric.setId(serviceApiName + "_" + "duration");
+
+            ServiceAPI serviceApi = apis.get(serviceApiName);
+
+            ServiceApiAndMetric relation = new ServiceApiAndMetric();
+
+            relation.setApiMetric(apiMetric);
+            relation.setServiceAPI(serviceApi);
+            relation.setRelation("SERVICEAPI_RUNTIME_INFO");
+            relation.setId(apiMetric.getId() + "MetricAndContainer" + serviceApi.getId());
+
+            System.out.println("==" + relation.getId());
+            System.out.println("==" + relation.getApiMetric().getValues().toString());
+
+            relations.add(relation);
+        }
+
+        //向对方上传数据
+        restTemplate.postForObject(neo4jDaoIP + "/serviceApiMetrics", relations, relations.getClass());
+
+    }
+
+
 
     //收集所有的Trace 解析服务及其API 以及服务与API的调用关系
     //抽取结果放进了参数中提供的容器中
@@ -287,10 +337,8 @@ public class DataCollectorService {
         for(ArrayList<Span> trace : traces){
 
             if(tracesRecord.contains(trace.get(0).getTraceId())){
-//                System.out.println("Trace ID已解析:" + trace.get(0).getTraceId());
                 continue;
             }else{
-//                System.out.println("Trace ID待解析:" + trace.get(0).getTraceId());
                 tracesRecord.add(trace.get(0).getTraceId());
             }
             //遍历一个trace的每一个span
@@ -322,7 +370,6 @@ public class DataCollectorService {
                         continue;
                     }
                     //看下API在吗，不在的话重组一个
-                    //System.out.println("发现API " + api);
                     ServiceAPI serviceApi;
                     if(apis.get(api) != null){
                         serviceApi = apis.get(api);
@@ -339,7 +386,6 @@ public class DataCollectorService {
                     }
 
                     //看看host serivice在吗 不在的话就不管了 在的话组装一下relation
-                    //System.out.println("发现API的所属关系 " + hostService);
                     if(svcs.get(hostService)!= null){
                        AppService hostSvc = svcs.get(hostService);
                        AppServiceHostServiceAPI relationHost = new AppServiceHostServiceAPI();
@@ -351,7 +397,6 @@ public class DataCollectorService {
                     }
 
                     //看看invoke service在吗 不在的话就不管了 在的话组装一下relation
-                    //System.out.println("发现API的被调关系 " + invokeService);
                     if(svcs.get(invokeService)!= null){
                         AppService invokeSvc = svcs.get(invokeService);
                         AppServiceInvokeServiceAPI relationInvoke = new AppServiceInvokeServiceAPI();

@@ -44,6 +44,10 @@ public class MovieService {
 
 	private final TraceInvokePodToApiRepository traceInvokePodToApiRepository;
 
+	private final MetricOfServiceApiRepository metricOfServiceApiRepository;
+
+	private final MetricAndServiceApiRepository metricAndServiceApiRepository;
+
 	public MovieService(PodRepository podRepository,
 						ContainerRepository containerRepository,
 						AppServiceRepository appServiceRepository,
@@ -57,7 +61,9 @@ public class MovieService {
 						AppServiceHostApiRepository appServiceHostApiRepository,
 						AppServiceInvokeApiRepository appServiceInvokeApiRepository,
 						TraceInvokeApiToPodRepository traceInvokeApiToPodRepository,
-						TraceInvokePodToApiRepository traceInvokePodToApiRepository) {
+						TraceInvokePodToApiRepository traceInvokePodToApiRepository,
+						MetricOfServiceApiRepository metricOfServiceApiRepository,
+						MetricAndServiceApiRepository metricAndServiceApiRepository) {
 		this.podRepository = podRepository;
 		this.virtualMachineRepository = virtualMachineRepository;
 		this.virtualMachineAndPodRepository = virtualMachineAndPodRepository;
@@ -72,6 +78,28 @@ public class MovieService {
 		this.appServiceInvokeApiRepository = appServiceInvokeApiRepository;
 		this.traceInvokeApiToPodRepository = traceInvokeApiToPodRepository;
 		this.traceInvokePodToApiRepository = traceInvokePodToApiRepository;
+		this.metricOfServiceApiRepository = metricOfServiceApiRepository;
+		this.metricAndServiceApiRepository = metricAndServiceApiRepository;
+	}
+
+	@Transactional(readOnly = true)
+	public ArrayList<ServiceApiAndMetric> postMetricsOfServiceApi(ArrayList<ServiceApiAndMetric> relations){
+
+		ArrayList<ServiceApiAndMetric> result = new ArrayList<>();
+		for(ServiceApiAndMetric relation : relations){
+			ServiceApiMetric metric = relation.getApiMetric();
+			System.out.println("上传ServiceApiMetric=================");
+			Optional<ServiceApiMetric> metricOptional = metricOfServiceApiRepository.findById(metric.getId());
+			if(metricOptional.isPresent()){
+				ServiceApiMetric oldMetric = metricOptional.get();
+				oldMetric.getValues().addAll(metric.getValues());
+				relation.setApiMetric(oldMetric);
+			}
+
+			ServiceApiAndMetric savedRelation = metricAndServiceApiRepository.save(relation);
+			result.add(savedRelation);
+		}
+		return result;
 	}
 
 	@Transactional(readOnly = true)

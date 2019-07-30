@@ -62,5 +62,5 @@ RETURN r
 
 Trace指令
 MATCH (n)-[r:Traces]->(m)
-WHERE ANY(x IN r.traceIdSpanId WHERE x =~ '319bbc7da0a4612347afb75412674fcd-.*')
+WHERE ANY(x IN r.traceIdSpanId WHERE x =~ '1c3ae189940c1583b9cef8efea74582e-.*')
 RETURN n,r,m

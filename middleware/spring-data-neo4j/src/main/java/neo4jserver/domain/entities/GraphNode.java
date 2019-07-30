@@ -21,7 +21,7 @@ public class GraphNode {
     private String className = this.getClass().getName();
 
     @Labels
-    private Set<String> labels = new HashSet<String>();
+    private Set<String> labels = new HashSet<>();
 
     @Property(name="latestUpdateTimestamp")
     private String latestUpdateTimestamp;
