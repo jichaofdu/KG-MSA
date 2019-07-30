@@ -81,6 +81,8 @@ public class DataCollectorService {
     @Autowired
     private Gson gson;
 
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+
     private final Object objLockForPeriodly = new Object();
 
     //平均耗时23秒
@@ -103,20 +105,12 @@ public class DataCollectorService {
     public void uploadTracesPeriodly(){
         synchronized (objLockForPeriodly) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-            System.out.println("[开始]定期上传Trace 现在时间：" + dateFormat.format(new Date()));
-            uploadEveryTrace();
-            System.out.println("[完成]定期上传Trace 现在时间：" + dateFormat.format(new Date()));
-        }
-    }
-
-
-    @Scheduled(initialDelay=50000, fixedDelay =50000)
-    public void updateTracePeriodly() {
-        synchronized (objLockForPeriodly) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
             System.out.println("[开始]定期刷新调用关系 现在时间：" + dateFormat.format(new Date()));
             uploadApiSvcRelations();
             System.out.println("[完成]定期刷新调用关系 现在时间：" + dateFormat.format(new Date()));
+            System.out.println("[开始]定期上传Trace 现在时间：" + dateFormat.format(new Date()));
+            uploadEveryTrace();
+            System.out.println("[完成]定期上传Trace 现在时间：" + dateFormat.format(new Date()));
         }
     }
 
@@ -124,11 +118,9 @@ public class DataCollectorService {
     @Scheduled(initialDelay=100000, fixedDelay =15000)
     public void updateMetricsPeriodly() {
         synchronized (objLockForPeriodly) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
             System.out.println("[开始]定期刷新应用指标数据 现在时间：" + dateFormat.format(new Date()));
             updateMetrics();
             System.out.println("[完成]定期刷新应用指标数据 现在时间：" + dateFormat.format(new Date()));
-
         }
     }
 

@@ -274,7 +274,6 @@ public class MovieService {
 	}
 
 
-
 	@Transactional(readOnly = true)
 	public AppServiceAndPod findByAppServiceAndPodId(String id){
 		Optional<AppServiceAndPod> appServiceAndPod = appServiceAndPodRepository.findById(id);
@@ -307,8 +306,6 @@ public class MovieService {
 		}
 		return result;
 	}
-
-
 
 	@Transactional(readOnly = true)
 	public PodAndContainer findByPodAndContainerId(String id){
