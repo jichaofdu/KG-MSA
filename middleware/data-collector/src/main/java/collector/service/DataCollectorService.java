@@ -155,14 +155,19 @@ public class DataCollectorService {
             getTraceInvokeInformation(trace, traceApiToPod, tracePodToApi);
 
             //3.两个部分分别上传
-            if(!traceApiToPod.isEmpty()){
-                restTemplate.postForObject(neo4jDaoIP + "/traceApiToPod", traceApiToPod, traceApiToPod.getClass());
+            try{
+                if(!traceApiToPod.isEmpty()){
+                    restTemplate.postForObject(neo4jDaoIP + "/traceApiToPod", traceApiToPod, traceApiToPod.getClass());
+                }
+                if(!tracePodToApi.isEmpty()){
+                    restTemplate.postForObject(neo4jDaoIP + "/tracePodToApi", tracePodToApi, tracePodToApi.getClass());
+                }
+                uploadedTraces.add(trace.get(0).getTraceId());
+                System.out.println("上传Trace " + trace.get(0).getTraceId());
+            }catch (Exception e){
+                e.printStackTrace();
             }
-            if(!tracePodToApi.isEmpty()){
-                restTemplate.postForObject(neo4jDaoIP + "/tracePodToApi", tracePodToApi, tracePodToApi.getClass());
-            }
-            uploadedTraces.add(trace.get(0).getTraceId());
-            System.out.println("上传Trace " + trace.get(0).getTraceId());
+
         }
         //4.完成
         System.out.println("Trace上传完成");
@@ -249,7 +254,7 @@ public class DataCollectorService {
             //这种情况下应该给创建一个API指向pod的连接
             if(podId.contains(apiHostService)){
                 TraceInvokeApiToPod relation = new TraceInvokeApiToPod();
-                relation.setId(pod.getId() + "_" + serviceApi.getId());
+                relation.setId(serviceApi.getId() + "_" + pod.getId());
                 relation.setPod(pod);
                 relation.setServiceAPI(serviceApi);
                 relation.setRelation("TRACE");
@@ -319,9 +324,12 @@ public class DataCollectorService {
             relations.add(relation);
         }
 
-        //向对方上传数据
-        restTemplate.postForObject(neo4jDaoIP + "/serviceApiMetrics", relations, relations.getClass());
-
+        if(relations.isEmpty()){
+            System.out.println("本Trace无Metric数据上传");
+        }else{
+            //向对方上传数据
+            restTemplate.postForObject(neo4jDaoIP + "/serviceApiMetrics", relations, relations.getClass());
+        }
     }
 
 
@@ -642,15 +650,12 @@ public class DataCollectorService {
                 containerName = containerName.substring(1);
             }
             //根据containernNamec抽取各种Metric
-            MetricAndContainer relation;
-                    //抽取container_memory_usage_bytes
-            relation = asemblyMetricAndContainer("container_memory_usage_bytes",
-                    containerName, container);
-            relations.add(relation);
-            //抽取container_fs_usage_bytes
-            relation = asemblyMetricAndContainer("container_fs_usage_bytes",
-                    containerName, container);
-            relations.add(relation);
+            for(String containerMetricName : containerMetricsNameVector){
+                MetricAndContainer relation;
+                //抽取container_memory_usage_bytes
+                relation = asemblyMetricAndContainer(containerMetricName, containerName, container);
+                relations.add(relation);
+            }
         }
         return relations;
     }

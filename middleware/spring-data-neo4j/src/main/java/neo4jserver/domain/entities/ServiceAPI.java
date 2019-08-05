@@ -11,6 +11,9 @@ public class ServiceAPI extends GraphNode {
     @Property(name="hostName")
     private String hostName;
 
+    @Property(name="abnormality")
+    private double abnormality;
+
     public ServiceAPI() {
         super();
     }
@@ -21,5 +24,13 @@ public class ServiceAPI extends GraphNode {
 
     public void setHostName(String hostName) {
         this.hostName = hostName;
+    }
+
+    public double getAbnormality() {
+        return abnormality;
+    }
+
+    public void setAbnormality(double abnormality) {
+        this.abnormality = abnormality;
     }
 }

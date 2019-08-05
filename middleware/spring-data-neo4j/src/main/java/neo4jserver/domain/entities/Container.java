@@ -21,6 +21,9 @@ public class Container extends GraphNode {
     @Property(name="status")
     private String status;
 
+    @Property(name="abnormality")
+    private double abnormality;
+
     public Container() {
         super();
     }
@@ -63,5 +66,13 @@ public class Container extends GraphNode {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public double getAbnormality() {
+        return abnormality;
+    }
+
+    public void setAbnormality(double abnormality) {
+        this.abnormality = abnormality;
     }
 }

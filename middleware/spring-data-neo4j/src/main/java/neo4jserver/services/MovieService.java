@@ -106,8 +106,10 @@ public class MovieService {
 	public ArrayList<TraceInvokeApiToPod> postTraceApiToPod(ArrayList<TraceInvokeApiToPod> relations){
 		ArrayList<TraceInvokeApiToPod> result = new ArrayList<>();
 		for(TraceInvokeApiToPod relation : relations) {
+			System.out.println("FIND RELATION ID " + relation.getId());
 			Optional<TraceInvokeApiToPod> savedRelationOptional =
 					traceInvokeApiToPodRepository.findById(relation.getId());
+
 			if(savedRelationOptional.isPresent()){
 				TraceInvokeApiToPod savedRelation = savedRelationOptional.get();
 				savedRelation.getTraceIdAndSpanIds().addAll(relation.getTraceIdAndSpanIds());
