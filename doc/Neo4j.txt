@@ -61,6 +61,6 @@ RETURN r
 
 
 Trace指令
-MATCH (n)-[r:Traces]->(m)
-WHERE ANY(x IN r.traceIdSpanId WHERE x =~ '1c3ae189940c1583b9cef8efea74582e-.*')
+MATCH (n)-[r:TraceInvokeApiToPod|TraceInvokePodToApi]->(m)
+WHERE ANY(x IN r.traceIdSpanId WHERE x =~ 'b7fe75c9f644941df6be01644a7974e5-.*')
 RETURN n,r,m

@@ -6,7 +6,7 @@ import org.neo4j.ogm.annotation.*;
 
 import java.util.HashSet;
 
-@RelationshipEntity(type = "Traces")
+@RelationshipEntity(type = "TraceInvokePodToApi")
 public class TraceInvokePodToApi {
 
     @Id

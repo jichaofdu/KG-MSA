@@ -87,7 +87,7 @@ public class DataCollectorService {
     private final Object objLockForPeriodly = new Object();
 
     //平均耗时23秒
-    @Scheduled(initialDelay=5000, fixedDelay =100000)
+    @Scheduled(initialDelay=5000, fixedDelay =1000000000)
     public void updateFrameworkPeriodly() {
         synchronized (objLockForPeriodly){
             //记录当前时间
@@ -102,7 +102,7 @@ public class DataCollectorService {
     }
 
     //6秒？
-    @Scheduled(initialDelay = 100000, fixedDelay = 100000)
+    @Scheduled(initialDelay = 70000, fixedDelay = 100000)
     public void uploadTracesPeriodly(){
         synchronized (objLockForPeriodly) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
@@ -231,6 +231,12 @@ public class DataCollectorService {
             //将trace的两部分组装好
             //看下API在吗，不在的话重组一个
             //System.out.println("Trace复现过程中发现API " + api);
+            Pod pod = pods.get(podId);
+            if(pod == null){
+                System.out.println("[意外情况]Pod找不到 此Trace将被跳过 PodID：" + podId);
+                continue;
+            }
+
             ServiceAPI serviceApi;
             if(apis.get(api) != null){
                 serviceApi = apis.get(api);
@@ -243,12 +249,6 @@ public class DataCollectorService {
                 serviceApi.setLatestUpdateTimestamp(currTimestampString);
                 serviceApi.setCreationTimestamp(currTimestampString);
                 apis.put(serviceApi.getName(), serviceApi);
-            }
-
-            Pod pod = pods.get(podId);
-            if(pod == null){
-                System.out.println("[意外情况]Pod找不到 此Trace将被跳过");
-                continue;
             }
 
             //这种情况下应该给创建一个API指向pod的连接
@@ -289,7 +289,7 @@ public class DataCollectorService {
         }
 
         //处理一下span响应时间的问题
-        handleApiMetrics(apiMetricsMap);
+//        handleApiMetrics(apiMetricsMap);
     }
 
 

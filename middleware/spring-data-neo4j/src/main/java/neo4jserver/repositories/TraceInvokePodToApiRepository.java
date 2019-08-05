@@ -8,12 +8,7 @@ import java.util.Optional;
 
 public interface TraceInvokePodToApiRepository extends Neo4jRepository<TraceInvokePodToApi, Long> {
 
+    @Query("MATCH p=()-[r:TraceInvokePodToApi]->() WHERE r.id={0} RETURN p")
     Optional<TraceInvokePodToApi> findById(String id);
-
-    @Query("MATCH p=()-[r:TraceInvokeApiToPod]->() RETURN p")
-    ArrayList<TraceInvokePodToApi> findAllTraceInvokePodToApi();
-
-    @Query("MATCH p=()-[r:TraceInvokePodToApi]->() WHERE r.id={0} RETURN r")
-    Optional<TraceInvokePodToApi> findByTraceId(String traceId);
 
 }

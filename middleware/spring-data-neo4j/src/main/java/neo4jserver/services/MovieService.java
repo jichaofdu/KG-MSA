@@ -118,10 +118,15 @@ public class MovieService {
 			Optional<TraceInvokeApiToPod> savedRelationOptional =
 					traceInvokeApiToPodRepository.findById(relation.getId());
 
-			if(savedRelationOptional.isPresent()){
+			if(!savedRelationOptional.isPresent()){
+				relation.setPod(podRepository.save(relation.getPod()));
+				relation.setServiceAPI(serviceApiRepository.save(relation.getServiceAPI()));
+				System.out.println("不存在");
+			}else{
 				TraceInvokeApiToPod savedRelation = savedRelationOptional.get();
 				savedRelation.getTraceIdAndSpanIds().addAll(relation.getTraceIdAndSpanIds());
 				relation = savedRelation;
+				System.out.println("存在");
 			}
 			relation = traceInvokeApiToPodRepository.save(relation);
 			result.add(relation);
@@ -135,10 +140,15 @@ public class MovieService {
 		for(TraceInvokePodToApi relation : relations) {
 			Optional<TraceInvokePodToApi> savedRelationOptional =
 					traceInvokePodToApiRepository.findById(relation.getId());
-			if(savedRelationOptional.isPresent()){
+			if(!savedRelationOptional.isPresent()){
+				relation.setPod(podRepository.save(relation.getPod()));
+				relation.setServiceAPI(serviceApiRepository.save(relation.getServiceAPI()));
+				System.out.println("不存在");
+			}else{
 				TraceInvokePodToApi savedRelation = savedRelationOptional.get();
 				savedRelation.getTraceIdAndSpanIds().addAll(relation.getTraceIdAndSpanIds());
 				relation = savedRelation;
+				System.out.println("存在");
 			}
 			relation = traceInvokePodToApiRepository.save(relation);
 			result.add(relation);
