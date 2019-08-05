@@ -48,6 +48,10 @@ public class MovieService {
 
 	private final MetricAndServiceApiRepository metricAndServiceApiRepository;
 
+	private final MetricAndPodRepository metricAndPodRepository;
+
+	private final MetricOfPodRepository metricOfPodRepository;
+
 	public MovieService(PodRepository podRepository,
 						ContainerRepository containerRepository,
 						AppServiceRepository appServiceRepository,
@@ -63,7 +67,9 @@ public class MovieService {
 						TraceInvokeApiToPodRepository traceInvokeApiToPodRepository,
 						TraceInvokePodToApiRepository traceInvokePodToApiRepository,
 						MetricOfServiceApiRepository metricOfServiceApiRepository,
-						MetricAndServiceApiRepository metricAndServiceApiRepository) {
+						MetricAndServiceApiRepository metricAndServiceApiRepository,
+						MetricAndPodRepository metricAndPodRepository,
+						MetricOfPodRepository metricOfPodRepository) {
 		this.podRepository = podRepository;
 		this.virtualMachineRepository = virtualMachineRepository;
 		this.virtualMachineAndPodRepository = virtualMachineAndPodRepository;
@@ -80,6 +86,8 @@ public class MovieService {
 		this.traceInvokePodToApiRepository = traceInvokePodToApiRepository;
 		this.metricOfServiceApiRepository = metricOfServiceApiRepository;
 		this.metricAndServiceApiRepository = metricAndServiceApiRepository;
+		this.metricAndPodRepository = metricAndPodRepository;
+		this.metricOfPodRepository = metricOfPodRepository;
 	}
 
 	@Transactional(readOnly = true)
