@@ -653,7 +653,7 @@ public class DataCollectorService {
             for(String containerMetricName : containerMetricsNameVector){
                 MetricAndContainer relation;
                 //抽取container_memory_usage_bytes
-                relation = asemblyMetricAndContainer(containerMetricName, containerName, container);
+                relation = assembleMetricAndContainer(containerMetricName, containerName, container);
                 relations.add(relation);
             }
         }
@@ -661,7 +661,7 @@ public class DataCollectorService {
     }
 
     //Assembly Metrics
-    private MetricAndContainer asemblyMetricAndContainer(String metricName, String containerName, Container container){
+    private MetricAndContainer assembleMetricAndContainer(String metricName, String containerName, Container container){
         ExpressionQueriesVectorResponse res = getMetric(metricName, containerName);
         Metric metric = getMetricFromExpressionQueriesVectorResponse(res, metricName, containerName);
         MetricAndContainer relation = new MetricAndContainer();
