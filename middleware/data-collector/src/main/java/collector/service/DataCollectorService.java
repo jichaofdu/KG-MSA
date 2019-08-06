@@ -60,6 +60,9 @@ public class DataCollectorService {
     @Value("${promethesus.metrics}")
     private String[] containerMetricsNameVector;
 
+    @Value("${promethesus.pod.metrics}")
+    private String[] podMetricNames;
+
     //时间戳 在图谱更新的时候会附加在节点上
     //在图谱重整的时候此值将会被刷新
     //在更新Metric的时候这个值不会刷新
@@ -121,6 +124,7 @@ public class DataCollectorService {
         synchronized (objLockForPeriodly) {
             System.out.println("[开始]定期刷新应用指标数据 现在时间：" + dateFormat.format(new Date()));
             updateMetrics();
+            uploadPodMetrics();
             System.out.println("[完成]定期刷新应用指标数据 现在时间：" + dateFormat.format(new Date()));
         }
     }
@@ -571,27 +575,89 @@ public class DataCollectorService {
         ArrayList<MetricAndContainer> metricAndContainerRelations = constructMetricAndContainer(apiContainerList);
         System.out.println("metricAndContainerRelations");
         //第三步: 上传关系(无需额外上传entity, 关系中包含entity, 对面会自动处理)
-        ArrayList<VirtualMachineAndPod> vmPodRelationsResult = new ArrayList<>();
+        ArrayList<VirtualMachineAndPod> vmPodRelationsResult;
         vmPodRelationsResult = postVmAndPodList(vmPodRelations);
-
         System.out.println("完成上传VirtualMachineAndPod:" + vmPodRelationsResult.size());
-        ArrayList<AppServiceAndPod> appServiceAndPodsResult = new ArrayList<>();
+
+        ArrayList<AppServiceAndPod> appServiceAndPodsResult;
         appServiceAndPodsResult = postSvcAndPodList(appServiceAndPodRelations);
-
         System.out.println("完成上传AppServiceAndPod:" + appServiceAndPodsResult.size());
-        ArrayList<PodAndContainer> podAndContainerResult = new ArrayList<>();
+
+        ArrayList<PodAndContainer> podAndContainerResult;
         podAndContainerResult = postPodAndContainerList(podAndContainerRelations);
-
         System.out.println("完成上传PodAndContainer:" + podAndContainerResult.size());
-        ArrayList<MetricAndContainer> metricAndContainerResult = new ArrayList<>();
-        metricAndContainerResult = postMetricAndContainerList(metricAndContainerRelations);
 
+        ArrayList<MetricAndContainer> metricAndContainerResult;
+        metricAndContainerResult = postMetricAndContainerList(metricAndContainerRelations);
         System.out.println("完成上传MetricAndContainer:" + metricAndContainerResult.size());
+
         System.out.println("虚拟机数量:" + vms.size());
         System.out.println("服务数量:" + svcs.size());
         System.out.println("Pod数量:" + pods.size());
         System.out.println("容器数量:" + containers.size());
         return "";
+    }
+
+    public void uploadPodMetrics(){
+        ArrayList<PodAndMetric> list = constructPodMetrics();
+        System.out.println("上传Pod Metrics 数量:" + list.size());
+        restTemplate.postForObject(
+                neo4jDaoIP + "/podAndMetrics", list, list.getClass());
+        System.out.println("上传Pod Metrics完毕");
+    }
+
+    private ArrayList<PodAndMetric> constructPodMetrics(){
+        ArrayList<PodAndMetric> relations = new ArrayList<>();
+        for(Pod pod : pods.values()){
+            for(String podMetricName : podMetricNames) {
+                try{
+                    String queryStr = podMetricName +
+                            "{" +
+                            "pod=" + "\"" + pod.getName() + "\"," +
+                            "name=\"\"" +
+                            "}";
+
+                    System.out.println(queryStr);
+
+                    MultiValueMap<String, Object> postParameters = new LinkedMultiValueMap<>();
+                    postParameters.add("query", queryStr);
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.add("Content-Type", "application/x-www-form-urlencoded");
+                    HttpEntity<MultiValueMap<String, Object>> r = new HttpEntity<>(postParameters, headers);
+                    String str = restTemplate.postForObject(promethsusQuery,r,String.class);
+                    if(str.contains("\"resultType\":\"vector\"")){
+                        ExpressionQueriesVectorResponse res = gson.fromJson(str,ExpressionQueriesVectorResponse.class);
+
+                        PodMetric podMetric = new PodMetric();
+                        podMetric.setTime(res.getData().getResult().get(0).getValue().get(0));
+                        podMetric.setValue(res.getData().getResult().get(0).getValue().get(1));
+                        podMetric.setHistoryTimestamps(new ArrayList<>());
+                        podMetric.setHistoryValues(new ArrayList<>());
+                        //metric的ID为container的名字与metric的名字
+                        podMetric.setId(pod.getName() + "_" + podMetricName);
+                        podMetric.setName(pod.getName()  + "_" + podMetricName);
+                        podMetric.setCreationTimestamp(getCurrentTimestamp());
+                        podMetric.setLatestUpdateTimestamp(getCurrentTimestamp());
+
+
+                        PodAndMetric relation = new PodAndMetric();
+                        relation.setPod(pod);
+                        relation.setPodMetric(podMetric);
+                        relation.setId(podMetric.getId() + "MetricAndPod" + pod.getId());
+                        relation.setRelation("RUNTIME_INFO");
+
+                        relations.add(relation);
+
+                    }else{
+                        System.out.println("[错误]Promethesus数据不合规 无法解析");
+                    }
+                }catch (Exception e){
+                    System.out.println("[错误]未查到此Pod的Metric Pod名称:" + pod.getName() + " Metric名称:" + podMetricName);
+                }
+
+            }
+        }
+        return relations;
     }
 
     private ArrayList<VirtualMachineAndPod> postVmAndPodList(ArrayList<VirtualMachineAndPod> relations){

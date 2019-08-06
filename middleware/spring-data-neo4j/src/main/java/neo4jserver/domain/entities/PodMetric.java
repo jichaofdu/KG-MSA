@@ -8,18 +8,51 @@ import java.util.ArrayList;
 @NodeEntity(label="PodMetric")
 public class PodMetric extends GraphNode  {
 
-    @Property(name="values")
-    private ArrayList<Integer> values = new ArrayList<>();
+    @Property(name="value")
+    private String value;
+
+    @Property(name="time")
+    private String time;
+
+    @Property(name="historyTimestamps")
+    private ArrayList<String> historyTimestamps = new ArrayList<>();
+
+    @Property(name="historyValues")
+    private ArrayList<String> historyValues = new ArrayList<>();
 
     public PodMetric() {
         super();
     }
 
-    public ArrayList<Integer> getValues() {
-        return values;
+    public String getValue() {
+        return value;
     }
 
-    public void setValues(ArrayList<Integer> values) {
-        this.values = values;
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public ArrayList<String> getHistoryTimestamps() {
+        return historyTimestamps;
+    }
+
+    public void setHistoryTimestamps(ArrayList<String> historyTimestamps) {
+        this.historyTimestamps = historyTimestamps;
+    }
+
+    public ArrayList<String> getHistoryValues() {
+        return historyValues;
+    }
+
+    public void setHistoryValues(ArrayList<String> historyValues) {
+        this.historyValues = historyValues;
     }
 }

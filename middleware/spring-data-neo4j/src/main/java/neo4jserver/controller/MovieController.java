@@ -41,6 +41,11 @@ public class MovieController {
 		return movieService.postListOfAppServiceInvokeServiceAPI(relations);
 	}
 
+	@PostMapping("/podAndMetrics")
+	public ArrayList<PodAndMetric> postPodAndMetric(@RequestBody ArrayList<PodAndMetric> relations){
+		return movieService.postPodAndMetric(relations);
+	}
+
 	@PostMapping("/updateMetrics")
 	public ArrayList<Metric> updateMetrics(@RequestBody ArrayList<Metric> metrics){
 		return movieService.updateMetrics(metrics);

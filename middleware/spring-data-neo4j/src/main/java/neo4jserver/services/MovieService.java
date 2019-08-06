@@ -209,6 +209,40 @@ public class MovieService {
 	}
 
 	@Transactional(readOnly = true)
+	public ArrayList<PodAndMetric> postPodAndMetric(ArrayList<PodAndMetric> podAndMetrics){
+		ArrayList<PodAndMetric> result = new ArrayList<>();
+
+		for(PodAndMetric relation : podAndMetrics){
+			Optional<PodMetric> podMetricOpt = metricOfPodRepository.findById(relation.getPodMetric().getId());
+			if(podMetricOpt.isPresent()){
+				PodMetric oldPodMetric = podMetricOpt.get();
+				oldPodMetric.getHistoryTimestamps().add(oldPodMetric.getTime());
+				oldPodMetric.getHistoryValues().add(oldPodMetric.getValue());
+				oldPodMetric.setTime(relation.getPodMetric().getTime());
+				oldPodMetric.setValue(relation.getPodMetric().getValue());
+				oldPodMetric.setLatestUpdateTimestamp(relation.getPodMetric().getLatestUpdateTimestamp());
+				//time frame是200 最多保留两百条数据
+				//多余的数据拿掉（越靠前的数据越离谱）
+				if(oldPodMetric.getHistoryValues() != null &&
+						oldPodMetric.getHistoryValues().size() > METRIC_MAX_TIME_WINDOW_SIZE){
+					oldPodMetric.getHistoryValues().remove(0);
+					oldPodMetric.getHistoryTimestamps().remove(0);
+				}
+				oldPodMetric = metricOfPodRepository.save(oldPodMetric);
+				relation.setPodMetric(oldPodMetric);
+				result.add(relation);
+			}else{
+				PodMetric podMetric = metricOfPodRepository.save(relation.getPodMetric());
+				relation.setPodMetric(podMetric);
+				relation = metricAndPodRepository.save(relation);
+				result.add(relation);
+			}
+		}
+		return result;
+	}
+
+
+	@Transactional(readOnly = true)
 	public ArrayList<Metric> updateMetrics(ArrayList<Metric> metrics){
 		ArrayList<Metric> returnMetrics = new ArrayList<>();
 		for(Metric metric : metrics){
@@ -222,6 +256,7 @@ public class MovieService {
 			metricOldEntity.getHistoryValues().add(metricOldEntity.getValue());
 			metricOldEntity.setTime(metric.getTime());
 			metricOldEntity.setValue(metric.getValue());
+			metricOldEntity.setLatestUpdateTimestamp(metric.getLatestUpdateTimestamp());
 			//time frame是200 最多保留两百条数据
 			//多余的数据拿掉（越靠前的数据越离谱）
 			if(metricOldEntity.getHistoryValues() != null &&
