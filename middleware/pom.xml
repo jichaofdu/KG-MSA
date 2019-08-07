@@ -17,7 +17,8 @@
 	<modules>
 		<module>spring-data-neo4j</module>
         <module>data-collector</module>
-    </modules>
+		<module>graph-app</module>
+	</modules>
 
 	<dependencies>
 		<dependency>

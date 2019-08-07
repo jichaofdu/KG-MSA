@@ -1,0 +1,6 @@
+server:
+  port: 17632
+
+spring:
+  application:
+    name: graph-app

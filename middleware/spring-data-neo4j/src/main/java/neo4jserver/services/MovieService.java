@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class MovieService {
 
-	private static final int METRIC_MAX_TIME_WINDOW_SIZE = 200;
+	private static final int METRIC_MAX_TIME_WINDOW_SIZE = 50;
 
 //	@Autowired
 //	private Neo4jUtil neo4jUtil;
