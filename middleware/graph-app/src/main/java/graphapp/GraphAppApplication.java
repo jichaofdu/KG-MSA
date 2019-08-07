@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 
 @SpringBootApplication
-@EnableNeo4jRepositories("neo4jserver.repositories")
+@EnableNeo4jRepositories("graphapp.repositories")
 public class GraphAppApplication {
 
     public static void main(String[] args) {
