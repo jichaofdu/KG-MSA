@@ -293,7 +293,7 @@ public class DataCollectorService {
         }
 
         //处理一下span响应时间的问题
-//        handleApiMetrics(apiMetricsMap);
+        handleApiMetrics(apiMetricsMap);
     }
 
 
@@ -616,8 +616,6 @@ public class DataCollectorService {
                             "pod=" + "\"" + pod.getName() + "\"," +
                             "name=\"\"" +
                             "}";
-
-                    System.out.println(queryStr);
 
                     MultiValueMap<String, Object> postParameters = new LinkedMultiValueMap<>();
                     postParameters.add("query", queryStr);
