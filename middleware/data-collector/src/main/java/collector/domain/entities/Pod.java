@@ -18,8 +18,6 @@ public class Pod extends GraphNode{
 
     private String qosClass;
 
-    private double abnormality;
-
     public Pod() {
         super();
     }
@@ -86,13 +84,5 @@ public class Pod extends GraphNode{
 
     public void setQosClass(String qosClass) {
         this.qosClass = qosClass;
-    }
-
-    public double getAbnormality() {
-        return abnormality;
-    }
-
-    public void setAbnormality(double abnormality) {
-        this.abnormality = abnormality;
     }
 }

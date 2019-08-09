@@ -7,8 +7,6 @@ public class ServiceAPI extends GraphNode {
     //Example "ts-ticketinfo-service" -> hostname
     private String hostName;
 
-    private double abnormality;
-
     public ServiceAPI() {
         super();
     }
@@ -21,11 +19,4 @@ public class ServiceAPI extends GraphNode {
         this.hostName = hostName;
     }
 
-    public double getAbnormality() {
-        return abnormality;
-    }
-
-    public void setAbnormality(double abnormality) {
-        this.abnormality = abnormality;
-    }
 }

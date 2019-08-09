@@ -9,17 +9,28 @@ public class ServiceApiMetric extends GraphNode {
 
 
     @Property(name="values")
-    private ArrayList<Integer> values = new ArrayList<>();
+    private ArrayList<Double> values = new ArrayList<>();
+
+    @Property(name="abnormality")
+    private double abnormality;
 
     public ServiceApiMetric() {
         super();
     }
 
-    public ArrayList<Integer> getValues() {
+    public ArrayList<Double> getValues() {
         return values;
     }
 
-    public void setValues(ArrayList<Integer> values) {
+    public void setValues(ArrayList<Double> values) {
         this.values = values;
+    }
+
+    public double getAbnormality() {
+        return abnormality;
+    }
+
+    public void setAbnormality(double abnormality) {
+        this.abnormality = abnormality;
     }
 }

@@ -9,7 +9,7 @@
     <version>1.0</version>
     <packaging>jar</packaging>
 
-    <name>spring-data-neo4j</name>
+    <name>graph-app</name>
 
     <parent>
         <groupId>org.services</groupId>

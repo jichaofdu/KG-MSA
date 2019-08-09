@@ -197,7 +197,7 @@ public class DataCollectorService {
     //抽取结果的容器也在参数中
     public void getTraceInvokeInformation(ArrayList<Span> trace, ArrayList<TraceInvokeApiToPod> traceApiToPod, ArrayList<TraceInvokePodToApi> tracePodToApi){
         //统计一个个的span对API的调用时长的
-        HashMap<String, ArrayList<Integer>> apiMetricsMap = new HashMap<>();
+        HashMap<String, ArrayList<Double>> apiMetricsMap = new HashMap<>();
         //遍历一个trace的每一个span
         for(Span span : trace) {
             //istio的输出信息不是我们需要的 忽略
@@ -281,8 +281,8 @@ public class DataCollectorService {
 
                 //Metric - duration处理api调用时间长度的问题
                 //Metric -> Api
-                ArrayList<Integer> apiMetricList = apiMetricsMap.getOrDefault(serviceApi.getName(), new ArrayList<>());
-                apiMetricList.add(Integer.parseInt(span.getDuration()));
+                ArrayList<Double> apiMetricList = apiMetricsMap.getOrDefault(serviceApi.getName(), new ArrayList<>());
+                apiMetricList.add(Double.parseDouble(span.getDuration()));
                 apiMetricsMap.put(serviceApi.getName(), apiMetricList);
 
                 relation.setTraceIdAndSpanIds(passingTracesAndSpans);
@@ -297,7 +297,7 @@ public class DataCollectorService {
     }
 
 
-    private void handleApiMetrics(HashMap<String, ArrayList<Integer>> apiMetricsMap){
+    private void handleApiMetrics(HashMap<String, ArrayList<Double>> apiMetricsMap){
 
         System.out.println("=====handleApiMetrics=====");
 
@@ -305,7 +305,7 @@ public class DataCollectorService {
 
         for(String serviceApiName : apiMetricsMap.keySet()){
 
-            ArrayList<Integer> moreApiMetrics = apiMetricsMap.get(serviceApiName);
+            ArrayList<Double> moreApiMetrics = apiMetricsMap.get(serviceApiName);
             ServiceApiMetric apiMetric = new ServiceApiMetric();
             apiMetric.setValues(moreApiMetrics);
             apiMetric.setCreationTimestamp(getCurrentTimestamp());
@@ -627,8 +627,8 @@ public class DataCollectorService {
                         ExpressionQueriesVectorResponse res = gson.fromJson(str,ExpressionQueriesVectorResponse.class);
 
                         PodMetric podMetric = new PodMetric();
-                        podMetric.setTime(res.getData().getResult().get(0).getValue().get(0));
-                        podMetric.setValue(res.getData().getResult().get(0).getValue().get(1));
+                        podMetric.setTime((long) Double.parseDouble(res.getData().getResult().get(0).getValue().get(0)));
+                        podMetric.setValue(Double.parseDouble(res.getData().getResult().get(0).getValue().get(1)));
                         podMetric.setHistoryTimestamps(new ArrayList<>());
                         podMetric.setHistoryValues(new ArrayList<>());
                         //metric的ID为container的名字与metric的名字
@@ -742,8 +742,8 @@ public class DataCollectorService {
     private Metric getMetricFromExpressionQueriesVectorResponse(ExpressionQueriesVectorResponse res,
                                                                 String metricName, String containerName){
         Metric metric = new Metric();
-        metric.setTime(res.getData().getResult().get(0).getValue().get(0));
-        metric.setValue(res.getData().getResult().get(0).getValue().get(1));
+        metric.setTime((long)Double.parseDouble(res.getData().getResult().get(0).getValue().get(0)));
+        metric.setValue(Double.parseDouble(res.getData().getResult().get(0).getValue().get(1)));
         //metric的ID为container的名字与metric的名字
         metric.setId(containerName + "_" + metricName);
         metric.setName(containerName + "_" + metricName);
