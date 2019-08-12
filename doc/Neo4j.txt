@@ -62,5 +62,13 @@ RETURN r
 
 Trace指令
 MATCH (n)-[r:TraceInvokeApiToPod|TraceInvokePodToApi]->(m)
-WHERE ANY(x IN r.traceIdSpanId WHERE x =~ 'a00188b5ff3fd756fdf2ffef7212cf62-.*')
+WHERE ANY(x IN r.traceIdSpanId WHERE x =~ '75c1d44834925763c082bf6cf7863e53-.*') and ANY(y IN r.traceIdSpanId WHERE y =~ '75c1d44834925763c082bf6cf7863e53-.*')
+RETURN n,r,m
+
+查询多个Trace的交叠部分
+MATCH (n)-[r:TraceInvokeApiToPod|TraceInvokePodToApi]->(m)
+WHERE
+    ANY(x IN r.traceIdSpanId WHERE x =~ '75c1d44834925763c082bf6cf7863e53-.*')
+        AND
+    ANY(y IN r.traceIdSpanId WHERE y =~ '5e92c60ddaacaf85ec4b2ed75c74964a-.*')
 RETURN n,r,m
