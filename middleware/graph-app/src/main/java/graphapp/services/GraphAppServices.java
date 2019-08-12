@@ -20,6 +20,8 @@ public class GraphAppServices {
 
     private final MetricOfServiceApiRepository metricOfServiceApiRepository;
 
+    private static final double DEFAULT_ABNORMALITY = 0.1;
+
     public GraphAppServices(PodRepository podRepository,
                         ServiceApiRepository serviceApiRepository,
                             MetricOfPodRepository metricOfPodRepository,
@@ -79,13 +81,18 @@ public class GraphAppServices {
         double totalAvg = getAverage(historyValue);
         double totalSd = getStandardDiviation(historyValue, totalAvg);
 
-        double abnormality = (latestAvg - totalAvg) / totalSd;
+        double abnormality;
+        if(totalSd == 0){
+            abnormality = DEFAULT_ABNORMALITY;
+        }else{
+            abnormality = Math.abs((latestAvg - totalAvg) / totalSd);
+        }
 
         System.out.println("[ThreeSigmaAbnormality]" +
                 " LatestAvg:" + latestAvg +
                 " TotalAvg:" + totalAvg +
                 " TotalSd:" + totalSd +
-                " Abnormality" + abnormality);
+                " Abnormality:" + abnormality);
 
         return abnormality;
     }

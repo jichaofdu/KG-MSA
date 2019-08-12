@@ -8,7 +8,7 @@ public class PodMetric extends GraphNode  {
 
     private double value;
 
-    private double abnormality = 0.01;
+    private double abnormality = 0.1;
 
     private ArrayList<Long> historyTimestamps = new ArrayList<>();
 

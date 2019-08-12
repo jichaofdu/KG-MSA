@@ -15,7 +15,7 @@ public class PodMetric extends GraphNode  {
     private double value;
 
     @Property(name="abnormality")
-    private double abnormality;
+    private double abnormality = 0.1;
 
     @Property(name="historyTimestamps")
     private ArrayList<Long> historyTimestamps = new ArrayList<>();

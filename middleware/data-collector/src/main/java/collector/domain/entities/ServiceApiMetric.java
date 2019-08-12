@@ -6,7 +6,7 @@ public class ServiceApiMetric extends GraphNode {
 
     private ArrayList<Double> values = new ArrayList<>();
 
-    private double abnormality;
+    private double abnormality = 0.1;
 
     public ServiceApiMetric() {
         super();
