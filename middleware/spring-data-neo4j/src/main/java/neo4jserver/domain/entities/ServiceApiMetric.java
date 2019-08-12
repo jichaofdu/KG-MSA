@@ -2,7 +2,6 @@ package neo4jserver.domain.entities;
 
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
-
 import java.util.ArrayList;
 
 @NodeEntity(label="ServiceApiMetric")

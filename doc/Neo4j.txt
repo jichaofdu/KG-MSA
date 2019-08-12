@@ -72,3 +72,14 @@ WHERE
         AND
     ANY(y IN r.traceIdSpanId WHERE y =~ '5e92c60ddaacaf85ec4b2ed75c74964a-.*')
 RETURN n,r,m
+
+//加上Metric的版本与SVC的版本
+MATCH (n)-[r:TraceInvokeApiToPod|TraceInvokePodToApi]->(m)<-[rm1:PodAndMetric|ServiceApiAndMetric]-(metrics)
+WHERE
+    ANY(x IN r.traceIdSpanId WHERE x =~ '75c1d44834925763c082bf6cf7863e53-.*')
+
+WITH n,r,m,metrics, rm1
+MATCH (m:Pod)-[sr:AppServiceAndPod]->(s:AppService)
+RETURN n,r,m,metrics, rm1, sr, s
+        AND
+    ANY(y IN r.traceIdSpanId WHERE y =~ '5e92c60ddaacaf85ec4b2ed75c74964a-.*')
