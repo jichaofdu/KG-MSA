@@ -30,9 +30,14 @@ public class GraphAppController {
         return graphAppServices.updateAbnomalityOfServiceApis();
     }
 
-    @GetMapping("/getShortPath/{traceId}")
-    public Map<String, Set> getShortPath(@PathVariable String traceId){
+    @GetMapping("/getTrace/{traceId}")
+    public Map<String, Set> getTrace(@PathVariable String traceId){
         return graphAppServices.getOneTracePath(traceId);
+    }
+
+    @GetMapping("/getCrossOfTwoTrace/{traceA}/{traceB}")
+    public Map<String, Set> getCrossOfTwoTrace(@PathVariable String traceA, @PathVariable String traceB){
+        return graphAppServices.getCrossOfTwoTrace(traceA, traceB);
     }
 
 }

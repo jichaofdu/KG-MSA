@@ -122,7 +122,6 @@ public class GraphAppServices {
     }
 
 
-
     @Transactional(readOnly = true)
     public Map<String, Set> getOneTracePath(String traceId){
         Map<String, Set> retMap = new HashMap<>();
@@ -155,16 +154,16 @@ public class GraphAppServices {
                 appServiceHostServiceAPISet);
 
         System.out.println("[TraceInfo] Trace ID:" + traceId);
-        System.out.println("Pod:" + podSet.size());
-        System.out.println("ServiceAPI:" + serviceAPISet.size());
-        System.out.println("AppService:" + appServiceSet.size());
-        System.out.println("VirtualMachine:" + virtualMachineSet.size());
+        System.out.println("PodSet:" + podSet.size());
+        System.out.println("ServiceAPISet:" + serviceAPISet.size());
+        System.out.println("AppServiceSet:" + appServiceSet.size());
+        System.out.println("VirtualMachineSet:" + virtualMachineSet.size());
 
-        System.out.println("TraceInvokeApiToPod:" + traceInvokeApiToPodSet.size());
-        System.out.println("TraceInvokePodToApi:" + traceInvokePodToApiSet.size());
-        System.out.println("AppServiceAndPod:" + appServiceAndPodSet.size());
-        System.out.println("VirtualMachineAndPod:" + virtualMachineAndPodSet.size());
-        System.out.println("AppServiceHostServiceAPI:" + appServiceHostServiceAPISet.size());
+        System.out.println("TraceInvokeApiToPodSet:" + traceInvokeApiToPodSet.size());
+        System.out.println("TraceInvokePodToApiSet:" + traceInvokePodToApiSet.size());
+        System.out.println("AppServiceAndPodSet:" + appServiceAndPodSet.size());
+        System.out.println("VirtualMachineAndPodSet:" + virtualMachineAndPodSet.size());
+        System.out.println("AppServiceHostServiceAPISet:" + appServiceHostServiceAPISet.size());
 
         retMap.put("PodSet", podSet);
         retMap.put("ServiceAPISet", serviceAPISet);
@@ -177,6 +176,31 @@ public class GraphAppServices {
         retMap.put("AppServiceHostServiceAPISet", appServiceHostServiceAPISet);
 
         return retMap;
+    }
+
+
+    @Transactional(readOnly = true)
+    public Map<String, Set> getCrossOfTwoTrace(String traceA, String traceB){
+        Map<String, Set> traceAMap = getOneTracePath(traceA);
+        Map<String, Set> traceBMap = getOneTracePath(traceB);
+
+        Map<String, Set> crossingMap = new HashMap<>();
+
+        System.out.println("[Crossing Set] Trace-A:" + traceA + " Trace-B:" + traceB);
+
+        for(String key : traceAMap.keySet()){
+            Set traceASet = traceAMap.get(key);
+            Set traceBSet = traceBMap.get(key);
+
+            Set crossingSet = new HashSet(traceASet);
+            crossingSet.retainAll(traceBSet);
+
+            crossingMap.put(key, crossingSet);
+
+            System.out.println(key + ":" + crossingSet.size());
+        }
+
+        return crossingMap;
     }
 
 }
