@@ -4,6 +4,8 @@ import graphapp.domain.entities.Container;
 import graphapp.domain.entities.Pod;
 import org.neo4j.ogm.annotation.*;
 
+import java.util.Objects;
+
 @RelationshipEntity(type = "PodAndContainer")
 public class PodAndContainer {
 
@@ -69,5 +71,22 @@ public class PodAndContainer {
 
     public void setClassName(String className) {
         this.className = className;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PodAndContainer)) return false;
+        PodAndContainer that = (PodAndContainer) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(container, that.container) &&
+                Objects.equals(pod, that.pod) &&
+                Objects.equals(relation, that.relation) &&
+                Objects.equals(className, that.className);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, container, pod, relation, className);
     }
 }

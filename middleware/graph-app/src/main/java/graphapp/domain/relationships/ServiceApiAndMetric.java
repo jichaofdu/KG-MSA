@@ -4,6 +4,8 @@ import graphapp.domain.entities.ServiceAPI;
 import graphapp.domain.entities.ServiceApiMetric;
 import org.neo4j.ogm.annotation.*;
 
+import java.util.Objects;
+
 @RelationshipEntity(type = "ServiceApiAndMetric")
 public class ServiceApiAndMetric {
 
@@ -69,5 +71,22 @@ public class ServiceApiAndMetric {
 
     public void setClassName(String className) {
         this.className = className;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ServiceApiAndMetric)) return false;
+        ServiceApiAndMetric that = (ServiceApiAndMetric) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(apiMetric, that.apiMetric) &&
+                Objects.equals(serviceAPI, that.serviceAPI) &&
+                Objects.equals(relation, that.relation) &&
+                Objects.equals(className, that.className);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, apiMetric, serviceAPI, relation, className);
     }
 }

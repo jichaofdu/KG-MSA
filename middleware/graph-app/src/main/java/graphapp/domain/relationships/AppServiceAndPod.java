@@ -4,6 +4,8 @@ import graphapp.domain.entities.AppService;
 import graphapp.domain.entities.Pod;
 import org.neo4j.ogm.annotation.*;
 
+import java.util.Objects;
+
 @RelationshipEntity(type = "AppServiceAndPod")
 public class AppServiceAndPod {
 
@@ -69,5 +71,22 @@ public class AppServiceAndPod {
 
     public void setClassName(String className) {
         this.className = className;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AppServiceAndPod)) return false;
+        AppServiceAndPod that = (AppServiceAndPod) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(pod, that.pod) &&
+                Objects.equals(appService, that.appService) &&
+                Objects.equals(relation, that.relation) &&
+                Objects.equals(className, that.className);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, pod, appService, relation, className);
     }
 }

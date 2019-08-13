@@ -4,6 +4,8 @@ import graphapp.domain.entities.Container;
 import graphapp.domain.entities.Metric;
 import org.neo4j.ogm.annotation.*;
 
+import java.util.Objects;
+
 @RelationshipEntity(type = "MetricAndContainer")
 public class MetricAndContainer {
 
@@ -63,5 +65,22 @@ public class MetricAndContainer {
 
     public void setClassName(String className) {
         this.className = className;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MetricAndContainer)) return false;
+        MetricAndContainer that = (MetricAndContainer) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(metric, that.metric) &&
+                Objects.equals(container, that.container) &&
+                Objects.equals(relation, that.relation) &&
+                Objects.equals(className, that.className);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, metric, container, relation, className);
     }
 }

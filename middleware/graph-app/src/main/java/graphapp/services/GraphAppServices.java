@@ -1,16 +1,23 @@
 package graphapp.services;
 
-import graphapp.domain.entities.PodMetric;
-import graphapp.domain.entities.ServiceApiMetric;
+import graphapp.domain.entities.*;
+import graphapp.domain.relationships.*;
 import graphapp.repositories.MetricOfPodRepository;
 import graphapp.repositories.MetricOfServiceApiRepository;
 import graphapp.repositories.PodRepository;
 import graphapp.repositories.ServiceApiRepository;
+import graphapp.utils.Neo4jUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
 
 @Service
 public class GraphAppServices {
+
+    @Autowired
+    private Neo4jUtil neo4jUtil;
 
     private final PodRepository podRepository;
 
@@ -112,6 +119,64 @@ public class GraphAppServices {
             dVar += (x.get(i) - dAve) * (x.get(i) - dAve);
         }
         return Math.sqrt(dVar / x.size());
+    }
+
+
+
+    @Transactional(readOnly = true)
+    public Map<String, Set> getOneTracePath(String traceId){
+        Map<String, Set> retMap = new HashMap<>();
+        //cql语句
+        String cql =
+                "MATCH (n)-[r:TraceInvokeApiToPod|TraceInvokePodToApi]->(m)-[rs:AppServiceAndPod|AppServiceHostServiceAPI|VirtualMachineAndPod]->(s) " +
+                        " WHERE" +
+                        "    ANY(x IN r.traceIdSpanId WHERE x =~ '" + traceId + "-.*') " +
+                        " RETURN n,r,m,rs,s ";
+        //待返回的值，与cql return后的值顺序对应
+        Set<Pod> podSet = new HashSet<>();
+        Set<ServiceAPI> serviceAPISet = new HashSet<>();
+        Set<AppService> appServiceSet = new HashSet<>();
+        Set<VirtualMachine> virtualMachineSet = new HashSet<>();
+
+        Set<TraceInvokeApiToPod> traceInvokeApiToPodSet = new HashSet<>();
+        Set<TraceInvokePodToApi> traceInvokePodToApiSet = new HashSet<>();
+        Set<AppServiceAndPod> appServiceAndPodSet = new HashSet<>();
+        Set<VirtualMachineAndPod> virtualMachineAndPodSet = new HashSet<>();
+        Set<AppServiceHostServiceAPI> appServiceHostServiceAPISet = new HashSet<>();
+
+        neo4jUtil.getList(cql, podSet,
+                serviceAPISet,
+                appServiceSet,
+                virtualMachineSet,
+                traceInvokeApiToPodSet,
+                traceInvokePodToApiSet,
+                appServiceAndPodSet,
+                virtualMachineAndPodSet,
+                appServiceHostServiceAPISet);
+
+        System.out.println("[TraceInfo] Trace ID:" + traceId);
+        System.out.println("Pod:" + podSet.size());
+        System.out.println("ServiceAPI:" + serviceAPISet.size());
+        System.out.println("AppService:" + appServiceSet.size());
+        System.out.println("VirtualMachine:" + virtualMachineSet.size());
+
+        System.out.println("TraceInvokeApiToPod:" + traceInvokeApiToPodSet.size());
+        System.out.println("TraceInvokePodToApi:" + traceInvokePodToApiSet.size());
+        System.out.println("AppServiceAndPod:" + appServiceAndPodSet.size());
+        System.out.println("VirtualMachineAndPod:" + virtualMachineAndPodSet.size());
+        System.out.println("AppServiceHostServiceAPI:" + appServiceHostServiceAPISet.size());
+
+        retMap.put("PodSet", podSet);
+        retMap.put("ServiceAPISet", serviceAPISet);
+        retMap.put("AppServiceSet", appServiceSet);
+        retMap.put("VirtualMachineSet", virtualMachineSet);
+        retMap.put("TraceInvokeApiToPodSet", traceInvokeApiToPodSet);
+        retMap.put("TraceInvokePodToApiSet", traceInvokePodToApiSet);
+        retMap.put("AppServiceAndPodSet", appServiceAndPodSet);
+        retMap.put("VirtualMachineAndPodSet", virtualMachineAndPodSet);
+        retMap.put("AppServiceHostServiceAPISet", appServiceHostServiceAPISet);
+
+        return retMap;
     }
 
 }

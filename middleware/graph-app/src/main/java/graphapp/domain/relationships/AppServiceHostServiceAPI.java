@@ -4,6 +4,8 @@ import graphapp.domain.entities.AppService;
 import graphapp.domain.entities.ServiceAPI;
 import org.neo4j.ogm.annotation.*;
 
+import java.util.Objects;
+
 @RelationshipEntity(type = "AppServiceHostServiceAPI")
 public class AppServiceHostServiceAPI {
 
@@ -63,5 +65,22 @@ public class AppServiceHostServiceAPI {
 
     public void setClassName(String className) {
         this.className = className;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AppServiceHostServiceAPI)) return false;
+        AppServiceHostServiceAPI that = (AppServiceHostServiceAPI) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(appService, that.appService) &&
+                Objects.equals(serviceAPI, that.serviceAPI) &&
+                Objects.equals(relation, that.relation) &&
+                Objects.equals(className, that.className);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, appService, serviceAPI, relation, className);
     }
 }

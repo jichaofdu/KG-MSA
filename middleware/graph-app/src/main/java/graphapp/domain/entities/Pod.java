@@ -2,6 +2,8 @@ package graphapp.domain.entities;
 
 import org.neo4j.ogm.annotation.*;
 
+import java.util.Objects;
+
 @NodeEntity(label="Pod")
 public class Pod extends GraphNode{
 
@@ -95,5 +97,26 @@ public class Pod extends GraphNode{
 
     public void setQosClass(String qosClass) {
         this.qosClass = qosClass;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Pod)) return false;
+        if (!super.equals(o)) return false;
+        Pod pod = (Pod) o;
+        return Objects.equals(namespace, pod.namespace) &&
+                Objects.equals(selflink, pod.selflink) &&
+                Objects.equals(restartPolicy, pod.restartPolicy) &&
+                Objects.equals(dnsPolicy, pod.dnsPolicy) &&
+                Objects.equals(terminationGracePeriodSeconds, pod.terminationGracePeriodSeconds) &&
+                Objects.equals(phase, pod.phase) &&
+                Objects.equals(podIP, pod.podIP) &&
+                Objects.equals(qosClass, pod.qosClass);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), namespace, selflink, restartPolicy, dnsPolicy, terminationGracePeriodSeconds, phase, podIP, qosClass);
     }
 }

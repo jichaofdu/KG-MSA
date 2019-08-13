@@ -3,6 +3,8 @@ package graphapp.domain.entities;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
 
+import java.util.Objects;
+
 @NodeEntity(label="Container")
 public class Container extends GraphNode {
 
@@ -74,5 +76,24 @@ public class Container extends GraphNode {
 
     public void setAbnormality(double abnormality) {
         this.abnormality = abnormality;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Container)) return false;
+        if (!super.equals(o)) return false;
+        Container container = (Container) o;
+        return Double.compare(container.abnormality, abnormality) == 0 &&
+                Objects.equals(image, container.image) &&
+                Objects.equals(command, container.command) &&
+                Objects.equals(created, container.created) &&
+                Objects.equals(state, container.state) &&
+                Objects.equals(status, container.status);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), image, command, created, state, status, abnormality);
     }
 }

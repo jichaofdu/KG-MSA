@@ -1,16 +1,19 @@
-package neo4jserver.utils;
+package graphapp.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import neo4jserver.domain.entities.*;
-import neo4jserver.domain.relationships.*;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.StatementResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import java.util.*;
+import graphapp.domain.entities.*;
+import graphapp.domain.relationships.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 通用的neo4j调用类

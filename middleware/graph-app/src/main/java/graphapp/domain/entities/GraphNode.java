@@ -2,6 +2,7 @@ package graphapp.domain.entities;
 
 import org.neo4j.ogm.annotation.*;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -92,24 +93,22 @@ public class GraphNode {
         this.creationTimestamp = creationTimestamp;
     }
 
+
     @Override
-    public int hashCode() {
-        return name.hashCode();
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof GraphNode)) return false;
+        GraphNode graphNode = (GraphNode) o;
+        return Objects.equals(id, graphNode.id) &&
+                Objects.equals(name, graphNode.name) &&
+                Objects.equals(className, graphNode.className) &&
+                Objects.equals(labels, graphNode.labels) &&
+                Objects.equals(latestUpdateTimestamp, graphNode.latestUpdateTimestamp) &&
+                Objects.equals(creationTimestamp, graphNode.creationTimestamp);
     }
 
-    //通过Name判断是否相等
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (obj instanceof GraphNode) {
-            if (((GraphNode) obj).name.equals(this.name)) {
-                return true;
-            }
-        }
-
-        return false;
+    public int hashCode() {
+        return Objects.hash(id, name, className, labels, latestUpdateTimestamp, creationTimestamp);
     }
 }

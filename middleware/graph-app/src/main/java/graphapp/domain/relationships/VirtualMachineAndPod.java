@@ -4,6 +4,8 @@ import graphapp.domain.entities.Pod;
 import graphapp.domain.entities.VirtualMachine;
 import org.neo4j.ogm.annotation.*;
 
+import java.util.Objects;
+
 @RelationshipEntity(type = "VirtualMachineAndPod")
 public class VirtualMachineAndPod {
 
@@ -69,6 +71,23 @@ public class VirtualMachineAndPod {
 
     public void setVirtualMachine(VirtualMachine virtualMachine) {
         this.virtualMachine = virtualMachine;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof VirtualMachineAndPod)) return false;
+        VirtualMachineAndPod that = (VirtualMachineAndPod) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(pod, that.pod) &&
+                Objects.equals(relation, that.relation) &&
+                Objects.equals(className, that.className) &&
+                Objects.equals(virtualMachine, that.virtualMachine);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, pod, relation, className, virtualMachine);
     }
 }
 
