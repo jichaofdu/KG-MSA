@@ -4,6 +4,8 @@ import neo4jserver.domain.entities.Pod;
 import neo4jserver.domain.entities.PodMetric;
 import org.neo4j.ogm.annotation.*;
 
+import java.util.Objects;
+
 @RelationshipEntity(type = "PodAndMetric")
 public class PodAndMetric {
 
@@ -63,5 +65,22 @@ public class PodAndMetric {
 
     public void setClassName(String className) {
         this.className = className;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PodAndMetric)) return false;
+        PodAndMetric that = (PodAndMetric) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(podMetric, that.podMetric) &&
+                Objects.equals(pod, that.pod) &&
+                Objects.equals(relation, that.relation) &&
+                Objects.equals(className, that.className);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, podMetric, pod, relation, className);
     }
 }

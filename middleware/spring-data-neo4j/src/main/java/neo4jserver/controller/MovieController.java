@@ -180,9 +180,9 @@ public class MovieController {
 //		return movieService.saveDeploy();
 //	}
 //
-//	@GetMapping("/getShortPath")
-//	public Map<String, Object> getShortPath(){
-//		return movieService.getShortPath();
-//	}
+	@GetMapping("/getShortPath/{traceId}")
+	public Map<String, Set> getShortPath(@PathVariable String traceId){
+		return movieService.getOneTracePath(traceId);
+	}
 
 }

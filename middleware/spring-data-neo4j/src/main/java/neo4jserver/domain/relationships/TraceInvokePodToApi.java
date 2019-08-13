@@ -5,6 +5,7 @@ import neo4jserver.domain.entities.ServiceAPI;
 import org.neo4j.ogm.annotation.*;
 
 import java.util.HashSet;
+import java.util.Objects;
 
 @RelationshipEntity(type = "TraceInvokePodToApi")
 public class TraceInvokePodToApi {
@@ -73,5 +74,23 @@ public class TraceInvokePodToApi {
 
     public void setTraceIdAndSpanIds(HashSet<String> traceIdAndSpanIds) {
         this.traceIdAndSpanIds = traceIdAndSpanIds;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TraceInvokePodToApi)) return false;
+        TraceInvokePodToApi that = (TraceInvokePodToApi) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(pod, that.pod) &&
+                Objects.equals(serviceAPI, that.serviceAPI) &&
+                Objects.equals(relation, that.relation) &&
+                Objects.equals(traceIdAndSpanIds, that.traceIdAndSpanIds) &&
+                Objects.equals(className, that.className);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, pod, serviceAPI, relation, traceIdAndSpanIds, className);
     }
 }

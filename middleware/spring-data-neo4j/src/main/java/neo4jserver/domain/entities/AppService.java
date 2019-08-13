@@ -4,6 +4,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 @NodeEntity(label="AppService")
 public class AppService extends GraphNode {
@@ -66,5 +67,23 @@ public class AppService extends GraphNode {
 
     public void setPort(String port) {
         this.port = port;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AppService)) return false;
+        if (!super.equals(o)) return false;
+        AppService that = (AppService) o;
+        return Objects.equals(selflink, that.selflink) &&
+                Objects.equals(namespace, that.namespace) &&
+                Objects.equals(clusterIP, that.clusterIP) &&
+                Objects.equals(type, that.type) &&
+                Objects.equals(port, that.port);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), selflink, namespace, clusterIP, type, port);
     }
 }

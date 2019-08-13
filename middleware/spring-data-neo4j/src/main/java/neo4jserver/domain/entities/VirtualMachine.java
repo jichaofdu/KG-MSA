@@ -2,6 +2,8 @@ package neo4jserver.domain.entities;
 
 import org.neo4j.ogm.annotation.*;
 
+import java.util.Objects;
+
 @NodeEntity(label="VirtualMachine")
 public class VirtualMachine extends GraphNode{
 
@@ -116,5 +118,28 @@ public class VirtualMachine extends GraphNode{
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof VirtualMachine)) return false;
+        if (!super.equals(o)) return false;
+        VirtualMachine that = (VirtualMachine) o;
+        return Objects.equals(memory, that.memory) &&
+                Objects.equals(cpu, that.cpu) &&
+                Objects.equals(selflink, that.selflink) &&
+                Objects.equals(kernelVersion, that.kernelVersion) &&
+                Objects.equals(osImage, that.osImage) &&
+                Objects.equals(containerRuntimeVersion, that.containerRuntimeVersion) &&
+                Objects.equals(operatingSystem, that.operatingSystem) &&
+                Objects.equals(architecture, that.architecture) &&
+                Objects.equals(type, that.type) &&
+                Objects.equals(address, that.address);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), memory, cpu, selflink, kernelVersion, osImage, containerRuntimeVersion, operatingSystem, architecture, type, address);
     }
 }

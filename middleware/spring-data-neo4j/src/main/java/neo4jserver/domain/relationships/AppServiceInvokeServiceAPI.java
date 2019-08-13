@@ -4,6 +4,8 @@ import neo4jserver.domain.entities.AppService;
 import neo4jserver.domain.entities.ServiceAPI;
 import org.neo4j.ogm.annotation.*;
 
+import java.util.Objects;
+
 @RelationshipEntity(type = "AppServiceInvokeServiceAPI")
 public class AppServiceInvokeServiceAPI {
 
@@ -74,5 +76,23 @@ public class AppServiceInvokeServiceAPI {
 
     public void setCount(int count) {
         this.count = count;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AppServiceInvokeServiceAPI)) return false;
+        AppServiceInvokeServiceAPI that = (AppServiceInvokeServiceAPI) o;
+        return count == that.count &&
+                Objects.equals(id, that.id) &&
+                Objects.equals(appService, that.appService) &&
+                Objects.equals(serviceAPI, that.serviceAPI) &&
+                Objects.equals(relation, that.relation) &&
+                Objects.equals(className, that.className);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, appService, serviceAPI, relation, count, className);
     }
 }

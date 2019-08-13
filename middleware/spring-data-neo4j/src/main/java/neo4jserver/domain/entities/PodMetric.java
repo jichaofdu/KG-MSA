@@ -4,6 +4,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 @NodeEntity(label="PodMetric")
 public class PodMetric extends GraphNode  {
@@ -76,5 +77,24 @@ public class PodMetric extends GraphNode  {
 
     public void setHistoryAbnormality(ArrayList<Double> historyAbnormality) {
         this.historyAbnormality = historyAbnormality;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PodMetric)) return false;
+        if (!super.equals(o)) return false;
+        PodMetric podMetric = (PodMetric) o;
+        return time == podMetric.time &&
+                Double.compare(podMetric.value, value) == 0 &&
+                Double.compare(podMetric.abnormality, abnormality) == 0 &&
+                Objects.equals(historyTimestamps, podMetric.historyTimestamps) &&
+                Objects.equals(historyValues, podMetric.historyValues) &&
+                Objects.equals(historyAbnormality, podMetric.historyAbnormality);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), time, value, abnormality, historyTimestamps, historyValues, historyAbnormality);
     }
 }

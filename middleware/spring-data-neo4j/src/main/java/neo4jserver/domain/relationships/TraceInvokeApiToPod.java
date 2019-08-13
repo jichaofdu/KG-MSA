@@ -5,6 +5,7 @@ import neo4jserver.domain.entities.ServiceAPI;
 import org.neo4j.ogm.annotation.*;
 
 import java.util.HashSet;
+import java.util.Objects;
 
 //TraceInvokeApiToPod和TraceInvokePodToApi的区别在于
 // Pod A -> Api -> PodB
@@ -80,5 +81,23 @@ public class TraceInvokeApiToPod {
 
     public void setTraceIdAndSpanIds(HashSet<String> traceIdAndSpanIds) {
         this.traceIdAndSpanIds = traceIdAndSpanIds;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TraceInvokeApiToPod)) return false;
+        TraceInvokeApiToPod that = (TraceInvokeApiToPod) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(serviceAPI, that.serviceAPI) &&
+                Objects.equals(pod, that.pod) &&
+                Objects.equals(relation, that.relation) &&
+                Objects.equals(className, that.className) &&
+                Objects.equals(traceIdAndSpanIds, that.traceIdAndSpanIds);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, serviceAPI, pod, relation, className, traceIdAndSpanIds);
     }
 }

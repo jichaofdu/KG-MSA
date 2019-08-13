@@ -4,6 +4,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 @NodeEntity(label="Metric")
 public class Metric extends GraphNode{
@@ -76,5 +77,24 @@ public class Metric extends GraphNode{
 
     public void setHistoryAbnormality(ArrayList<Double> historyAbnormality) {
         this.historyAbnormality = historyAbnormality;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Metric)) return false;
+        if (!super.equals(o)) return false;
+        Metric metric = (Metric) o;
+        return time == metric.time &&
+                Double.compare(metric.value, value) == 0 &&
+                Double.compare(metric.abnormality, abnormality) == 0 &&
+                Objects.equals(historyTimestamps, metric.historyTimestamps) &&
+                Objects.equals(historyValues, metric.historyValues) &&
+                Objects.equals(historyAbnormality, metric.historyAbnormality);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), time, value, abnormality, historyTimestamps, historyValues, historyAbnormality);
     }
 }

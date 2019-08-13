@@ -66,33 +66,18 @@ WHERE ANY(x IN r.traceIdSpanId WHERE x =~ '75c1d44834925763c082bf6cf7863e53-.*')
 RETURN n,r,m
 
 查询多个Trace的交叠部分
-MATCH (n)-[r:TraceInvokeApiToPod|TraceInvokePodToApi]->(m)
+MATCH (n)-[r:TraceInvokeApiToPod|TraceInvokePodToApi]->(m)-[rs:AppServiceAndPod|AppServiceHostServiceAPI|VirtualMachineAndPod]->(s)
 WHERE
     ANY(x IN r.traceIdSpanId WHERE x =~ '75c1d44834925763c082bf6cf7863e53-.*')
+RETURN n,r,m,rs,s
+
         AND
     ANY(y IN r.traceIdSpanId WHERE y =~ '5e92c60ddaacaf85ec4b2ed75c74964a-.*')
-RETURN n,r,m
 
-
-//查询一个Trace涉及到的Pod API Service VM
-MATCH (n)-[r:TraceInvokeApiToPod|TraceInvokePodToApi]->(m)-[rs:AppServiceAndPod|AppServiceHostServiceAPI]->(s)
-WHERE
-    ANY(x IN r.traceIdSpanId WHERE x =~ '75c1d44834925763c082bf6cf7863e53-.*')
-    AND
-    (n:ServiceAPI OR n:Pod)
-    AND
-    (m:ServiceAPI OR m:Pod)
-WITH n,r,m,rs,s, m AS p
-MATCH (p)-[d:VirtualMachineAndPod]->(vm)
-RETURN n,r,m,rs,s,p,d,vm
 
 
 MATCH (n)-[r:TraceInvokeApiToPod|TraceInvokePodToApi]->(m)<-[rm:PodAndMetric|ServiceApiAndMetric]-(metrics)
 WHERE
     ANY(x IN r.traceIdSpanId WHERE x =~ '75c1d44834925763c082bf6cf7863e53-.*')
-    AND
-    (n:ServiceAPI OR n:Pod)
-    AND
-    (m:ServiceAPI OR m:Pod)
 WITH n,r,m,metrics,rm
 RETURN metrics
