@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.valueextraction.ExtractedValue;
 import java.util.*;
 
 @Service
@@ -121,6 +122,77 @@ public class GraphAppServices {
         return Math.sqrt(dVar / x.size());
     }
 
+    @Transactional(readOnly = true)
+    public Map<String, Set> getCrossOfTwoTrace(String traceA, String traceB){
+        Map<String, Set> crossComponent = getCrossComponentOfTwoTrace(traceA, traceB);
+        Map<String, Set> crossMetrics = getCrossMetricsOfTwoTrace(traceA, traceB);
+
+        Map<String, Set> cross = new HashMap<>();
+        cross.putAll(crossComponent);
+        cross.putAll(crossMetrics);
+
+        return cross;
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Set> getOneTraceMetrics(String traceId){
+        Map<String, Set> retMap = new HashMap<>();
+        String cql =
+                "MATCH (n)-[r:TraceInvokeApiToPod|TraceInvokePodToApi]->(m)<-[rm:PodAndMetric|ServiceApiAndMetric]-(metrics) " +
+                        "WHERE " +
+                        "    ANY(x IN r.traceIdSpanId WHERE x =~ '75c1d44834925763c082bf6cf7863e53-.*') " +
+                        "WITH n,r,m,metrics,rm " +
+                        "RETURN metrics,rm";
+        Set<PodMetric> podMetricSet = new HashSet<>();
+        Set<ServiceApiMetric> serviceApiMetricSet = new HashSet<>();
+        Set<PodAndMetric> podAndMetricSet = new HashSet<>();
+        Set<ServiceApiAndMetric> serviceApiAndMetricSet = new HashSet<>();
+
+        neo4jUtil.getTraceMetricComponentList(cql,
+                podMetricSet,
+                serviceApiMetricSet,
+                podAndMetricSet,
+                serviceApiAndMetricSet);
+
+        System.out.println("[TraceMetricInfo] Trace ID:" + traceId);
+        System.out.println("PodMetricSet:" + podMetricSet.size());
+        System.out.println("ServiceApiMetricSet:" + serviceApiMetricSet.size());
+        System.out.println("PodAndMetricSet:" + podAndMetricSet.size());
+        System.out.println("ServiceApiAndMetricSet:" + serviceApiAndMetricSet.size());
+
+        retMap.put("PodMetric", podMetricSet);
+        retMap.put("ServiceApiMetric", serviceApiMetricSet);
+        retMap.put("PodAndMetric", podAndMetricSet);
+        retMap.put("ServiceApiAndMetric", serviceApiAndMetricSet);
+
+        return retMap;
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Set> getCrossMetricsOfTwoTrace(String traceA, String traceB){
+        //下面这部分是获得的两个Trace的Metric交集
+        Map<String, Set> traceAMap = getOneTraceMetrics(traceA);
+        Map<String, Set> traceBMap = getOneTraceMetrics(traceB);
+
+        Map<String, Set> crossingMap = new HashMap<>();
+
+        System.out.println("[Metrics Crossing Set] Trace-A:" + traceA + " Trace-B:" + traceB);
+
+        for(String key : traceAMap.keySet()){
+            Set traceASet = traceAMap.get(key);
+            Set traceBSet = traceBMap.get(key);
+
+            Set crossingSet = new HashSet(traceASet);
+            crossingSet.retainAll(traceBSet);
+
+            crossingMap.put(key, crossingSet);
+
+            System.out.println(key + ":" + crossingSet.size());
+        }
+
+        return crossingMap;
+    }
+
 
     @Transactional(readOnly = true)
     public Map<String, Set> getOneTracePath(String traceId){
@@ -143,7 +215,7 @@ public class GraphAppServices {
         Set<VirtualMachineAndPod> virtualMachineAndPodSet = new HashSet<>();
         Set<AppServiceHostServiceAPI> appServiceHostServiceAPISet = new HashSet<>();
 
-        neo4jUtil.getList(cql, podSet,
+        neo4jUtil.getTraceComponentList(cql, podSet,
                 serviceAPISet,
                 appServiceSet,
                 virtualMachineSet,
@@ -180,7 +252,8 @@ public class GraphAppServices {
 
 
     @Transactional(readOnly = true)
-    public Map<String, Set> getCrossOfTwoTrace(String traceA, String traceB){
+    public Map<String, Set> getCrossComponentOfTwoTrace(String traceA, String traceB){
+        //下面这部分是获得的两个Trace的交集
         Map<String, Set> traceAMap = getOneTracePath(traceA);
         Map<String, Set> traceBMap = getOneTracePath(traceB);
 

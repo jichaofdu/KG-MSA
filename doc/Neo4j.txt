@@ -80,6 +80,6 @@ MATCH (n)-[r:TraceInvokeApiToPod|TraceInvokePodToApi]->(m)<-[rm:PodAndMetric|Ser
 WHERE
     ANY(x IN r.traceIdSpanId WHERE x =~ '75c1d44834925763c082bf6cf7863e53-.*')
 WITH n,r,m,metrics,rm
-RETURN metrics
+RETURN metrics,rm
 
 http://localhost:17632/getCrossOfTwoTrace/75c1d44834925763c082bf6cf7863e53/5e92c60ddaacaf85ec4b2ed75c74964a

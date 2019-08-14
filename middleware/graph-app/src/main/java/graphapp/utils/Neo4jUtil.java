@@ -31,7 +31,42 @@ public class Neo4jUtil {
     }
 
 
-    public void getList(String cql,
+    public void getTraceMetricComponentList(String cql,
+                                            Set<PodMetric> podMetricSet,
+                                            Set<ServiceApiMetric> serviceApiMetricsSet,
+                                            Set<PodAndMetric> podAndMetricSet,
+                                            Set<ServiceApiAndMetric> serviceApiAndMetricSet){
+        try {
+            Session session = driver.session();
+            StatementResult result = session.run(cql);
+            List<Record> list = result.list();
+            for (Record r : list) {
+                for (String index : r.keys()) {
+                    Map<String, Object> map = new HashMap<>(r.get(index).asMap());
+                    String fullClassName = (String)map.get("className");
+                    String rawClassName = fullClassName.substring(fullClassName.lastIndexOf(".") + 1);
+                    switch (rawClassName){
+                        case "PodMetric":
+                            podMetricSet.add(getNode(PodMetric.class, map));
+                            break;
+                        case "ServiceApiMetric":
+                            serviceApiMetricsSet.add(getNode(ServiceApiMetric.class, map));
+                            break;
+                        case "PodAndMetric":
+                            podAndMetricSet.add(getNode(PodAndMetric.class, map));
+                            break;
+                        case "ServiceApiAndMetric":
+                            serviceApiAndMetricSet.add(getNode(ServiceApiAndMetric.class, map));
+                            break;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void getTraceComponentList(String cql,
                         Set<Pod> podSet,
                         Set<ServiceAPI> serviceAPISet,
                         Set<AppService> appServiceSet,
@@ -80,6 +115,8 @@ public class Neo4jUtil {
                         case "AppServiceHostServiceAPI":
                             appServiceHostServiceAPISet.add(getNode(AppServiceHostServiceAPI.class, map));
                             break;
+                        case "Metric":
+
                     }
 
                 }

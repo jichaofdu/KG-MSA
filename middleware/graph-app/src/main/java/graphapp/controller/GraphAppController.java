@@ -35,8 +35,18 @@ public class GraphAppController {
         return graphAppServices.getOneTracePath(traceId);
     }
 
+    @GetMapping("/getCrossComponentOfTwoTrace/{traceA}/{traceB}")
+    public Map<String, Set> getCrossComponentOfTwoTrace(@PathVariable String traceA, @PathVariable String traceB){
+        return graphAppServices.getCrossComponentOfTwoTrace(traceA, traceB);
+    }
+
+    @GetMapping("/getCrossMetricsOfTwoTrace/{traceA}/{traceB}")
+    public Map<String, Set> getCrossMetricsOfTwoTrace(@PathVariable String traceA, @PathVariable String traceB){
+        return graphAppServices.getCrossMetricsOfTwoTrace(traceA, traceB);
+    }
+
     @GetMapping("/getCrossOfTwoTrace/{traceA}/{traceB}")
-    public Map<String, Set> getCrossOfTwoTrace(@PathVariable String traceA, @PathVariable String traceB){
+    public Map<String, Set>  getCrossOfTwoTrace(@PathVariable String traceA, @PathVariable String traceB) {
         return graphAppServices.getCrossOfTwoTrace(traceA, traceB);
     }
 
