@@ -17,6 +17,9 @@ public class Metric extends GraphNode{
     @Property(name="abnormality")
     private double abnormality;
 
+    @Property(name="severity")
+    private double severity;
+
     @Property(name="historyTimestamps")
     private ArrayList<Long> historyTimestamps = new ArrayList<>();
 
@@ -25,6 +28,9 @@ public class Metric extends GraphNode{
 
     @Property(name="historyAbnormality")
     private ArrayList<Double> historyAbnormality = new ArrayList<>();
+
+    @Property(name="historySeverity")
+    private ArrayList<Double> historySeverity = new ArrayList<>();
 
     public Metric() {
         super();
@@ -76,6 +82,22 @@ public class Metric extends GraphNode{
 
     public void setHistoryAbnormality(ArrayList<Double> historyAbnormality) {
         this.historyAbnormality = historyAbnormality;
+    }
+
+    public double getSeverity() {
+        return severity;
+    }
+
+    public void setSeverity(double severity) {
+        this.severity = severity;
+    }
+
+    public ArrayList<Double> getHistorySeverity() {
+        return historySeverity;
+    }
+
+    public void setHistorySeverity(ArrayList<Double> historySeverity) {
+        this.historySeverity = historySeverity;
     }
 
     @Override

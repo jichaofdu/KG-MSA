@@ -22,6 +22,8 @@ public class GraphNode {
 
     private String latestUpdateTimestamp;
 
+    private double score;
+
     public GraphNode() {
     }
 
@@ -84,7 +86,15 @@ public class GraphNode {
     public void setCreationTimestamp(String creationTimestamp) {
         this.creationTimestamp = creationTimestamp;
     }
-    
+
+    public double getScore() {
+        return score;
+    }
+
+    public void setScore(double score) {
+        this.score = score;
+    }
+
     @Override
     public int hashCode() {
         return name.hashCode();

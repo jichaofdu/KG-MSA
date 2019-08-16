@@ -10,11 +10,15 @@ public class PodMetric extends GraphNode  {
 
     private double abnormality = 0.1;
 
+    private double severity;
+
     private ArrayList<Long> historyTimestamps = new ArrayList<>();
 
     private ArrayList<Double> historyValues = new ArrayList<>();
 
     private ArrayList<Double> historyAbnormality = new ArrayList<>();
+
+    private ArrayList<Double> historySeverity = new ArrayList<>();
 
     public PodMetric() {
         super();
@@ -66,5 +70,21 @@ public class PodMetric extends GraphNode  {
 
     public void setHistoryAbnormality(ArrayList<Double> historyAbnormality) {
         this.historyAbnormality = historyAbnormality;
+    }
+
+    public double getSeverity() {
+        return severity;
+    }
+
+    public void setSeverity(double severity) {
+        this.severity = severity;
+    }
+
+    public ArrayList<Double> getHistorySeverity() {
+        return historySeverity;
+    }
+
+    public void setHistorySeverity(ArrayList<Double> historySeverity) {
+        this.historySeverity = historySeverity;
     }
 }

@@ -30,6 +30,9 @@ public class GraphNode {
     @Property(name="creationTimestamp")
     private String creationTimestamp;
 
+    @Property(name="score")
+    private double score;
+
     public GraphNode() {
     }
 
@@ -91,6 +94,14 @@ public class GraphNode {
 
     public void setCreationTimestamp(String creationTimestamp) {
         this.creationTimestamp = creationTimestamp;
+    }
+
+    public double getScore() {
+        return score;
+    }
+
+    public void setScore(double score) {
+        this.score = score;
     }
 
     @Override
