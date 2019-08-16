@@ -32,8 +32,6 @@ public class Neo4jUtil {
 
 
     public void getTraceMetricComponentList(String cql,
-                                            Set<PodMetric> podMetricSet,
-                                            Set<ServiceApiMetric> serviceApiMetricsSet,
                                             Set<PodAndMetric> podAndMetricSet,
                                             Set<ServiceApiAndMetric> serviceApiAndMetricSet){
         try {
@@ -41,22 +39,40 @@ public class Neo4jUtil {
             StatementResult result = session.run(cql);
             List<Record> list = result.list();
             for (Record r : list) {
+                Map<String, GraphNode> recordGraphNodeMap = new HashMap<>();
                 for (String index : r.keys()) {
+                    System.out.println(index);
                     Map<String, Object> map = new HashMap<>(r.get(index).asMap());
                     String fullClassName = (String)map.get("className");
                     String rawClassName = fullClassName.substring(fullClassName.lastIndexOf(".") + 1);
                     switch (rawClassName){
+                        case "Pod":
+                            Pod pod = getNode(Pod.class, map);
+                            recordGraphNodeMap.put(index, pod);
+                            break;
+                        case "ServiceAPI":
+                            ServiceAPI api = getNode(ServiceAPI.class, map);
+                            recordGraphNodeMap.put(index, api);
+                            break;
                         case "PodMetric":
-                            podMetricSet.add(getNode(PodMetric.class, map));
+                            PodMetric podMetric = getNode(PodMetric.class, map);
+                            recordGraphNodeMap.put(index, podMetric);
                             break;
                         case "ServiceApiMetric":
-                            serviceApiMetricsSet.add(getNode(ServiceApiMetric.class, map));
+                            ServiceApiMetric serviceApiMetric = getNode(ServiceApiMetric.class, map);
+                            recordGraphNodeMap.put(index, serviceApiMetric);
                             break;
                         case "PodAndMetric":
-                            podAndMetricSet.add(getNode(PodAndMetric.class, map));
+                            PodAndMetric podAndMetric = getNode(PodAndMetric.class, map);
+                            podAndMetric.setPod((Pod) recordGraphNodeMap.get("m"));
+                            podAndMetric.setPodMetric((PodMetric) recordGraphNodeMap.get("metrics"));
+                            podAndMetricSet.add(podAndMetric);
                             break;
                         case "ServiceApiAndMetric":
-                            serviceApiAndMetricSet.add(getNode(ServiceApiAndMetric.class, map));
+                            ServiceApiAndMetric serviceApiAndMetric = getNode(ServiceApiAndMetric.class, map);
+                            serviceApiAndMetric.setServiceAPI((ServiceAPI) recordGraphNodeMap.get("m"));
+                            serviceApiAndMetric.setApiMetric((ServiceApiMetric) recordGraphNodeMap.get("metrics"));
+                            serviceApiAndMetricSet.add(serviceApiAndMetric);
                             break;
                     }
                 }
@@ -81,6 +97,7 @@ public class Neo4jUtil {
             StatementResult result = session.run(cql);
             List<Record> list = result.list();
             for (Record r : list) {
+                Map<String, GraphNode> recordGraphNodeMap = new HashMap<>();
                 for (String index : r.keys()) {
                     Map<String, Object> map = new HashMap<>();
                     //关系上设置的属性
@@ -89,31 +106,54 @@ public class Neo4jUtil {
                     String rawClassName = fullClassName.substring(fullClassName.lastIndexOf(".") + 1);
                     switch (rawClassName){
                         case "Pod":
-                            podSet.add(getNode(Pod.class, map));
+                            Pod pod = getNode(Pod.class, map);
+                            recordGraphNodeMap.put(index, pod);
+                            podSet.add(pod);
                             break;
                         case "VirtualMachine":
-                            virtualMachineSet.add(getNode(VirtualMachine.class, map));
+                            VirtualMachine vm = getNode(VirtualMachine.class, map);
+                            recordGraphNodeMap.put(index, vm);
+                            virtualMachineSet.add(vm);
                             break;
                         case "AppService":
-                            appServiceSet.add(getNode(AppService.class, map));
+                            AppService svc = getNode(AppService.class, map);
+                            recordGraphNodeMap.put(index, svc);
+                            appServiceSet.add(svc);
                             break;
                         case "ServiceAPI":
-                            serviceAPISet.add(getNode(ServiceAPI.class, map));
+                            ServiceAPI api = getNode(ServiceAPI.class, map);
+                            recordGraphNodeMap.put(index, api);
+                            serviceAPISet.add(api);
                             break;
                         case "TraceInvokeApiToPod":
-                            traceInvokeApiToPodSet.add(getNode(TraceInvokeApiToPod.class, map));
+                            TraceInvokeApiToPod traceInvokeApiToPod = getNode(TraceInvokeApiToPod.class, map);
+                            traceInvokeApiToPod.setServiceAPI((ServiceAPI) recordGraphNodeMap.get("n"));
+                            traceInvokeApiToPod.setPod((Pod)recordGraphNodeMap.get("m"));
+                            traceInvokeApiToPodSet.add(traceInvokeApiToPod);
                             break;
                         case "TraceInvokePodToApi":
-                            traceInvokePodToApiSet.add(getNode(TraceInvokePodToApi.class, map));
+                            TraceInvokePodToApi traceInvokePodToApi = getNode(TraceInvokePodToApi.class, map);
+                            traceInvokePodToApi.setPod((Pod)recordGraphNodeMap.get("n"));
+                            traceInvokePodToApi.setServiceAPI((ServiceAPI) recordGraphNodeMap.get("m"));
+                            traceInvokePodToApiSet.add(traceInvokePodToApi);
                             break;
                         case "AppServiceAndPod":
-                            appServiceAndPodSet.add(getNode(AppServiceAndPod.class, map));
+                            AppServiceAndPod appServiceAndPod = getNode(AppServiceAndPod.class, map);
+                            appServiceAndPod.setPod((Pod) recordGraphNodeMap.get("m"));
+                            appServiceAndPod.setAppService((AppService)recordGraphNodeMap.get("s"));
+                            appServiceAndPodSet.add(appServiceAndPod);
                             break;
                         case "VirtualMachineAndPod":
-                            virtualMachineAndPodSet.add(getNode(VirtualMachineAndPod.class, map));
+                            VirtualMachineAndPod virtualMachineAndPod = getNode(VirtualMachineAndPod.class, map);
+                            virtualMachineAndPod.setPod((Pod) recordGraphNodeMap.get("m"));
+                            virtualMachineAndPod.setVirtualMachine((VirtualMachine) recordGraphNodeMap.get("s"));
+                            virtualMachineAndPodSet.add(virtualMachineAndPod);
                             break;
                         case "AppServiceHostServiceAPI":
-                            appServiceHostServiceAPISet.add(getNode(AppServiceHostServiceAPI.class, map));
+                            AppServiceHostServiceAPI appServiceHostServiceAPI = getNode(AppServiceHostServiceAPI.class, map);
+                            appServiceHostServiceAPI.setServiceAPI((ServiceAPI) recordGraphNodeMap.get("m"));
+                            appServiceHostServiceAPI.setAppService((AppService)recordGraphNodeMap.get("s"));
+                            appServiceHostServiceAPISet.add(appServiceHostServiceAPI);
                             break;
                         case "Metric":
 

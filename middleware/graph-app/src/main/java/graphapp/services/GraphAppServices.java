@@ -1,5 +1,6 @@
 package graphapp.services;
 
+import graphapp.domain.UnitGraphNode;
 import graphapp.domain.entities.*;
 import graphapp.domain.relationships.*;
 import graphapp.repositories.MetricOfPodRepository;
@@ -10,8 +11,6 @@ import graphapp.utils.Neo4jUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.validation.valueextraction.ExtractedValue;
 import java.util.*;
 
 @Service
@@ -62,7 +61,7 @@ public class GraphAppServices {
         return "Success";
     }
 
-    public double updateSingleAbnormalityOfPods(PodMetric podMetric){
+    private double updateSingleAbnormalityOfPods(PodMetric podMetric){
         ArrayList<Double> values = podMetric.getHistoryValues();
         if(values.size() <= 3){
             return 0.0;
@@ -72,7 +71,7 @@ public class GraphAppServices {
 
     }
 
-    public double updateSingleAbnormalityOfServiceApis(ServiceApiMetric serviceApiMetric){
+    private double updateSingleAbnormalityOfServiceApis(ServiceApiMetric serviceApiMetric){
         ArrayList<Double> values = serviceApiMetric.getValues();
         if(values.size() <= 3){
             return 0.0;
@@ -82,7 +81,7 @@ public class GraphAppServices {
 
     }
 
-    public double threeSigmaAbnormality(ArrayList<Double> historyValue, double latestValue){
+    private double threeSigmaAbnormality(ArrayList<Double> historyValue, double latestValue){
         int arrLen = historyValue.size();
         double latestAvg = (latestValue + historyValue.get(arrLen-1) + historyValue.get(arrLen-2)) / 3.0;
 
@@ -105,7 +104,7 @@ public class GraphAppServices {
         return abnormality;
     }
 
-    public double getAverage(ArrayList<Double> x){
+    private double getAverage(ArrayList<Double> x){
         int m = x.size();
         double sum=0;
         for(int i = 0; i < m; i++){//求和
@@ -114,7 +113,7 @@ public class GraphAppServices {
         return sum / m;
     }
 
-    public double getStandardDiviation(ArrayList<Double> x, double dAve) {
+    private double getStandardDiviation(ArrayList<Double> x, double dAve) {
         double dVar = 0;
         for(int i = 0; i < x.size(); i++){//求方差
             dVar += (x.get(i) - dAve) * (x.get(i) - dAve);
@@ -141,16 +140,14 @@ public class GraphAppServices {
                 "MATCH (n)-[r:TraceInvokeApiToPod|TraceInvokePodToApi]->(m)<-[rm:PodAndMetric|ServiceApiAndMetric]-(metrics) " +
                         "WHERE " +
                         "    ANY(x IN r.traceIdSpanId WHERE x =~ '75c1d44834925763c082bf6cf7863e53-.*') " +
-                        "WITH n,r,m,metrics,rm " +
-                        "RETURN metrics,rm";
+                        "WITH n,m,r,metrics,rm " +
+                        "RETURN m,metrics,rm";
         Set<PodMetric> podMetricSet = new HashSet<>();
         Set<ServiceApiMetric> serviceApiMetricSet = new HashSet<>();
         Set<PodAndMetric> podAndMetricSet = new HashSet<>();
         Set<ServiceApiAndMetric> serviceApiAndMetricSet = new HashSet<>();
 
         neo4jUtil.getTraceMetricComponentList(cql,
-                podMetricSet,
-                serviceApiMetricSet,
                 podAndMetricSet,
                 serviceApiAndMetricSet);
 
@@ -202,7 +199,7 @@ public class GraphAppServices {
                 "MATCH (n)-[r:TraceInvokeApiToPod|TraceInvokePodToApi]->(m)-[rs:AppServiceAndPod|AppServiceHostServiceAPI|VirtualMachineAndPod]->(s) " +
                         " WHERE" +
                         "    ANY(x IN r.traceIdSpanId WHERE x =~ '" + traceId + "-.*') " +
-                        " RETURN n,r,m,rs,s ";
+                        " RETURN n,m,r,s,rs";
         //待返回的值，与cql return后的值顺序对应
         Set<Pod> podSet = new HashSet<>();
         Set<ServiceAPI> serviceAPISet = new HashSet<>();
@@ -274,6 +271,45 @@ public class GraphAppServices {
         }
 
         return crossingMap;
+    }
+
+    public ArrayList<UnitGraphNode> getSortedGraphNode(String traceId){
+        Map<String, Set> metricMap = getOneTraceMetrics(traceId);
+
+        Set<ServiceApiAndMetric> serviceApiAndMetricSet = metricMap.get("ServiceApiAndMetric");
+        Set<PodAndMetric> podAndMetricSet = metricMap.get("PodAndMetric");
+
+        ArrayList<UnitGraphNode> list = new ArrayList<>();
+        for(PodAndMetric podAndMetric : podAndMetricSet){
+            double rv = podAndMetric.getPodMetric().getAbnormality();
+            GraphNode gn = podAndMetric.getPod();
+            UnitGraphNode ung = new UnitGraphNode(rv, gn);
+            list.add(ung);
+        }
+        for(ServiceApiAndMetric serviceApiAndMetric : serviceApiAndMetricSet) {
+            double rv = serviceApiAndMetric.getApiMetric().getAbnormality();
+            GraphNode gn = serviceApiAndMetric.getServiceAPI();
+            UnitGraphNode ung = new UnitGraphNode(rv, gn);
+            list.add(ung);
+        }
+
+        sortByCalculateValue(list);
+
+        return list;
+    }
+
+
+    private void sortByCalculateValue(ArrayList<UnitGraphNode> nodeList){
+        nodeList.sort((UnitGraphNode o1, UnitGraphNode o2) ->
+            {
+                if(o1.resultValue - o2.resultValue < 0){
+                    return 1;
+                }else if(o1.resultValue - o2.resultValue == 0){
+                    return 0;
+                }else{
+                    return -1;
+                }
+            });
     }
 
 }
