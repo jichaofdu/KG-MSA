@@ -109,7 +109,8 @@ public class GraphNode {
         if (this == o) return true;
         if (!(o instanceof GraphNode)) return false;
         GraphNode graphNode = (GraphNode) o;
-        return Objects.equals(id, graphNode.id) &&
+        return Double.compare(graphNode.score, score) == 0 &&
+                Objects.equals(id, graphNode.id) &&
                 Objects.equals(name, graphNode.name) &&
                 Objects.equals(className, graphNode.className) &&
                 Objects.equals(labels, graphNode.labels) &&
@@ -119,6 +120,6 @@ public class GraphNode {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, className, labels, latestUpdateTimestamp, creationTimestamp);
+        return Objects.hash(id, name, className, labels, latestUpdateTimestamp, creationTimestamp, score);
     }
 }
