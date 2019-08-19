@@ -72,11 +72,11 @@ public class GraphAppServices {
     }
 
     private double updateSingleAbnormalityOfServiceApis(ServiceApiMetric serviceApiMetric){
-        ArrayList<Double> values = serviceApiMetric.getValues();
+        ArrayList<Double> values = serviceApiMetric.getHistoryValues();
         if(values.size() <= 3){
             return 0.0;
         }else{
-            return threeSigmaAbnormality(values, values.get(values.size()-1));
+            return threeSigmaAbnormality(values,serviceApiMetric.getValue());
         }
 
     }

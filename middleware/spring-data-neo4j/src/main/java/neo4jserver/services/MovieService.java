@@ -97,7 +97,22 @@ public class MovieService {
 			Optional<ServiceApiMetric> metricOptional = metricOfServiceApiRepository.findById(metric.getId());
 			if(metricOptional.isPresent()){
 				ServiceApiMetric oldMetric = metricOptional.get();
-				oldMetric.getValues().addAll(metric.getValues());
+				ArrayList<Long> timeList = new ArrayList<>();
+				timeList.addAll(oldMetric.getHistoryTimestamps());
+				timeList.addAll(metric.getHistoryTimestamps());
+				long lastTime = timeList.remove(timeList.size() - 1);
+
+
+				ArrayList<Double> valueList = new ArrayList<>();
+				valueList.addAll(oldMetric.getHistoryValues());
+				valueList.addAll(metric.getHistoryValues());
+				double lastValue = valueList.remove(valueList.size() - 1);
+
+				oldMetric.setTime(lastTime);
+				oldMetric.setHistoryTimestamps(timeList);
+				oldMetric.setValue(lastValue);
+				oldMetric.setHistoryValues(valueList);
+
 				relation.setApiMetric(oldMetric);
 			}
 

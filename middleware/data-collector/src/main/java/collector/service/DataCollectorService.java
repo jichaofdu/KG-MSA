@@ -196,8 +196,9 @@ public class DataCollectorService {
     //提供一个Trace 从中抽取出API与Pod之间关系
     //抽取结果的容器也在参数中
     public void getTraceInvokeInformation(ArrayList<Span> trace, ArrayList<TraceInvokeApiToPod> traceApiToPod, ArrayList<TraceInvokePodToApi> tracePodToApi){
-        //统计一个个的span对API的调用时长的
-        HashMap<String, ArrayList<Double>> apiMetricsMap = new HashMap<>();
+        //统计一个个的span对API的调用时长的和调用发起的时间的
+        HashMap<String, TreeMap<Long, Double>> apiMetricsMap = new HashMap<>();
+
         //遍历一个trace的每一个span
         for(Span span : trace) {
             //istio的输出信息不是我们需要的 忽略
@@ -281,9 +282,9 @@ public class DataCollectorService {
 
                 //Metric - duration处理api调用时间长度的问题
                 //Metric -> Api
-                ArrayList<Double> apiMetricList = apiMetricsMap.getOrDefault(serviceApi.getName(), new ArrayList<>());
-                apiMetricList.add(Double.parseDouble(span.getDuration()));
-                apiMetricsMap.put(serviceApi.getName(), apiMetricList);
+                TreeMap<Long, Double> apiTimeMetricMap = apiMetricsMap.getOrDefault(serviceApi.getName(), new TreeMap<>());
+                apiTimeMetricMap.put(Long.parseLong(span.getTimestamp()), Double.parseDouble(span.getDuration()));
+                apiMetricsMap.put(serviceApi.getName(), apiTimeMetricMap);
 
                 relation.setTraceIdAndSpanIds(passingTracesAndSpans);
 
@@ -297,7 +298,7 @@ public class DataCollectorService {
     }
 
 
-    private void handleApiMetrics(HashMap<String, ArrayList<Double>> apiMetricsMap){
+    private void handleApiMetrics(HashMap<String, TreeMap<Long, Double>> apiMetricsMap){
 
         System.out.println("=====handleApiMetrics=====");
 
@@ -305,9 +306,10 @@ public class DataCollectorService {
 
         for(String serviceApiName : apiMetricsMap.keySet()){
 
-            ArrayList<Double> moreApiMetrics = apiMetricsMap.get(serviceApiName);
+            TreeMap<Long, Double> apiTimeMetricMap = apiMetricsMap.get(serviceApiName);
             ServiceApiMetric apiMetric = new ServiceApiMetric();
-            apiMetric.setValues(moreApiMetrics);
+            apiMetric.setHistoryValues(new ArrayList<>(apiTimeMetricMap.values()));
+            apiMetric.setHistoryTimestamps(new ArrayList<>(apiTimeMetricMap.keySet()));
             apiMetric.setCreationTimestamp(getCurrentTimestamp());
             apiMetric.setLatestUpdateTimestamp(getCurrentTimestamp());
             apiMetric.setName(serviceApiName + "_" + "duration");
@@ -323,7 +325,8 @@ public class DataCollectorService {
             relation.setId(apiMetric.getId() + "MetricAndContainer" + serviceApi.getId());
 
             System.out.println("==" + relation.getId());
-            System.out.println("==" + relation.getApiMetric().getValues().toString());
+            System.out.println("==" + relation.getApiMetric().getHistoryTimestamps().toString());
+            System.out.println("==" + relation.getApiMetric().getHistoryValues().toString());
 
             relations.add(relation);
         }
