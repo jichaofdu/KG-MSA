@@ -2,8 +2,8 @@
 systemctl show --property=FragmentPath docker
 
 2、编辑配置文件内容，接收所有ip请求
-vi  /lib/systemd/system/docker.service
-ExecStart=/usr/bin/dockerd -H unix:///var/run/docker.sock -H tcp://0.0.0.0:2375
+vi  /usr/lib/systemd/system/docker.service
+ExecStart=/usr/bin/dockerd -H unix:///var/run/docker.sock -H tcp://0.0.0.0:5678
 
 3、重新加载配置文件，重启docker daemon
 sudo systemctl daemon-reload
@@ -13,3 +13,6 @@ sudo systemctl restart docker
 docker -H localhost:5678 version
 
 出处：https://www.cnblogs.com/520playboy/p/7921633.html
+
+
+我们使用的端口是5678

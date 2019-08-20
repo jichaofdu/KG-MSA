@@ -1,8 +1,3 @@
-mvn spring-boot:run
-
-kubeadm join 10.141.211.162:6443 --token iu2p6l.s64r12inemby1uyc \
-    --discovery-token-ca-cert-hash sha256:1734e83156c23789e79dc81ffb85680557e698b5bbdd0251030308c759ee239f
-
 生成新的kubeadm命令
 https://www.jianshu.com/p/a5e379638577
 
@@ -10,3 +5,30 @@ service  NetworkManager stop
 chkconfig NetworkManager off
 
 
+chkconfig NetworkManager on
+
+service  NetworkManager start
+
+
+vi /etc/selinux/config
+
+
+vi /etc/docker/daemon.json
+{
+"insecure-registries" : [ "10.141.211.175:5000" ]
+}
+service docker restart
+docker pull 10.141.211.175:5000/jichao/cluster-ts-admin-basic-info-service
+
+
+10.141.212.23 jichao_1
+10.141.212.24 jichao_2
+10.141.212.25 jichao_3
+10.141.211.162 jichao_4
+10.141.212.133 jichao_5
+10.141.212.136 jichao_6
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+http://blog.9aw.cn/2015/01/centos%E4%B8%8B%E4%BF%AE%E6%94%B9hosts%E6%96%87%E4%BB%B6%E4%BB%A5%E5%8F%8A%E7%94%9F%E6%95%88%E5%91%BD%E4%BB%A4/
+https://www.twblogs.net/a/5c1235b7bd9eee5e4183ca4a

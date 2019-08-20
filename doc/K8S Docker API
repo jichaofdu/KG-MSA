@@ -1,5 +1,11 @@
 //如何打开k8s
 https://www.cnblogs.com/keithtt/p/8251353.html
 
-//docker remote api
-https://www.cnblogs.com/520playboy/p/7921633.html
+打开K8S api-server
+
+# vim /etc/kubernetes/manifests/kube-apiserver.yaml
+- --enable-swagger-ui=true
+- --insecure-bind-address=0.0.0.0
+- --insecure-port=8080
+
+我们使用的端口是8082

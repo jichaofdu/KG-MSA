@@ -85,3 +85,13 @@ Use the command you write down in Step 10.
 kubectl get nodes   
 kubectl get pods --all-namespaces   
 kuebctl get svc --all-namespaces   
+
+
+
+/etc/init.d/network restart
+
+echo "1" >/proc/sys/net/ipv4/ip_forward
+echo "1" >/proc/sys/net/bridge/bridge-nf-call-iptables
+
+kubeadm join 10.141.212.24:6443 --token ebt1h4.knutq8g9zuqe9uf3 \
+    --discovery-token-ca-cert-hash sha256:2ab9f269bfd9e374243748accf2e2c15e5bf32b81129bf018df9de14b61acc20
