@@ -2,10 +2,7 @@ package graphapp.controller;
 
 import graphapp.domain.UnitGraphNode;
 import graphapp.services.GraphAppServices;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -30,6 +27,16 @@ public class GraphAppController {
     @GetMapping("/abnormality/serviceApi")
     public String updateAbnomalityOfServiceApis(){
         return graphAppServices.updateAbnomalityOfServiceApis();
+    }
+
+    @PostMapping("/abnormality/podList")
+    public String updatePodAbnormalityByList(@RequestBody ArrayList<String> podMetricIdList){
+        return graphAppServices.updatePodAbnormalityByList(podMetricIdList);
+    }
+
+    @PostMapping("/abnormality/apiList")
+    public String updateApiAbnormalityByList(@RequestBody ArrayList<String> apiMetricIdList){
+        return graphAppServices.updateApiAbnormalityByList(apiMetricIdList);
     }
 
     @GetMapping("/getTrace/{traceId}")

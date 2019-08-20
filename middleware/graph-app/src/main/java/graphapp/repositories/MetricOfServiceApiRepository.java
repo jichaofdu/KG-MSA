@@ -8,8 +8,8 @@ import java.util.Optional;
 
 public interface MetricOfServiceApiRepository extends Neo4jRepository<ServiceApiMetric, Long> {
 
-    @Query("MATCH (n:ServiceApiMetric) where n.name={0} RETURN n")
-    Optional<ServiceApiMetric> findByName(String name);
+    @Query("MATCH (n:ServiceApiMetric) where n.id={0} RETURN n")
+    Optional<ServiceApiMetric> findById(String id);
 
     @Query("MATCH (n:ServiceApiMetric) return n")
     ArrayList<ServiceApiMetric> findAllMetrics();

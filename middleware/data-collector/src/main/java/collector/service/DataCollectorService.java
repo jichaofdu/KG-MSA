@@ -44,6 +44,9 @@ public class DataCollectorService {
     @Value("${database.neo4j.ip}")
     private String neo4jDaoIP;
 
+    @Value("${graph.app.ip}")
+    private String graphAppIp;
+
     //promethsus的查询地址
     @Value("${k8s.promethsus.ip}")
     private String promethsusQuery;
@@ -304,6 +307,8 @@ public class DataCollectorService {
 
         ArrayList<ServiceApiAndMetric> relations = new ArrayList<>();
 
+        ArrayList<String> apiMetricIds = new ArrayList<>();
+
         for(String serviceApiName : apiMetricsMap.keySet()){
 
             TreeMap<Long, Double> apiTimeMetricMap = apiMetricsMap.get(serviceApiName);
@@ -314,6 +319,8 @@ public class DataCollectorService {
             apiMetric.setLatestUpdateTimestamp(getCurrentTimestamp());
             apiMetric.setName(serviceApiName + "_" + "duration");
             apiMetric.setId(serviceApiName + "_" + "duration");
+
+            apiMetricIds.add(apiMetric.getId());
 
             ServiceAPI serviceApi = apis.get(serviceApiName);
 
@@ -337,6 +344,8 @@ public class DataCollectorService {
             //向对方上传数据
             restTemplate.postForObject(neo4jDaoIP + "/serviceApiMetrics", relations, relations.getClass());
         }
+
+        restTemplate.postForObject(graphAppIp + "/abnormality/apiList", apiMetricIds, String.class);
     }
 
 
@@ -606,6 +615,13 @@ public class DataCollectorService {
         System.out.println("上传Pod Metrics 数量:" + list.size());
         restTemplate.postForObject(
                 neo4jDaoIP + "/podAndMetrics", list, list.getClass());
+
+        ArrayList<String> podMetricIds = new ArrayList<>();
+        for(PodAndMetric pm : list) {
+            podMetricIds.add(pm.getPodMetric().getId());
+        }
+        restTemplate.postForObject(graphAppIp + "/abnormality/podList",podMetricIds, String.class);
+
         System.out.println("上传Pod Metrics完毕");
     }
 

@@ -11,6 +11,8 @@ import graphapp.utils.Neo4jUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
+
 import java.util.*;
 
 @Service
@@ -48,6 +50,34 @@ public class GraphAppServices {
         }
         System.out.println("[更新PodMetric Abnormality] 数量:" + podMetricList.size());
         return "Success";
+    }
+
+    public String updatePodAbnormalityByList(ArrayList<String> podMetricIdList){
+        for(String podMetricId : podMetricIdList){
+            PodMetric podMetric = metricOfPodRepository.findById(podMetricId).get();
+            double abnormality = updateSingleAbnormalityOfPods(podMetric);
+            podMetric.getHistoryAbnormality().add(podMetric.getAbnormality());
+
+            System.out.println("====updatePodAbnormalityByList");
+            System.out.println(podMetric.getHistoryAbnormality());
+            System.out.println(abnormality);
+
+            podMetric.setAbnormality(abnormality);
+            metricOfPodRepository.save(podMetric);
+        }
+        return "Success " + podMetricIdList.size();
+    }
+
+    public String updateApiAbnormalityByList(@RequestBody ArrayList<String> apiMetricIdList){
+        for(String apiMetricId : apiMetricIdList){
+            ServiceApiMetric serviceApiMetric = metricOfServiceApiRepository.findById(apiMetricId).get();
+            double abnormality = updateSingleAbnormalityOfServiceApis(serviceApiMetric);
+            serviceApiMetric.getHistoryAbnormality().add(serviceApiMetric.getAbnormality());
+            serviceApiMetric.setAbnormality(abnormality);
+            metricOfServiceApiRepository.save(serviceApiMetric);
+        }
+
+        return "Success" + apiMetricIdList.size();
     }
 
     public String updateAbnomalityOfServiceApis(){
@@ -96,10 +126,10 @@ public class GraphAppServices {
         }
 
         System.out.println("[ThreeSigmaAbnormality]" +
-                " LatestAvg:" + latestAvg +
-                " TotalAvg:" + totalAvg +
-                " TotalSd:" + totalSd +
-                " Abnormality:" + abnormality);
+                "\n LatestAvg:" + latestAvg +
+                "\n TotalAvg:" + totalAvg +
+                "\n TotalSd:" + totalSd +
+                "\n Abnormality:" + abnormality);
 
         return abnormality;
     }

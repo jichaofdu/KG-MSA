@@ -230,10 +230,10 @@ public class MovieService {
 				PodMetric oldPodMetric = podMetricOpt.get();
 				oldPodMetric.getHistoryTimestamps().add(oldPodMetric.getTime());
 				oldPodMetric.getHistoryValues().add(oldPodMetric.getValue());
-				oldPodMetric.getHistoryAbnormality().add(oldPodMetric.getAbnormality());
+//				oldPodMetric.getHistoryAbnormality().add(oldPodMetric.getAbnormality());
 				oldPodMetric.setTime(relation.getPodMetric().getTime());
 				oldPodMetric.setValue(relation.getPodMetric().getValue());
-				oldPodMetric.setAbnormality(relation.getPodMetric().getAbnormality());
+//				oldPodMetric.setAbnormality(relation.getPodMetric().getAbnormality());
 				oldPodMetric.setLatestUpdateTimestamp(relation.getPodMetric().getLatestUpdateTimestamp());
 				//time frame是200 最多保留两百条数据
 				//多余的数据拿掉（越靠前的数据越离谱）
@@ -269,10 +269,10 @@ public class MovieService {
 			Metric metricOldEntity = metricOld.get();
 			metricOldEntity.getHistoryTimestamps().add(metricOldEntity.getTime());
 			metricOldEntity.getHistoryValues().add(metricOldEntity.getValue());
-			metricOldEntity.getHistoryAbnormality().add(metricOldEntity.getAbnormality());
+//			metricOldEntity.getHistoryAbnormality().add(metricOldEntity.getAbnormality());
 			metricOldEntity.setTime(metric.getTime());
 			metricOldEntity.setValue(metric.getValue());
-			metricOldEntity.setAbnormality(metric.getAbnormality());
+//			metricOldEntity.setAbnormality(metric.getAbnormality());
 			metricOldEntity.setLatestUpdateTimestamp(metric.getLatestUpdateTimestamp());
 			//time frame是200 最多保留两百条数据
 			//多余的数据拿掉（越靠前的数据越离谱）
