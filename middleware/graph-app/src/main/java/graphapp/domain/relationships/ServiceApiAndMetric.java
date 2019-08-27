@@ -7,7 +7,7 @@ import org.neo4j.ogm.annotation.*;
 import java.util.Objects;
 
 @RelationshipEntity(type = "ServiceApiAndMetric")
-public class ServiceApiAndMetric {
+public class ServiceApiAndMetric extends BasicRelationship  {
 
     @Id
     private String id;

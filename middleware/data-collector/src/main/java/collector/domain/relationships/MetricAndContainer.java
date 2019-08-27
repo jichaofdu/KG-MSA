@@ -3,7 +3,7 @@ package collector.domain.relationships;
 import collector.domain.entities.Container;
 import collector.domain.entities.Metric;
 
-public class MetricAndContainer {
+public class MetricAndContainer extends BasicRelationship {
 
     private String id;
 

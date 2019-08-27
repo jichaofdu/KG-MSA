@@ -3,7 +3,7 @@ package collector.domain.relationships;
 import collector.domain.entities.AppService;
 import collector.domain.entities.ServiceAPI;
 
-public class AppServiceHostServiceAPI {
+public class AppServiceHostServiceAPI extends BasicRelationship {
 
     private String id;
 

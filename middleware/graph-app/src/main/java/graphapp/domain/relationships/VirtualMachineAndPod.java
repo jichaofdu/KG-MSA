@@ -7,7 +7,7 @@ import org.neo4j.ogm.annotation.*;
 import java.util.Objects;
 
 @RelationshipEntity(type = "VirtualMachineAndPod")
-public class VirtualMachineAndPod {
+public class VirtualMachineAndPod extends BasicRelationship  {
 
     @Id
     private String id;

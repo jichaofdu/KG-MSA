@@ -3,7 +3,7 @@ package collector.domain.relationships;
 import collector.domain.entities.AppService;
 import collector.domain.entities.Pod;
 
-public class AppServiceAndPod {
+public class AppServiceAndPod extends BasicRelationship {
 
     private String id;
 

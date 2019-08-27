@@ -3,7 +3,7 @@ package collector.domain.relationships;
 import collector.domain.entities.ServiceAPI;
 import collector.domain.entities.ServiceApiMetric;
 
-public class ServiceApiAndMetric {
+public class ServiceApiAndMetric extends BasicRelationship {
 
     private String id;
 

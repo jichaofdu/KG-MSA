@@ -7,7 +7,7 @@ import org.neo4j.ogm.annotation.*;
 import java.util.Objects;
 
 @RelationshipEntity(type = "AppServiceInvokeServiceAPI")
-public class AppServiceInvokeServiceAPI {
+public class AppServiceInvokeServiceAPI extends BasicRelationship {
 
     @Id
     private String id;

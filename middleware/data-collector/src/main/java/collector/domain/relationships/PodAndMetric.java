@@ -3,7 +3,7 @@ package collector.domain.relationships;
 import collector.domain.entities.Pod;
 import collector.domain.entities.PodMetric;
 
-public class PodAndMetric {
+public class PodAndMetric extends BasicRelationship {
 
     private String id;
 

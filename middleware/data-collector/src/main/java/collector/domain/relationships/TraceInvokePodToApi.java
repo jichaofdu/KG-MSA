@@ -4,7 +4,7 @@ import collector.domain.entities.Pod;
 import collector.domain.entities.ServiceAPI;
 import java.util.HashSet;
 
-public class TraceInvokePodToApi {
+public class TraceInvokePodToApi extends BasicRelationship {
 
     private String id;
 

@@ -10,10 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import graphapp.domain.entities.*;
 import graphapp.domain.relationships.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 
 /**
  * 通用的neo4j调用类
@@ -28,6 +26,11 @@ public class Neo4jUtil {
     @Autowired
     public Neo4jUtil(Driver driver) {
         Neo4jUtil.driver = driver;
+    }
+
+
+    public HashMap<GraphNode, HashSet<BasicRelationship>> getWholeGraphByAdjacentList(){
+        return null;
     }
 
 

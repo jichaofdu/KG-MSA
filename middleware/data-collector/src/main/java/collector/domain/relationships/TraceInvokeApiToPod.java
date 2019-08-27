@@ -9,7 +9,7 @@ import java.util.HashSet;
 // Pod A -> Api -> PodB
 // TraceInvokeApiToPod 负责从Api到Pod-B的一段
 // TraceInvokePodToApi 负责Pod-A到API的一段
-public class TraceInvokeApiToPod {
+public class TraceInvokeApiToPod extends BasicRelationship {
 
     private String id;
 

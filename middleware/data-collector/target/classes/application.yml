@@ -1,0 +1,6 @@
+server:
+  port: 19871
+
+spring:
+  application:
+    name: data-collector

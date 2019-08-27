@@ -3,7 +3,7 @@ package collector.domain.relationships;
 import collector.domain.entities.Pod;
 import collector.domain.entities.VirtualMachine;
 
-public class VirtualMachineAndPod {
+public class VirtualMachineAndPod extends BasicRelationship {
 
     private String id;
 

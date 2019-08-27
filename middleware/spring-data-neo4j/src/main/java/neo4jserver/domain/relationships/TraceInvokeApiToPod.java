@@ -12,7 +12,7 @@ import java.util.Objects;
 // TraceInvokeApiToPod 负责从Api到Pod-B的一段
 // TraceInvokePodToApi 负责Pod-A到API的一段
 @RelationshipEntity(type = "TraceInvokeApiToPod")
-public class TraceInvokeApiToPod {
+public class TraceInvokeApiToPod extends BasicRelationship {
 
     @Id
     private String id;

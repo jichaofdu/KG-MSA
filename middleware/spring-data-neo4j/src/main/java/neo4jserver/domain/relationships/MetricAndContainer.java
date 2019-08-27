@@ -8,7 +8,7 @@ import org.neo4j.ogm.annotation.*;
 import java.util.Objects;
 
 @RelationshipEntity(type = "MetricAndContainer")
-public class MetricAndContainer {
+public class MetricAndContainer extends BasicRelationship {
 
     @Id
     private String id;

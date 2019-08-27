@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Objects;
 
 @RelationshipEntity(type = "TraceInvokePodToApi")
-public class TraceInvokePodToApi {
+public class TraceInvokePodToApi extends BasicRelationship {
 
     @Id
     private String id;
