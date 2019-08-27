@@ -59,6 +59,9 @@ MATCH ()-[r:Traces]->()
 WHERE ANY(x IN r.traceIdSpanId WHERE x =~ '319bbc7da0a4612347afb75412674fcd-.*')
 RETURN r
 
+MATCH (from)-[relationship]->(to)
+RETURN relationship, from, to
+
 
 Trace指令
 MATCH (n)-[r:TraceInvokeApiToPod|TraceInvokePodToApi]->(m)

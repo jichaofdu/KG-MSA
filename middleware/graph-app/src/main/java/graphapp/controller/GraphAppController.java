@@ -1,12 +1,12 @@
 package graphapp.controller;
 
 import graphapp.domain.UnitGraphNode;
+import graphapp.domain.entities.GraphNode;
+import graphapp.domain.relationships.BasicRelationship;
 import graphapp.services.GraphAppServices;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 @RequestMapping("/")
@@ -17,6 +17,11 @@ public class GraphAppController {
 
     public GraphAppController(GraphAppServices graphAppServices) {
         this.graphAppServices = graphAppServices;
+    }
+
+    @GetMapping("/total")
+    public HashMap<GraphNode, HashSet<BasicRelationship>> getTotalGraph(){
+        return graphAppServices.getTotalGraph();
     }
 
     @GetMapping("/abnormality/pods")
