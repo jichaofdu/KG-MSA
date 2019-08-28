@@ -2,30 +2,18 @@ package collector.domain.relationships;
 
 import collector.domain.entities.AppService;
 import collector.domain.entities.ServiceAPI;
+import java.util.Objects;
 
 public class AppServiceInvokeServiceAPI extends BasicRelationship {
-
-    private String id;
 
     private AppService appService;
 
     private ServiceAPI serviceAPI;
 
-    private String relation;
-
     private int count;
 
-    private String className = this.getClass().toString();
-
     public AppServiceInvokeServiceAPI() {
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+        super();
     }
 
     public AppService getAppService() {
@@ -44,27 +32,27 @@ public class AppServiceInvokeServiceAPI extends BasicRelationship {
         this.serviceAPI = serviceAPI;
     }
 
-    public String getRelation() {
-        return relation;
-    }
-
-    public void setRelation(String relation) {
-        this.relation = relation;
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
     public int getCount() {
         return count;
     }
 
     public void setCount(int count) {
         this.count = count;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AppServiceInvokeServiceAPI)) return false;
+        if (!super.equals(o)) return false;
+        AppServiceInvokeServiceAPI that = (AppServiceInvokeServiceAPI) o;
+        return count == that.count &&
+                Objects.equals(appService, that.appService) &&
+                Objects.equals(serviceAPI, that.serviceAPI);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), appService, serviceAPI, count);
     }
 }

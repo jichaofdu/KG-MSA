@@ -10,30 +10,17 @@ import java.util.Objects;
 @RelationshipEntity(type = "TraceInvokePodToApi")
 public class TraceInvokePodToApi extends BasicRelationship  {
 
-    @Id
-    private String id;
-
     @StartNode
     private Pod pod;
 
     @EndNode
     private ServiceAPI serviceAPI;
 
-    @Property(name="relation")
-    private String relation;
-
     @Property(name="traceIdSpanId")
     private HashSet<String> traceIdAndSpanIds;
 
-    @Property(name="className")
-    private String className = this.getClass().toString();
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+    public TraceInvokePodToApi() {
+        super();
     }
 
     public Pod getPod() {
@@ -52,22 +39,6 @@ public class TraceInvokePodToApi extends BasicRelationship  {
         this.serviceAPI = serviceAPI;
     }
 
-    public String getRelation() {
-        return relation;
-    }
-
-    public void setRelation(String relation) {
-        this.relation = relation;
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
     public HashSet<String> getTraceIdAndSpanIds() {
         return traceIdAndSpanIds;
     }
@@ -80,17 +51,15 @@ public class TraceInvokePodToApi extends BasicRelationship  {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof TraceInvokePodToApi)) return false;
+        if (!super.equals(o)) return false;
         TraceInvokePodToApi that = (TraceInvokePodToApi) o;
-        return Objects.equals(id, that.id) &&
-                Objects.equals(pod, that.pod) &&
+        return Objects.equals(pod, that.pod) &&
                 Objects.equals(serviceAPI, that.serviceAPI) &&
-                Objects.equals(relation, that.relation) &&
-                Objects.equals(traceIdAndSpanIds, that.traceIdAndSpanIds) &&
-                Objects.equals(className, that.className);
+                Objects.equals(traceIdAndSpanIds, that.traceIdAndSpanIds);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, pod, serviceAPI, relation, traceIdAndSpanIds, className);
+        return Objects.hash(super.hashCode(), pod, serviceAPI, traceIdAndSpanIds);
     }
 }

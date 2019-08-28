@@ -9,36 +9,14 @@ import java.util.Objects;
 @RelationshipEntity(type = "VirtualMachineAndPod")
 public class VirtualMachineAndPod extends BasicRelationship  {
 
-    @Id
-    private String id;
-
     @StartNode
     private Pod pod;
-
-    @Property(name="relation")
-    private String relation;
-
-    @Property(name="className")
-    private String className = this.getClass().toString();
 
     @EndNode
     private VirtualMachine virtualMachine;
 
     public VirtualMachineAndPod() {
-    }
-
-    public VirtualMachineAndPod(Pod pod, String relation, VirtualMachine virtualMachine) {
-        this.pod = pod;
-        this.relation = relation;
-        this.virtualMachine = virtualMachine;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+        super();
     }
 
     public Pod getPod() {
@@ -47,22 +25,6 @@ public class VirtualMachineAndPod extends BasicRelationship  {
 
     public void setPod(Pod pod) {
         this.pod = pod;
-    }
-
-    public String getRelation() {
-        return relation;
-    }
-
-    public void setRelation(String relation) {
-        this.relation = relation;
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
     }
 
     public VirtualMachine getVirtualMachine() {
@@ -77,17 +39,15 @@ public class VirtualMachineAndPod extends BasicRelationship  {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof VirtualMachineAndPod)) return false;
+        if (!super.equals(o)) return false;
         VirtualMachineAndPod that = (VirtualMachineAndPod) o;
-        return Objects.equals(id, that.id) &&
-                Objects.equals(pod, that.pod) &&
-                Objects.equals(relation, that.relation) &&
-                Objects.equals(className, that.className) &&
+        return Objects.equals(pod, that.pod) &&
                 Objects.equals(virtualMachine, that.virtualMachine);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, pod, relation, className, virtualMachine);
+        return Objects.hash(super.hashCode(), pod, virtualMachine);
     }
 }
 

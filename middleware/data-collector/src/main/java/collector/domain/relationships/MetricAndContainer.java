@@ -2,28 +2,16 @@ package collector.domain.relationships;
 
 import collector.domain.entities.Container;
 import collector.domain.entities.Metric;
+import java.util.Objects;
 
 public class MetricAndContainer extends BasicRelationship {
-
-    private String id;
 
     private Metric metric;
 
     private Container container;
 
-    private String relation;
-
-    private String className = this.getClass().toString();
-
     public MetricAndContainer() {
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+        super();
     }
 
     public Metric getMetric() {
@@ -42,19 +30,18 @@ public class MetricAndContainer extends BasicRelationship {
         this.container = container;
     }
 
-    public String getRelation() {
-        return relation;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MetricAndContainer)) return false;
+        if (!super.equals(o)) return false;
+        MetricAndContainer that = (MetricAndContainer) o;
+        return Objects.equals(metric, that.metric) &&
+                Objects.equals(container, that.container);
     }
 
-    public void setRelation(String relation) {
-        this.relation = relation;
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), metric, container);
     }
 }

@@ -2,15 +2,14 @@ package neo4jserver.domain.relationships;
 
 import neo4jserver.domain.entities.Pod;
 import neo4jserver.domain.entities.PodMetric;
-import org.neo4j.ogm.annotation.*;
+import org.neo4j.ogm.annotation.EndNode;
+import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.annotation.StartNode;
 
 import java.util.Objects;
 
 @RelationshipEntity(type = "PodAndMetric")
-public class PodAndMetric extends BasicRelationship {
-
-    @Id
-    private String id;
+public class PodAndMetric extends BasicRelationship  {
 
     @StartNode
     private PodMetric podMetric;
@@ -18,21 +17,8 @@ public class PodAndMetric extends BasicRelationship {
     @EndNode
     private Pod pod;
 
-    @Property(name="relation")
-    private String relation;
-
-    @Property(name="className")
-    private String className = this.getClass().toString();
-
     public PodAndMetric() {
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+        super();
     }
 
     public PodMetric getPodMetric() {
@@ -51,36 +37,18 @@ public class PodAndMetric extends BasicRelationship {
         this.pod = pod;
     }
 
-    public String getRelation() {
-        return relation;
-    }
-
-    public void setRelation(String relation) {
-        this.relation = relation;
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof PodAndMetric)) return false;
+        if (!super.equals(o)) return false;
         PodAndMetric that = (PodAndMetric) o;
-        return Objects.equals(id, that.id) &&
-                Objects.equals(podMetric, that.podMetric) &&
-                Objects.equals(pod, that.pod) &&
-                Objects.equals(relation, that.relation) &&
-                Objects.equals(className, that.className);
+        return Objects.equals(podMetric, that.podMetric) &&
+                Objects.equals(pod, that.pod);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, podMetric, pod, relation, className);
+        return Objects.hash(super.hashCode(), podMetric, pod);
     }
 }

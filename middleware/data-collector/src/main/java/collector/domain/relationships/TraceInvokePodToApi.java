@@ -3,27 +3,18 @@ package collector.domain.relationships;
 import collector.domain.entities.Pod;
 import collector.domain.entities.ServiceAPI;
 import java.util.HashSet;
+import java.util.Objects;
 
-public class TraceInvokePodToApi extends BasicRelationship {
-
-    private String id;
+public class TraceInvokePodToApi extends BasicRelationship  {
 
     private Pod pod;
 
     private ServiceAPI serviceAPI;
 
-    private String relation;
-
     private HashSet<String> traceIdAndSpanIds;
 
-    private String className = this.getClass().toString();
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+    public TraceInvokePodToApi() {
+        super();
     }
 
     public Pod getPod() {
@@ -42,27 +33,27 @@ public class TraceInvokePodToApi extends BasicRelationship {
         this.serviceAPI = serviceAPI;
     }
 
-    public String getRelation() {
-        return relation;
-    }
-
-    public void setRelation(String relation) {
-        this.relation = relation;
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
     public HashSet<String> getTraceIdAndSpanIds() {
         return traceIdAndSpanIds;
     }
 
     public void setTraceIdAndSpanIds(HashSet<String> traceIdAndSpanIds) {
         this.traceIdAndSpanIds = traceIdAndSpanIds;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TraceInvokePodToApi)) return false;
+        if (!super.equals(o)) return false;
+        TraceInvokePodToApi that = (TraceInvokePodToApi) o;
+        return Objects.equals(pod, that.pod) &&
+                Objects.equals(serviceAPI, that.serviceAPI) &&
+                Objects.equals(traceIdAndSpanIds, that.traceIdAndSpanIds);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), pod, serviceAPI, traceIdAndSpanIds);
     }
 }

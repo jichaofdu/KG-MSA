@@ -9,30 +9,14 @@ import java.util.Objects;
 @RelationshipEntity(type = "AppServiceHostServiceAPI")
 public class AppServiceHostServiceAPI extends BasicRelationship {
 
-    @Id
-    private String id;
-
     @EndNode
     private AppService appService;
 
     @StartNode
     private ServiceAPI serviceAPI;
 
-    @Property(name="relation")
-    private String relation;
-
-    @Property(name="className")
-    private String className = this.getClass().toString();
-
     public AppServiceHostServiceAPI() {
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+        super();
     }
 
     public AppService getAppService() {
@@ -51,36 +35,18 @@ public class AppServiceHostServiceAPI extends BasicRelationship {
         this.serviceAPI = serviceAPI;
     }
 
-    public String getRelation() {
-        return relation;
-    }
-
-    public void setRelation(String relation) {
-        this.relation = relation;
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof AppServiceHostServiceAPI)) return false;
+        if (!super.equals(o)) return false;
         AppServiceHostServiceAPI that = (AppServiceHostServiceAPI) o;
-        return Objects.equals(id, that.id) &&
-                Objects.equals(appService, that.appService) &&
-                Objects.equals(serviceAPI, that.serviceAPI) &&
-                Objects.equals(relation, that.relation) &&
-                Objects.equals(className, that.className);
+        return Objects.equals(appService, that.appService) &&
+                Objects.equals(serviceAPI, that.serviceAPI);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, appService, serviceAPI, relation, className);
+        return Objects.hash(super.hashCode(), appService, serviceAPI);
     }
 }

@@ -2,7 +2,10 @@ package neo4jserver.domain.relationships;
 
 import neo4jserver.domain.entities.Pod;
 import neo4jserver.domain.entities.ServiceAPI;
-import org.neo4j.ogm.annotation.*;
+import org.neo4j.ogm.annotation.EndNode;
+import org.neo4j.ogm.annotation.Property;
+import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.annotation.StartNode;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -12,10 +15,7 @@ import java.util.Objects;
 // TraceInvokeApiToPod 负责从Api到Pod-B的一段
 // TraceInvokePodToApi 负责Pod-A到API的一段
 @RelationshipEntity(type = "TraceInvokeApiToPod")
-public class TraceInvokeApiToPod extends BasicRelationship {
-
-    @Id
-    private String id;
+public class TraceInvokeApiToPod extends BasicRelationship  {
 
     @StartNode
     private ServiceAPI serviceAPI;
@@ -23,24 +23,11 @@ public class TraceInvokeApiToPod extends BasicRelationship {
     @EndNode
     private Pod pod;
 
-    @Property(name="relation")
-    private String relation;
-
-    @Property(name="className")
-    private String className = this.getClass().toString();
-
     @Property(name="traceIdSpanId")
     private HashSet<String> traceIdAndSpanIds;
 
     public TraceInvokeApiToPod() {
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+        super();
     }
 
     public ServiceAPI getServiceAPI() {
@@ -59,22 +46,6 @@ public class TraceInvokeApiToPod extends BasicRelationship {
         this.pod = pod;
     }
 
-    public String getRelation() {
-        return relation;
-    }
-
-    public void setRelation(String relation) {
-        this.relation = relation;
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
     public HashSet<String> getTraceIdAndSpanIds() {
         return traceIdAndSpanIds;
     }
@@ -87,17 +58,15 @@ public class TraceInvokeApiToPod extends BasicRelationship {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof TraceInvokeApiToPod)) return false;
+        if (!super.equals(o)) return false;
         TraceInvokeApiToPod that = (TraceInvokeApiToPod) o;
-        return Objects.equals(id, that.id) &&
-                Objects.equals(serviceAPI, that.serviceAPI) &&
+        return Objects.equals(serviceAPI, that.serviceAPI) &&
                 Objects.equals(pod, that.pod) &&
-                Objects.equals(relation, that.relation) &&
-                Objects.equals(className, that.className) &&
                 Objects.equals(traceIdAndSpanIds, that.traceIdAndSpanIds);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, serviceAPI, pod, relation, className, traceIdAndSpanIds);
+        return Objects.hash(super.hashCode(), serviceAPI, pod, traceIdAndSpanIds);
     }
 }

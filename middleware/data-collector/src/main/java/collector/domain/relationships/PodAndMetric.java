@@ -2,28 +2,16 @@ package collector.domain.relationships;
 
 import collector.domain.entities.Pod;
 import collector.domain.entities.PodMetric;
+import java.util.Objects;
 
-public class PodAndMetric extends BasicRelationship {
-
-    private String id;
+public class PodAndMetric extends BasicRelationship  {
 
     private PodMetric podMetric;
 
     private Pod pod;
 
-    private String relation;
-
-    private String className = this.getClass().toString();
-
     public PodAndMetric() {
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+        super();
     }
 
     public PodMetric getPodMetric() {
@@ -42,19 +30,18 @@ public class PodAndMetric extends BasicRelationship {
         this.pod = pod;
     }
 
-    public String getRelation() {
-        return relation;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PodAndMetric)) return false;
+        if (!super.equals(o)) return false;
+        PodAndMetric that = (PodAndMetric) o;
+        return Objects.equals(podMetric, that.podMetric) &&
+                Objects.equals(pod, that.pod);
     }
 
-    public void setRelation(String relation) {
-        this.relation = relation;
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), podMetric, pod);
     }
 }

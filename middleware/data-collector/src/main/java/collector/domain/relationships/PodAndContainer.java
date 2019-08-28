@@ -2,34 +2,16 @@ package collector.domain.relationships;
 
 import collector.domain.entities.Container;
 import collector.domain.entities.Pod;
+import java.util.Objects;
 
 public class PodAndContainer extends BasicRelationship {
-
-    private String id;
 
     private Container container;
 
     private Pod pod;
 
-    private String relation;
-
-    private String className = this.getClass().toString();
-
     public PodAndContainer() {
-    }
-
-    public PodAndContainer(Container container, Pod pod, String relation) {
-        this.container = container;
-        this.pod = pod;
-        this.relation = relation;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+        super();
     }
 
     public Container getContainer() {
@@ -48,19 +30,18 @@ public class PodAndContainer extends BasicRelationship {
         this.pod = pod;
     }
 
-    public String getRelation() {
-        return relation;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PodAndContainer)) return false;
+        if (!super.equals(o)) return false;
+        PodAndContainer that = (PodAndContainer) o;
+        return Objects.equals(container, that.container) &&
+                Objects.equals(pod, that.pod);
     }
 
-    public void setRelation(String relation) {
-        this.relation = relation;
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), container, pod);
     }
 }

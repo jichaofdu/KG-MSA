@@ -2,34 +2,16 @@ package collector.domain.relationships;
 
 import collector.domain.entities.AppService;
 import collector.domain.entities.Pod;
+import java.util.Objects;
 
 public class AppServiceAndPod extends BasicRelationship {
-
-    private String id;
 
     private Pod pod;
 
     private AppService appService;
 
-    private String relation;
-
-    private String className = this.getClass().toString();
-
     public AppServiceAndPod() {
-    }
-
-    public AppServiceAndPod(Pod pod, AppService appService, String relation) {
-        this.pod = pod;
-        this.appService = appService;
-        this.relation = relation;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+        super();
     }
 
     public Pod getPod() {
@@ -48,19 +30,19 @@ public class AppServiceAndPod extends BasicRelationship {
         this.appService = appService;
     }
 
-    public String getRelation() {
-        return relation;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AppServiceAndPod)) return false;
+        if (!super.equals(o)) return false;
+        AppServiceAndPod that = (AppServiceAndPod) o;
+        return Objects.equals(pod, that.pod) &&
+                Objects.equals(appService, that.appService);
     }
 
-    public void setRelation(String relation) {
-        this.relation = relation;
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), pod, appService);
     }
 }
+

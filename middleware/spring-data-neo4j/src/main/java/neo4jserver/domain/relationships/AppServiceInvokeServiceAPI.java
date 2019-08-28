@@ -2,15 +2,15 @@ package neo4jserver.domain.relationships;
 
 import neo4jserver.domain.entities.AppService;
 import neo4jserver.domain.entities.ServiceAPI;
-import org.neo4j.ogm.annotation.*;
+import org.neo4j.ogm.annotation.EndNode;
+import org.neo4j.ogm.annotation.Property;
+import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.annotation.StartNode;
 
 import java.util.Objects;
 
 @RelationshipEntity(type = "AppServiceInvokeServiceAPI")
 public class AppServiceInvokeServiceAPI extends BasicRelationship {
-
-    @Id
-    private String id;
 
     @StartNode
     private AppService appService;
@@ -18,24 +18,11 @@ public class AppServiceInvokeServiceAPI extends BasicRelationship {
     @EndNode
     private ServiceAPI serviceAPI;
 
-    @Property(name="relation")
-    private String relation;
-
     @Property(name="count")
     private int count;
 
-    @Property(name="className")
-    private String className = this.getClass().toString();
-
     public AppServiceInvokeServiceAPI() {
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+        super();
     }
 
     public AppService getAppService() {
@@ -54,22 +41,6 @@ public class AppServiceInvokeServiceAPI extends BasicRelationship {
         this.serviceAPI = serviceAPI;
     }
 
-    public String getRelation() {
-        return relation;
-    }
-
-    public void setRelation(String relation) {
-        this.relation = relation;
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
     public int getCount() {
         return count;
     }
@@ -82,17 +53,15 @@ public class AppServiceInvokeServiceAPI extends BasicRelationship {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof AppServiceInvokeServiceAPI)) return false;
+        if (!super.equals(o)) return false;
         AppServiceInvokeServiceAPI that = (AppServiceInvokeServiceAPI) o;
         return count == that.count &&
-                Objects.equals(id, that.id) &&
                 Objects.equals(appService, that.appService) &&
-                Objects.equals(serviceAPI, that.serviceAPI) &&
-                Objects.equals(relation, that.relation) &&
-                Objects.equals(className, that.className);
+                Objects.equals(serviceAPI, that.serviceAPI);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, appService, serviceAPI, relation, count, className);
+        return Objects.hash(super.hashCode(), appService, serviceAPI, count);
     }
 }
