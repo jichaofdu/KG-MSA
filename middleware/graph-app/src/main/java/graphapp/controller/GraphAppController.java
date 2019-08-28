@@ -20,7 +20,7 @@ public class GraphAppController {
     }
 
     @GetMapping("/total")
-    public HashMap<GraphNode, HashSet<BasicRelationship>> getTotalGraph(){
+    public HashMap<GraphNode, HashMap<String, HashSet<BasicRelationship>>> getTotalGraph(){
         return graphAppServices.getTotalGraph();
     }
 

@@ -41,8 +41,25 @@ public class GraphAppServices {
         this.metricOfServiceApiRepository = metricOfServiceApiRepository;
     }
 
-    public HashMap<GraphNode, HashSet<BasicRelationship>> getTotalGraph(){
-        return neo4jUtil.getWholeGraphByAdjacentList();
+    public HashMap<GraphNode, HashMap<String, HashSet<BasicRelationship>>> getTotalGraph(){
+
+        HashMap<GraphNode, HashMap<String, HashSet<BasicRelationship>>> ret =
+                neo4jUtil.getWholeGraphByAdjacentList();
+
+        for(GraphNode gn : ret.keySet()){
+            System.out.println(gn.getName());
+            HashMap<String, HashSet<BasicRelationship>> adjacentMap = ret.get(gn);
+            for(String key : adjacentMap.keySet()){
+                System.out.println("    " + key);
+                HashSet<BasicRelationship> brs = adjacentMap.get(key);
+                for(BasicRelationship br : brs){
+                    System.out.println("        " + br.getRelation() + " | " + br.getId());
+                }
+            }
+        }
+
+
+        return ret;
     }
 
     public String updateAbnormalityOfPods(){

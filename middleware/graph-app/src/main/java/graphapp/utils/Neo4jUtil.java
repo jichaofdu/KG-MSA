@@ -29,8 +29,8 @@ public class Neo4jUtil {
     }
 
 
-    public HashMap<GraphNode, HashSet<BasicRelationship>> getWholeGraphByAdjacentList(){
-        HashMap<GraphNode, HashSet<BasicRelationship>> graphAdjacentList = new HashMap<>();
+    public HashMap<GraphNode, HashMap<String, HashSet<BasicRelationship>>> getWholeGraphByAdjacentList(){
+        HashMap<GraphNode, HashMap<String, HashSet<BasicRelationship>>> graphAdjacentList = new HashMap<>();
 
         String cql =
                 "MATCH (from)-[relationship]->(to) " +
@@ -50,16 +50,20 @@ public class Neo4jUtil {
 
                 String fullClassName = (String)relationshipMap.get("className");
                 String rawClassName = fullClassName.substring(fullClassName.lastIndexOf(".") + 1);
+
+                BasicRelationship br = null;
+                GraphNode from =  null;
+                HashMap<String, HashSet<BasicRelationship>> fromAdjacentMap = null;
+                HashSet<BasicRelationship> fromAdjacentSet = null;
+
                 switch (rawClassName){
                     case "AppServiceAndPod":
                         AppServiceAndPod r1 = getNode(AppServiceAndPod.class, relationshipMap);
                         r1.setPod(getNode(Pod.class, fromMap));
                         r1.setAppService(getNode(AppService.class, toMap));
 
-                        GraphNode r1From = r1.getPod();
-                        HashSet<BasicRelationship> r1Set = graphAdjacentList.getOrDefault(r1From, new HashSet<>());
-                        r1Set.add(r1);
-                        graphAdjacentList.put(r1From, r1Set);
+                        br = r1;
+                        from = r1.getPod();
 
                         break;
                     case "AppServiceHostServiceAPI":
@@ -67,10 +71,8 @@ public class Neo4jUtil {
                         r2.setServiceAPI(getNode(ServiceAPI.class, fromMap));
                         r2.setAppService(getNode(AppService.class, toMap));
 
-                        GraphNode r2From = r2.getServiceAPI();
-                        HashSet<BasicRelationship> r2Set = graphAdjacentList.getOrDefault(r2From, new HashSet<>());
-                        r2Set.add(r2);
-                        graphAdjacentList.put(r2From, r2Set);
+                        br = r2;
+                        from = r2.getServiceAPI();
 
                         break;
                     case "AppServiceInvokeServiceAPI":
@@ -78,10 +80,8 @@ public class Neo4jUtil {
                         r3.setAppService(getNode(AppService.class, fromMap));
                         r3.setServiceAPI(getNode(ServiceAPI.class, toMap));
 
-                        GraphNode r3From = r3.getAppService();
-                        HashSet<BasicRelationship> r3Set = graphAdjacentList.getOrDefault(r3From, new HashSet<>());
-                        r3Set.add(r3);
-                        graphAdjacentList.put(r3From, r3Set);
+                        br = r3;
+                        from = r3.getAppService();
 
                         break;
                     case "MetricAndContainer":
@@ -89,10 +89,8 @@ public class Neo4jUtil {
                         r4.setMetric(getNode(Metric.class, fromMap));
                         r4.setContainer(getNode(Container.class, toMap));
 
-                        GraphNode r4From = r4.getMetric();
-                        HashSet<BasicRelationship> r4Set = graphAdjacentList.getOrDefault(r4From, new HashSet<>());
-                        r4Set.add(r4);
-                        graphAdjacentList.put(r4From, r4Set);
+                        br = r4;
+                        from = r4.getMetric();
 
                         break;
                     case "PodAndContainer":
@@ -100,10 +98,8 @@ public class Neo4jUtil {
                         r5.setContainer(getNode(Container.class, fromMap));
                         r5.setPod(getNode(Pod.class, toMap));
 
-                        GraphNode r5From = r5.getContainer();
-                        HashSet<BasicRelationship> r5Set = graphAdjacentList.getOrDefault(r5From, new HashSet<>());
-                        r5Set.add(r5);
-                        graphAdjacentList.put(r5From, r5Set);
+                        br = r5;
+                        from = r5.getContainer();
 
                         break;
                     case "PodAndMetric":
@@ -111,10 +107,8 @@ public class Neo4jUtil {
                         r6.setPodMetric(getNode(PodMetric.class, fromMap));
                         r6.setPod(getNode(Pod.class, toMap));
 
-                        GraphNode r6From = r6.getPodMetric();
-                        HashSet<BasicRelationship> r6Set = graphAdjacentList.getOrDefault(r6From, new HashSet<>());
-                        r6Set.add(r6);
-                        graphAdjacentList.put(r6From, r6Set);
+                        br = r6;
+                        from = r6.getPodMetric();
 
                         break;
                     case "ServiceApiAndMetric":
@@ -122,10 +116,8 @@ public class Neo4jUtil {
                         r7.setApiMetric(getNode(ServiceApiMetric.class, fromMap));
                         r7.setServiceAPI(getNode(ServiceAPI.class, toMap));
 
-                        GraphNode r7From = r7.getApiMetric();
-                        HashSet<BasicRelationship> r7Set = graphAdjacentList.getOrDefault(r7From, new HashSet<>());
-                        r7Set.add(r7);
-                        graphAdjacentList.put(r7From, r7Set);
+                        br = r7;
+                        from = r7.getApiMetric();
 
                         break;
                     case "TraceInvokeApiToPod":
@@ -133,10 +125,8 @@ public class Neo4jUtil {
                         r8.setServiceAPI(getNode(ServiceAPI.class, fromMap));
                         r8.setPod(getNode(Pod.class, toMap));
 
-                        GraphNode r8From = r8.getServiceAPI();
-                        HashSet<BasicRelationship> r8Set = graphAdjacentList.getOrDefault(r8From, new HashSet<>());
-                        r8Set.add(r8);
-                        graphAdjacentList.put(r8From, r8Set);
+                        br = r8;
+                        from = r8.getServiceAPI();
 
                         break;
                     case "TraceInvokePodToApi":
@@ -144,10 +134,8 @@ public class Neo4jUtil {
                         r9.setPod(getNode(Pod.class, fromMap));
                         r9.setServiceAPI(getNode(ServiceAPI.class, toMap));
 
-                        GraphNode r9From = r9.getPod();
-                        HashSet<BasicRelationship> r9Set = graphAdjacentList.getOrDefault(r9From, new HashSet<>());
-                        r9Set.add(r9);
-                        graphAdjacentList.put(r9From, r9Set);
+                        br = r9;
+                        from = r9.getPod();
 
                         break;
                     case "VirtualMachineAndPod":
@@ -155,13 +143,19 @@ public class Neo4jUtil {
                         r10.setPod(getNode(Pod.class, fromMap));
                         r10.setVirtualMachine(getNode(VirtualMachine.class, toMap));
 
-                        GraphNode r10From = r10.getPod();
-                        HashSet<BasicRelationship> r10Set = graphAdjacentList.getOrDefault(r10From, new HashSet<>());
-                        r10Set.add(r10);
-                        graphAdjacentList.put(r10From, r10Set);
+                        br = r10;
+                        from = r10.getPod();
 
                         break;
                 }
+
+                fromAdjacentMap =
+                        graphAdjacentList.getOrDefault(from, new HashMap<>());
+                fromAdjacentSet = fromAdjacentMap.getOrDefault(rawClassName, new HashSet<>());
+                fromAdjacentSet.add(br);
+                fromAdjacentMap.put(rawClassName, fromAdjacentSet);
+                graphAdjacentList.put(from, fromAdjacentMap);
+
             }
         }catch (Exception e) {
             e.printStackTrace();
