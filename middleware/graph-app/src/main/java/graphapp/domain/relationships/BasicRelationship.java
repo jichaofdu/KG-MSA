@@ -6,7 +6,6 @@ import org.neo4j.ogm.annotation.RelationshipEntity;
 
 import java.util.Objects;
 
-@RelationshipEntity(type = "BasicRelationship")
 public class BasicRelationship {
 
     @Id
