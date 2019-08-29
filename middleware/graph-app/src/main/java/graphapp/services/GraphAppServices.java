@@ -69,7 +69,9 @@ public class GraphAppServices {
     class GraphNodeInfo{
         GraphNode node;
         ArrayList<GraphNode> parents = new ArrayList<>();
+        ArrayList<BasicRelationship> toRelations = new ArrayList<>();
         ArrayList<Double> propagateScores = new ArrayList<>();
+        double score = -1.0;
 
         GraphNodeInfo(GraphNode node){
             this.node = node;
@@ -91,6 +93,7 @@ public class GraphAppServices {
 
         //起始点设置
         GraphNodeInfo initNode = new GraphNodeInfo(startingNode);
+        initNode.score = 100.0;
         recordVisited.put(startingNode, initNode);
         queue.offer(startingNode);
 
@@ -98,11 +101,16 @@ public class GraphAppServices {
             int layerSize = queue.size();
             ArrayList<GraphNode> layerNodes = new ArrayList<>();
             System.out.println("本层大小" + layerSize);
+            //在队列里找一个起点出来 接着遍历
             for(int i = 0; i < layerSize; i++){
                 GraphNode tempNode = queue.poll();
+                GraphNodeInfo tempNodeInfo = recordVisited.get(tempNode);
+                double fromNodeScore = tempNodeInfo.score;
+
                 System.out.println(tempNode.getName());
                 layerNodes.add(tempNode);
                 HashMap<String, HashSet<BasicRelationship>> neighborsMap = graphAdjacentMap.get(tempNode);
+                //这个点的邻居们的遍历
                 //它的邻居有好几种relationship 挨个遍历一下
                 if(neighborsMap == null){
                     System.out.println(tempNode.getName() + " 没有指向新节点");
@@ -167,13 +175,34 @@ public class GraphAppServices {
                             gni = recordVisited.get(to);
                         }
                         gni.parents.add(tempNode);
-                        gni.propagateScores.add(1.0);
+                        gni.propagateScores.add(fromNodeScore);
+                        gni.score = calcualteScore(gni);
+                        gni.toRelations.add(br);
+                        System.out.println(gni.node.getName() + "分数为:" + gni.score);
                     }
                 }
             }
             ret.add(layerNodes);
         }
         return ret;
+    }
+
+
+    private double calcualteScore(GraphNodeInfo info){
+        ArrayList<Double> scores = info.propagateScores;
+        int size = scores.size();
+        if(size == 0){
+          return info.score;
+        } else if(size == 1){
+            return 0.7 * scores.get(0);
+        }else{
+            double total = 0;
+            for(int i = 0; i < size; i++){
+                total += scores.get(i);
+            }
+            total /= scores.size();
+            return total * Math.log(size);
+        }
     }
 
     public String updateAbnormalityOfPods(){
