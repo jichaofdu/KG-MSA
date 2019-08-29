@@ -290,8 +290,6 @@ public class Neo4jUtil {
                             appServiceHostServiceAPI.setAppService((AppService)recordGraphNodeMap.get("s"));
                             appServiceHostServiceAPISet.add(appServiceHostServiceAPI);
                             break;
-                        case "Metric":
-
                     }
 
                 }

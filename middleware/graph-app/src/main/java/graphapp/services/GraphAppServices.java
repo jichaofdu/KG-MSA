@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
-
 import java.util.*;
 
 @Service
@@ -46,9 +45,15 @@ public class GraphAppServices {
         HashMap<GraphNode, HashMap<String, HashSet<BasicRelationship>>> ret =
                 neo4jUtil.getWholeGraphByAdjacentList();
 
-        for(GraphNode gn : ret.keySet()){
+        printTotalGraph(ret);
+
+        return ret;
+    }
+
+    private void printTotalGraph(HashMap<GraphNode, HashMap<String, HashSet<BasicRelationship>>> graphAdjacentMap){
+        for(GraphNode gn : graphAdjacentMap.keySet()){
             System.out.println(gn.getName());
-            HashMap<String, HashSet<BasicRelationship>> adjacentMap = ret.get(gn);
+            HashMap<String, HashSet<BasicRelationship>> adjacentMap = graphAdjacentMap.get(gn);
             for(String key : adjacentMap.keySet()){
                 System.out.println("    " + key);
                 HashSet<BasicRelationship> brs = adjacentMap.get(key);
@@ -58,7 +63,116 @@ public class GraphAppServices {
             }
         }
 
+        layerTraverseGraphFromOneNode(graphAdjacentMap.keySet().iterator().next(),graphAdjacentMap);
+    }
 
+    class GraphNodeInfo{
+        GraphNode node;
+        ArrayList<GraphNode> parents = new ArrayList<>();
+        ArrayList<Double> propagateScores = new ArrayList<>();
+
+        GraphNodeInfo(GraphNode node){
+            this.node = node;
+        }
+    }
+
+    //返回结果是整张图的每一个节点
+    private ArrayList<ArrayList<GraphNode>> layerTraverseGraphFromOneNode(GraphNode startingNode,
+                                               HashMap<GraphNode, HashMap<String, HashSet<BasicRelationship>>>
+                                                       graphAdjacentMap){
+
+        ArrayList<ArrayList<GraphNode>> ret = new ArrayList<>();
+
+        //已经被访问过的节点
+        HashMap<GraphNode, GraphNodeInfo> recordVisited = new HashMap<>();
+
+        //这个Queue用于广度优先遍历
+        LinkedList<GraphNode> queue = new LinkedList<>();
+
+        //起始点设置
+        GraphNodeInfo initNode = new GraphNodeInfo(startingNode);
+        recordVisited.put(startingNode, initNode);
+        queue.offer(startingNode);
+
+        while(!queue.isEmpty()){
+            int layerSize = queue.size();
+            ArrayList<GraphNode> layerNodes = new ArrayList<>();
+            System.out.println("本层大小" + layerSize);
+            for(int i = 0; i < layerSize; i++){
+                GraphNode tempNode = queue.poll();
+                System.out.println(tempNode.getName());
+                layerNodes.add(tempNode);
+                HashMap<String, HashSet<BasicRelationship>> neighborsMap = graphAdjacentMap.get(tempNode);
+                //它的邻居有好几种relationship 挨个遍历一下
+                if(neighborsMap == null){
+                    System.out.println(tempNode.getName() + " 没有指向新节点");
+                    continue;
+                }
+                for(String key : neighborsMap.keySet()){
+                    HashSet<BasicRelationship> neighborsSet = neighborsMap.get(key);
+                    System.out.println(key + " - " + neighborsSet.size());
+                    for(BasicRelationship br : neighborsSet){
+                        GraphNode to = null;
+                        switch (key){
+                            case "AppServiceAndPod":
+                                AppServiceAndPod asap = (AppServiceAndPod)br;
+                                to = asap.getAppService();
+                                break;
+                            case "AppServiceHostServiceAPI":
+                                AppServiceHostServiceAPI ashsa = (AppServiceHostServiceAPI)br;
+                                to = ashsa.getAppService();
+                                break;
+                            case "AppServiceInvokeServiceAPI":
+                                AppServiceInvokeServiceAPI asisa = (AppServiceInvokeServiceAPI)br;
+                                to = asisa.getServiceAPI();
+                                break;
+                            case "MetricAndContainer":
+                                MetricAndContainer mac = (MetricAndContainer)br;
+                                to = mac.getContainer();
+                                break;
+                            case "PodAndContainer":
+                                PodAndContainer pac = (PodAndContainer)br;
+                                to = pac.getPod();
+                                break;
+                            case "PodAndMetric":
+                                PodAndMetric pam = (PodAndMetric)br;
+                                to = pam.getPod();
+                                break;
+                            case "ServiceApiAndMetric":
+                                ServiceApiAndMetric sasm = (ServiceApiAndMetric)br;
+                                to = sasm.getServiceAPI();
+                                break;
+                            case "TraceInvokeApiToPod":
+                                TraceInvokeApiToPod tiatp = (TraceInvokeApiToPod)br;
+                                to = tiatp.getPod();
+                                break;
+                            case "TraceInvokePodToApi":
+                                TraceInvokePodToApi tipta = (TraceInvokePodToApi)br;
+                                to = tipta.getServiceAPI();
+                                break;
+                            case "VirtualMachineAndPod":
+                                VirtualMachineAndPod vmap = (VirtualMachineAndPod)br;
+                                to = vmap.getVirtualMachine();
+                                break;
+                        }
+                        //to被搜索过了吗 有的话把from的score加进去 没有就算了
+                        GraphNodeInfo gni = null;
+                        if(!recordVisited.containsKey(to)){
+                            queue.add(to);
+                            gni = new GraphNodeInfo(to);
+                            recordVisited.put(to, gni);
+                            System.out.println("在第" + ret.size() + "层");
+                            System.out.println("新发现:" + gni.node.getName());
+                        }else{
+                            gni = recordVisited.get(to);
+                        }
+                        gni.parents.add(tempNode);
+                        gni.propagateScores.add(1.0);
+                    }
+                }
+            }
+            ret.add(layerNodes);
+        }
         return ret;
     }
 
