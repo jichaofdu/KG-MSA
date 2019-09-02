@@ -45,7 +45,10 @@ public class GraphAppServices {
         HashMap<GraphNode, HashMap<String, HashSet<BasicRelationship>>> ret =
                 neo4jUtil.getWholeGraphByAdjacentList();
 
-        printTotalGraph(ret);
+        //TODO 起点需要重新确认
+        layerTraverseGraphFromOneNode(ret.keySet().iterator().next(),ret);
+
+//        printTotalGraph(ret);
 
         return ret;
     }
@@ -63,7 +66,7 @@ public class GraphAppServices {
             }
         }
 
-        layerTraverseGraphFromOneNode(graphAdjacentMap.keySet().iterator().next(),graphAdjacentMap);
+
     }
 
     class GraphNodeInfo{
@@ -173,6 +176,7 @@ public class GraphAppServices {
                             System.out.println("新发现:" + gni.node.getName());
                         }else{
                             gni = recordVisited.get(to);
+                            System.out.println("更新已发现节点的score值");
                         }
                         gni.parents.add(tempNode);
                         gni.propagateScores.add(fromNodeScore);
@@ -184,6 +188,32 @@ public class GraphAppServices {
             }
             ret.add(layerNodes);
         }
+
+        //查到的分类节点
+        HashMap<String, ArrayList<GraphNodeInfo>> recordTypeScore = new HashMap<>();
+        for(ArrayList<GraphNode> list : ret){
+            for(GraphNode gn : list){
+                String className = gn.getClassName();
+                ArrayList<GraphNodeInfo> graphNodeInfos = recordTypeScore.getOrDefault(className, new ArrayList<>());
+                graphNodeInfos.add(recordVisited.get(gn));
+                recordTypeScore.put(className, graphNodeInfos);
+            }
+        }
+
+        for(String key : recordTypeScore.keySet()){
+            ArrayList<GraphNodeInfo> graphNodeInfos = recordTypeScore.get(key);
+            Collections.sort(graphNodeInfos, new Comparator<GraphNodeInfo>() {
+                @Override
+                public int compare(GraphNodeInfo o1, GraphNodeInfo o2) {
+                    return 0 - Double.compare(o1.score, o2.score);
+                }
+            });
+            System.out.println("====" + key + "====");
+            for(GraphNodeInfo graphNodeInfo : graphNodeInfos){
+                System.out.println(graphNodeInfo.node.getName() + "    " + graphNodeInfo.score);
+            }
+        }
+
         return ret;
     }
 
@@ -192,7 +222,7 @@ public class GraphAppServices {
         ArrayList<Double> scores = info.propagateScores;
         int size = scores.size();
         if(size == 0){
-          return info.score;
+            return info.score;
         } else if(size == 1){
             return 0.7 * scores.get(0);
         }else{
