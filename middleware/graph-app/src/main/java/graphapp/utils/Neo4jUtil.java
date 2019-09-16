@@ -28,7 +28,10 @@ public class Neo4jUtil {
         Neo4jUtil.driver = driver;
     }
 
-
+    //下面这个方法是拿邻接矩阵的
+    //检索图中的每一条关系 以关系的起点作为Key 而Value是按照关系类型分类的以Key为起点的各种关系
+    //todo
+    //还需要搞一个以to为Key的 value是以key为终点的按照关系类型分类的各种关系
     public HashMap<GraphNode, HashMap<String, HashSet<BasicRelationship>>> getWholeGraphByAdjacentList(){
         HashMap<GraphNode, HashMap<String, HashSet<BasicRelationship>>> graphAdjacentList = new HashMap<>();
 

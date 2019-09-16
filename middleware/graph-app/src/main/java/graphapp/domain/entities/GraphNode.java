@@ -104,12 +104,13 @@ public class GraphNode {
         this.score = score;
     }
 
+    //score会变 hash和equals的时候不要算hash
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof GraphNode)) return false;
         GraphNode graphNode = (GraphNode) o;
-        return Double.compare(graphNode.score, score) == 0 &&
+        return
                 Objects.equals(id, graphNode.id) &&
                 Objects.equals(name, graphNode.name) &&
                 Objects.equals(className, graphNode.className) &&
@@ -120,6 +121,6 @@ public class GraphNode {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, className, labels, latestUpdateTimestamp, creationTimestamp, score);
+        return Objects.hash(id, name, className, labels, latestUpdateTimestamp, creationTimestamp);
     }
 }

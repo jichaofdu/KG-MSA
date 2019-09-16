@@ -46,9 +46,13 @@ public class GraphAppServices {
                 neo4jUtil.getWholeGraphByAdjacentList();
 
         //TODO 起点需要重新确认
-        layerTraverseGraphFromOneNode(ret.keySet().iterator().next(),ret);
-
-//        printTotalGraph(ret);
+//        ArrayList<GraphNode> startings = new ArrayList<>();
+//        Iterator<GraphNode> iter = ret.keySet().iterator();
+//        GraphNode gn1 = iter.next();
+//        gn1.setScore(100);
+//        startings.add(gn1);
+//        startings.add(gn1);
+//        layerTraverseGraphFromOneNode(startings, ret);
 
         return ret;
     }
@@ -65,8 +69,6 @@ public class GraphAppServices {
                 }
             }
         }
-
-
     }
 
     class GraphNodeInfo{
@@ -82,122 +84,132 @@ public class GraphAppServices {
     }
 
     //返回结果是整张图的每一个节点
-    private ArrayList<ArrayList<GraphNode>> layerTraverseGraphFromOneNode(GraphNode startingNode,
+    private ArrayList<ArrayList<GraphNode>> layerTraverseGraphFromOneNode(ArrayList<GraphNode> startings,
                                                HashMap<GraphNode, HashMap<String, HashSet<BasicRelationship>>>
                                                        graphAdjacentMap){
 
         ArrayList<ArrayList<GraphNode>> ret = new ArrayList<>();
+        HashMap<GraphNode, GraphNodeInfo> nodeAndInfo = new HashMap<>();
 
-        //已经被访问过的节点
-        HashMap<GraphNode, GraphNodeInfo> recordVisited = new HashMap<>();
 
-        //这个Queue用于广度优先遍历
-        LinkedList<GraphNode> queue = new LinkedList<>();
+        for(GraphNode starting : startings){
+            System.out.println("===============================================");
+            //下面这两个是用于一次源节点值的传播的
+            //已经被访问过的节点
+            HashMap<GraphNode, GraphNodeInfo> recordVisited = new HashMap<>();
+            //这个Queue用于广度优先遍历
+            LinkedList<GraphNode> queue = new LinkedList<>();
 
-        //起始点设置
-        GraphNodeInfo initNode = new GraphNodeInfo(startingNode);
-        initNode.score = 100.0;
-        recordVisited.put(startingNode, initNode);
-        queue.offer(startingNode);
+            //起始点设置
+            GraphNodeInfo initNode = new GraphNodeInfo(starting);
+            initNode.score = starting.getScore();
+            recordVisited.put(starting, initNode);
+            queue.offer(starting);
 
-        while(!queue.isEmpty()){
-            int layerSize = queue.size();
-            ArrayList<GraphNode> layerNodes = new ArrayList<>();
-            System.out.println("本层大小" + layerSize);
-            //在队列里找一个起点出来 接着遍历
-            for(int i = 0; i < layerSize; i++){
-                GraphNode tempNode = queue.poll();
-                GraphNodeInfo tempNodeInfo = recordVisited.get(tempNode);
-                double fromNodeScore = tempNodeInfo.score;
+            while(!queue.isEmpty()){
+                int layerSize = queue.size();
+                ArrayList<GraphNode> layerNodes = new ArrayList<>();
+                System.out.println("本层大小" + layerSize);
+                //在队列里找一个起点出来 接着遍历
+                for(int i = 0; i < layerSize; i++){
+                    GraphNode tempNode = queue.poll();
+                    GraphNodeInfo tempNodeInfo = recordVisited.get(tempNode);
+                    double fromNodeScore = tempNodeInfo.score;
 
-                System.out.println(tempNode.getName());
-                layerNodes.add(tempNode);
-                HashMap<String, HashSet<BasicRelationship>> neighborsMap = graphAdjacentMap.get(tempNode);
-                //这个点的邻居们的遍历
-                //它的邻居有好几种relationship 挨个遍历一下
-                if(neighborsMap == null){
-                    System.out.println(tempNode.getName() + " 没有指向新节点");
-                    continue;
-                }
-                for(String key : neighborsMap.keySet()){
-                    HashSet<BasicRelationship> neighborsSet = neighborsMap.get(key);
-                    System.out.println(key + " - " + neighborsSet.size());
-                    for(BasicRelationship br : neighborsSet){
-                        GraphNode to = null;
-                        switch (key){
-                            case "AppServiceAndPod":
-                                AppServiceAndPod asap = (AppServiceAndPod)br;
-                                to = asap.getAppService();
-                                break;
-                            case "AppServiceHostServiceAPI":
-                                AppServiceHostServiceAPI ashsa = (AppServiceHostServiceAPI)br;
-                                to = ashsa.getAppService();
-                                break;
-                            case "AppServiceInvokeServiceAPI":
-                                AppServiceInvokeServiceAPI asisa = (AppServiceInvokeServiceAPI)br;
-                                to = asisa.getServiceAPI();
-                                break;
-                            case "MetricAndContainer":
-                                MetricAndContainer mac = (MetricAndContainer)br;
-                                to = mac.getContainer();
-                                break;
-                            case "PodAndContainer":
-                                PodAndContainer pac = (PodAndContainer)br;
-                                to = pac.getPod();
-                                break;
-                            case "PodAndMetric":
-                                PodAndMetric pam = (PodAndMetric)br;
-                                to = pam.getPod();
-                                break;
-                            case "ServiceApiAndMetric":
-                                ServiceApiAndMetric sasm = (ServiceApiAndMetric)br;
-                                to = sasm.getServiceAPI();
-                                break;
-                            case "TraceInvokeApiToPod":
-                                TraceInvokeApiToPod tiatp = (TraceInvokeApiToPod)br;
-                                to = tiatp.getPod();
-                                break;
-                            case "TraceInvokePodToApi":
-                                TraceInvokePodToApi tipta = (TraceInvokePodToApi)br;
-                                to = tipta.getServiceAPI();
-                                break;
-                            case "VirtualMachineAndPod":
-                                VirtualMachineAndPod vmap = (VirtualMachineAndPod)br;
-                                to = vmap.getVirtualMachine();
-                                break;
-                        }
-                        //to被搜索过了吗 有的话把from的score加进去 没有就算了
-                        GraphNodeInfo gni = null;
-                        if(!recordVisited.containsKey(to)){
-                            queue.add(to);
-                            gni = new GraphNodeInfo(to);
+                    System.out.println(tempNode.getName());
+                    layerNodes.add(tempNode);
+                    HashMap<String, HashSet<BasicRelationship>> neighborsMap = graphAdjacentMap.get(tempNode);
+                    //这个点的邻居们的遍历
+                    //它的邻居有好几种relationship 挨个遍历一下
+                    if(neighborsMap == null){
+                        System.out.println(tempNode.getName() + " 没有指向新节点");
+                        continue;
+                    }
+                    for(String key : neighborsMap.keySet()){
+                        HashSet<BasicRelationship> neighborsSet = neighborsMap.get(key);
+                        System.out.println(key + " - " + neighborsSet.size());
+                        for(BasicRelationship br : neighborsSet){
+                            GraphNode to = null;
+                            switch (key){
+                                case "AppServiceAndPod":
+                                    AppServiceAndPod asap = (AppServiceAndPod)br;
+                                    to = asap.getAppService();
+                                    break;
+                                case "AppServiceHostServiceAPI":
+                                    AppServiceHostServiceAPI ashsa = (AppServiceHostServiceAPI)br;
+                                    to = ashsa.getAppService();
+                                    break;
+                                case "AppServiceInvokeServiceAPI":
+                                    AppServiceInvokeServiceAPI asisa = (AppServiceInvokeServiceAPI)br;
+                                    to = asisa.getServiceAPI();
+                                    break;
+                                case "MetricAndContainer":
+                                    MetricAndContainer mac = (MetricAndContainer)br;
+                                    to = mac.getContainer();
+                                    break;
+                                case "PodAndContainer":
+                                    PodAndContainer pac = (PodAndContainer)br;
+                                    to = pac.getPod();
+                                    break;
+                                case "PodAndMetric":
+                                    PodAndMetric pam = (PodAndMetric)br;
+                                    to = pam.getPod();
+                                    break;
+                                case "ServiceApiAndMetric":
+                                    ServiceApiAndMetric sasm = (ServiceApiAndMetric)br;
+                                    to = sasm.getServiceAPI();
+                                    break;
+                                case "TraceInvokeApiToPod":
+                                    TraceInvokeApiToPod tiatp = (TraceInvokeApiToPod)br;
+                                    to = tiatp.getPod();
+                                    break;
+                                case "TraceInvokePodToApi":
+                                    TraceInvokePodToApi tipta = (TraceInvokePodToApi)br;
+                                    to = tipta.getServiceAPI();
+                                    break;
+                                case "VirtualMachineAndPod":
+                                    VirtualMachineAndPod vmap = (VirtualMachineAndPod)br;
+                                    to = vmap.getVirtualMachine();
+                                    break;
+                            }
+                            //to被搜索过了吗 有的话把from的score加进去 没有就算了
+                            GraphNodeInfo gni = null;
+                            if(!recordVisited.containsKey(to)){
+//                            if(nodeAndInfo.get(to) == null) {
+                                queue.add(to);
+                                if(nodeAndInfo.get(to) == null){
+                                    gni = new GraphNodeInfo(to);
+                                }else{
+                                    gni = nodeAndInfo.get(to);
+                                }
+                                System.out.println("在第" + ret.size() + "层新发现:" + gni.node.getName());
+                            }else{
+                                gni = recordVisited.get(to);
+                                System.out.println("更新已发现节点GraphNodeInfo");
+                            }
+                            gni.parents.add(tempNode);
+                            gni.propagateScores.add(fromNodeScore);
+                            gni.score = calcualteScore(gni);
+                            gni.toRelations.add(br);
+                            System.out.println(gni.node.getName() + "分数为:" + gni.score);
                             recordVisited.put(to, gni);
-                            System.out.println("在第" + ret.size() + "层");
-                            System.out.println("新发现:" + gni.node.getName());
-                        }else{
-                            gni = recordVisited.get(to);
-                            System.out.println("更新已发现节点的score值");
+                            nodeAndInfo.put(to, gni);
                         }
-                        gni.parents.add(tempNode);
-                        gni.propagateScores.add(fromNodeScore);
-                        gni.score = calcualteScore(gni);
-                        gni.toRelations.add(br);
-                        System.out.println(gni.node.getName() + "分数为:" + gni.score);
                     }
                 }
+                ret.add(layerNodes);
             }
-            ret.add(layerNodes);
+
         }
+
 
         //查到的分类节点
         HashMap<String, ArrayList<GraphNodeInfo>> recordTypeScore = new HashMap<>();
-        for(ArrayList<GraphNode> list : ret){
-            for(GraphNode gn : list){
+        for(GraphNode gn : nodeAndInfo.keySet()){
                 String className = gn.getClassName();
                 ArrayList<GraphNodeInfo> graphNodeInfos = recordTypeScore.getOrDefault(className, new ArrayList<>());
-                graphNodeInfos.add(recordVisited.get(gn));
+                graphNodeInfos.add(nodeAndInfo.get(gn));
                 recordTypeScore.put(className, graphNodeInfos);
-            }
         }
 
         for(String key : recordTypeScore.keySet()){
@@ -231,6 +243,7 @@ public class GraphAppServices {
                 total += scores.get(i);
             }
             total /= scores.size();
+            //TODO 计算有误
             return total * Math.log(size);
         }
     }
