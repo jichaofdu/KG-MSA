@@ -24,6 +24,11 @@ public class GraphAppController {
         return graphAppServices.getTotalGraph();
     }
 
+    @GetMapping("/diagnosis/{traceId}")
+    public String diagnosisTraceId(@PathVariable String traceId){
+        return graphAppServices.diagnosisTrace(traceId);
+    }
+
     @GetMapping("/abnormality/pods")
     public String updateAbnomalityOfPods(){
         return graphAppServices.updateAbnormalityOfPods();

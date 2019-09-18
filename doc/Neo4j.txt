@@ -91,6 +91,18 @@ WHERE
 WITH n,r,m,metrics,rm
 RETURN metrics,rm
 
+
+
+
+MATCH (n)-[r:TraceInvokeApiToPod|TraceInvokePodToApi]->(m)<-[rm:PodAndMetric|ServiceApiAndMetric]-(metrics)
+WHERE
+    ANY(x IN r.traceIdSpanId WHERE x =~ '1dbc1a29d58e22c6a7885a4a273011e3-.*')
+WITH n,r,m,metrics,rm
+RETURN metrics,rm
+
+
+
+
 http://localhost:17632/getCrossOfTwoTrace/75c1d44834925763c082bf6cf7863e53/5e92c60ddaacaf85ec4b2ed75c74964a
 
 

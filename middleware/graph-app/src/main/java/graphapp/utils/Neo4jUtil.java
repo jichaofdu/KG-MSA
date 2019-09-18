@@ -170,6 +170,8 @@ public class Neo4jUtil {
 
 
     public void getTraceMetricComponentList(String cql,
+                                            Set<PodMetric> podMetricSet,
+                                            Set<ServiceApiMetric> serviceApiMetricSet,
                                             Set<PodAndMetric> podAndMetricSet,
                                             Set<ServiceApiAndMetric> serviceApiAndMetricSet){
         try {
@@ -195,10 +197,12 @@ public class Neo4jUtil {
                         case "PodMetric":
                             PodMetric podMetric = getNode(PodMetric.class, map);
                             recordGraphNodeMap.put(index, podMetric);
+                            podMetricSet.add(podMetric);
                             break;
                         case "ServiceApiMetric":
                             ServiceApiMetric serviceApiMetric = getNode(ServiceApiMetric.class, map);
                             recordGraphNodeMap.put(index, serviceApiMetric);
+                            serviceApiMetricSet.add(serviceApiMetric);
                             break;
                         case "PodAndMetric":
                             PodAndMetric podAndMetric = getNode(PodAndMetric.class, map);

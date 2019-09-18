@@ -45,14 +45,7 @@ public class GraphAppServices {
         HashMap<GraphNode, HashMap<String, HashSet<BasicRelationship>>> ret =
                 neo4jUtil.getWholeGraphByAdjacentList();
 
-        //TODO 起点需要重新确认
-//        ArrayList<GraphNode> startings = new ArrayList<>();
-//        Iterator<GraphNode> iter = ret.keySet().iterator();
-//        GraphNode gn1 = iter.next();
-//        gn1.setScore(100);
-//        startings.add(gn1);
-//        startings.add(gn1);
-//        layerTraverseGraphFromOneNode(startings, ret);
+        printTotalGraph(ret);
 
         return ret;
     }
@@ -71,6 +64,33 @@ public class GraphAppServices {
         }
     }
 
+    public String diagnosisTrace(String traceId){
+
+        Map<String, Set> traceMetricsSet = getOneTraceMetrics(traceId);
+        Set<PodMetric> podMetricSet = traceMetricsSet.get("PodMetric");
+        Set<ServiceApiMetric> serviceApiMetricSet = traceMetricsSet.get("ServiceApiMetric");
+
+        ArrayList<BasicMetric> startings = new ArrayList<>();
+        startings.addAll(podMetricSet);
+        startings.addAll(serviceApiMetricSet);
+
+        HashMap<GraphNode, HashMap<String, HashSet<BasicRelationship>>> ret = getTotalGraph();
+
+        layerTraverseGraphFromOneNode(startings, ret);
+
+        //TODO 起点需要重新确认
+//        ArrayList<GraphNode> startings = new ArrayList<>();
+//        Iterator<GraphNode> iter = ret.keySet().iterator();
+//        GraphNode gn1 = iter.next();
+//        gn1.setScore(100);
+//        startings.add(gn1);
+//        startings.add(gn1);
+//        layerTraverseGraphFromOneNode(startings, ret);
+
+        return "";
+    }
+
+
     class GraphNodeInfo{
         GraphNode node;
         ArrayList<GraphNode> parents = new ArrayList<>();
@@ -84,15 +104,14 @@ public class GraphAppServices {
     }
 
     //返回结果是整张图的每一个节点
-    private ArrayList<ArrayList<GraphNode>> layerTraverseGraphFromOneNode(ArrayList<GraphNode> startings,
+    private void layerTraverseGraphFromOneNode(ArrayList<BasicMetric> startings,
                                                HashMap<GraphNode, HashMap<String, HashSet<BasicRelationship>>>
                                                        graphAdjacentMap){
 
-        ArrayList<ArrayList<GraphNode>> ret = new ArrayList<>();
         HashMap<GraphNode, GraphNodeInfo> nodeAndInfo = new HashMap<>();
 
 
-        for(GraphNode starting : startings){
+        for(BasicMetric starting : startings){
             System.out.println("===============================================");
             //下面这两个是用于一次源节点值的传播的
             //已经被访问过的节点
@@ -102,10 +121,11 @@ public class GraphAppServices {
 
             //起始点设置
             GraphNodeInfo initNode = new GraphNodeInfo(starting);
-            initNode.score = starting.getScore();
+            initNode.score = starting.getAbnormality();
             recordVisited.put(starting, initNode);
             queue.offer(starting);
 
+            int layerIndex = 0;
             while(!queue.isEmpty()){
                 int layerSize = queue.size();
                 ArrayList<GraphNode> layerNodes = new ArrayList<>();
@@ -182,7 +202,7 @@ public class GraphAppServices {
                                 }else{
                                     gni = nodeAndInfo.get(to);
                                 }
-                                System.out.println("在第" + ret.size() + "层新发现:" + gni.node.getName());
+                                System.out.println("在第" + layerIndex + "层新发现:" + gni.node.getName());
                             }else{
                                 gni = recordVisited.get(to);
                                 System.out.println("更新已发现节点GraphNodeInfo");
@@ -197,7 +217,7 @@ public class GraphAppServices {
                         }
                     }
                 }
-                ret.add(layerNodes);
+                layerIndex++;
             }
 
         }
@@ -221,12 +241,17 @@ public class GraphAppServices {
                 }
             });
             System.out.println("====" + key + "====");
+
+            double total = 0.0001;
+
             for(GraphNodeInfo graphNodeInfo : graphNodeInfos){
+                total += graphNodeInfo.score;
+            }
+            for(GraphNodeInfo graphNodeInfo : graphNodeInfos){
+                graphNodeInfo.score = graphNodeInfo.score / total;
                 System.out.println(graphNodeInfo.node.getName() + "    " + graphNodeInfo.score);
             }
         }
-
-        return ret;
     }
 
 
@@ -236,7 +261,7 @@ public class GraphAppServices {
         if(size == 0){
             return info.score;
         } else if(size == 1){
-            return 0.7 * scores.get(0);
+            return 0.8 * scores.get(0);
         }else{
             double total = 0;
             for(int i = 0; i < size; i++){
@@ -244,7 +269,7 @@ public class GraphAppServices {
             }
             total /= scores.size();
             //TODO 计算有误
-            return total * Math.log(size);
+            return total * (Math.log(size) / Math.log(2));
         }
     }
 
@@ -370,13 +395,14 @@ public class GraphAppServices {
         return cross;
     }
 
+    //获取一条Trace的Metric信息
     @Transactional(readOnly = true)
     public Map<String, Set> getOneTraceMetrics(String traceId){
         Map<String, Set> retMap = new HashMap<>();
         String cql =
                 "MATCH (n)-[r:TraceInvokeApiToPod|TraceInvokePodToApi]->(m)<-[rm:PodAndMetric|ServiceApiAndMetric]-(metrics) " +
                         "WHERE " +
-                        "    ANY(x IN r.traceIdSpanId WHERE x =~ '75c1d44834925763c082bf6cf7863e53-.*') " +
+                        "    ANY(x IN r.traceIdSpanId WHERE x =~ '" + traceId + "-.*') " +
                         "WITH n,m,r,metrics,rm " +
                         "RETURN m,metrics,rm";
         Set<PodMetric> podMetricSet = new HashSet<>();
@@ -385,6 +411,8 @@ public class GraphAppServices {
         Set<ServiceApiAndMetric> serviceApiAndMetricSet = new HashSet<>();
 
         neo4jUtil.getTraceMetricComponentList(cql,
+                podMetricSet,
+                serviceApiMetricSet,
                 podAndMetricSet,
                 serviceApiAndMetricSet);
 
@@ -402,7 +430,8 @@ public class GraphAppServices {
         return retMap;
     }
 
-    @Transactional(readOnly = true)
+    //获取两条Trace相交的Metirc信息
+   @Transactional(readOnly = true)
     public Map<String, Set> getCrossMetricsOfTwoTrace(String traceA, String traceB){
         //下面这部分是获得的两个Trace的Metric交集
         Map<String, Set> traceAMap = getOneTraceMetrics(traceA);
@@ -427,7 +456,7 @@ public class GraphAppServices {
         return crossingMap;
     }
 
-
+    //获得一条Trace除了Metric以外的信息
     @Transactional(readOnly = true)
     public Map<String, Set> getOneTracePath(String traceId){
         Map<String, Set> retMap = new HashMap<>();
@@ -510,6 +539,9 @@ public class GraphAppServices {
         return crossingMap;
     }
 
+
+
+
     public ArrayList<UnitGraphNode> getSortedGraphNode(String traceId){
         Map<String, Set> metricMap = getOneTraceMetrics(traceId);
 
@@ -534,7 +566,6 @@ public class GraphAppServices {
 
         return list;
     }
-
 
     private void sortByCalculateValue(ArrayList<UnitGraphNode> nodeList){
         nodeList.sort((UnitGraphNode o1, UnitGraphNode o2) ->
