@@ -278,7 +278,15 @@ public class CancelServiceImpl implements CancelService{
 
     private ChangeOrderResult cancelFromOrder(ChangeOrderInfo info,  HttpHeaders headers){
         System.out.println("[Cancel Order Service][Change Order Status] Changing....");
-        ChangeOrderResult result = restTemplate.postForObject("http://ts-order-service:12031/order/update",info,ChangeOrderResult.class);
+
+        HttpEntity requestEntity = new HttpEntity(info, headers);
+        ResponseEntity<ChangeOrderResult> re = restTemplate.exchange(
+                "http://ts-order-service:12031/order/update",
+                HttpMethod.POST,
+                requestEntity,
+                ChangeOrderResult.class);
+        ChangeOrderResult result = re.getBody();
+//        ChangeOrderResult result = restTemplate.postForObject("http://ts-order-service:12031/order/update",info,ChangeOrderResult.class);
         return result;
     }
 
