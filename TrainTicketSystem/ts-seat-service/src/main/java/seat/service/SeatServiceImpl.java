@@ -7,6 +7,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.integration.dsl.http.Http;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.RestTemplate;
 import seat.domain.*;
 
@@ -18,6 +19,19 @@ import java.util.Set;
 public class SeatServiceImpl implements SeatService {
     @Autowired
     RestTemplate restTemplate;
+
+    public static boolean injectionStatus = false;
+
+    public InjectionResult injectOrNot(String status){
+        if(status.equals("on")){
+            injectionStatus = true;
+            return new InjectionResult(true);
+        }else{
+            injectionStatus = false;
+            return new InjectionResult(true);
+        }
+    }
+
 
     @Override
     public Ticket distributeSeat(SeatRequest seatRequest,HttpHeaders headers){
@@ -107,6 +121,12 @@ public class SeatServiceImpl implements SeatService {
 //                    "http://ts-travel2-service:16346/travel2/getTrainTypeByTripId/" + seatRequest.getTrainNumber(), GetTrainTypeResult.class);
             System.out.println("[SeatService distributeSeat] The result of getTrainTypeResult is " + trainTypeResult.getMessage());
         }
+
+
+        if(injectionStatus){
+
+        }
+
 
 
         //分配座位
