@@ -2,6 +2,7 @@ package consign.controller;
 
 import consign.domain.ConsignRecord;
 import consign.domain.ConsignRequest;
+import consign.domain.InjectionResult;
 import consign.domain.InsertConsignRecordResult;
 import consign.service.ConsignService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,20 @@ public class ConsignController {
     @Autowired
     ConsignService service;
 
+    private boolean injectionStatus = false;
+
+    @CrossOrigin(origins = "*")
+    @RequestMapping(path = "/consign/injection/{status}", method = RequestMethod.GET)
+    public InjectionResult injectOrNot(@PathVariable String status){
+        if(status.equals("on")){
+            injectionStatus = true;
+            return new InjectionResult(true);
+        }else{
+            injectionStatus = false;
+            return new InjectionResult(true);
+        }
+    }
+
     @RequestMapping(path = "/welcome", method = RequestMethod.GET)
     public String home(@RequestHeader HttpHeaders headers){
         return "Welcome to [ Consign Service ] !";
@@ -23,6 +38,9 @@ public class ConsignController {
 
     @RequestMapping(value = "/consign/insertConsign", method= RequestMethod.POST)
     public InsertConsignRecordResult insertConsign(@RequestBody ConsignRequest request, @RequestHeader HttpHeaders headers){
+        if(injectionStatus){
+
+        }
         return service.insertConsignRecord(request, headers);
     }
 
