@@ -20,6 +20,8 @@ public class OrderController {
     @Autowired
     private RestTemplate restTemplate;
 
+    private boolean injectionStatus = false;
+
     @RequestMapping(path = "/welcome", method = RequestMethod.GET)
     public String home() {
         return "Welcome to [ Order Service ] !";
@@ -34,11 +36,29 @@ public class OrderController {
     }
 
     @CrossOrigin(origins = "*")
+    @RequestMapping(path = "/order/injection/{status}", method = RequestMethod.GET)
+    public InjectionResult injectOrNot(@PathVariable String status){
+        if(status.equals("on")){
+            injectionStatus = true;
+            return new InjectionResult(true);
+        }else{
+            injectionStatus = false;
+            return new InjectionResult(true);
+        }
+    }
+
+    @CrossOrigin(origins = "*")
     @RequestMapping(path = "/order/create", method = RequestMethod.POST)
     public CreateOrderResult createNewOrder(@RequestBody CreateOrderInfo coi, @RequestHeader HttpHeaders headers){
         System.out.println("[Order Service][Create Order] Create Order form " + coi.getOrder().getFrom() + " --->"
             + coi.getOrder().getTo() + " at " + coi.getOrder().getTravelDate());
         VerifyResult tokenResult = verifySsoLogin(coi.getLoginToken(), headers);
+
+        if(injectionStatus){
+
+        }
+
+
         if(tokenResult.isStatus() == true){
             System.out.println("[Order Service][Verify Login] Success");
             return orderService.create(coi.getOrder(),headers);

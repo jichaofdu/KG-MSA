@@ -42,6 +42,8 @@
         <script type="text/javascript" src="js/myflow.js" defer charset="UTF-8"></script>
         <script type="text/javascript" src="js/flowAdvancedSearch.js" defer charset="UTF-8"></script>
         <script type="text/javascript" src="js/news.js" defer charset="UTF-8"></script>
+        <script type="text/javascript" src="js/injection.js" defer charset="UTF-8"></script>
+
     </head>
     <body onload="onLoadBody()">
     <div class="container">
@@ -64,6 +66,16 @@
             </div>
         </nav>
         <!--------------Login Information--------------->
+
+        <div id="fault_injection_set" class="">
+            <ul class="list-group">
+                <li class="list-group-item">Status：
+                    <label id="injection_status">Unknown Injected</label>
+                    <button id="do_injection" type="button" class="btn btn-primary">Do Injection</button>
+                    <button id="cancel_injection" type="button" class="btn btn-primary">Cancel Injection</button>
+                </li>
+            </ul>
+        </div>
         <div id="status_set" class="">
             <ul class="list-group">
                 <li class="list-group-item">Login User ID：
