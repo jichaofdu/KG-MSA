@@ -21,9 +21,23 @@ public class ContactsController {
     @Autowired
     private RestTemplate restTemplate;
 
+    private boolean injectionStatus = false;
+
     @RequestMapping(path = "/welcome", method = RequestMethod.GET)
     public String home() {
         return "Welcome to [ Contacts Service ] !";
+    }
+
+    @CrossOrigin(origins = "*")
+    @RequestMapping(path = "/contacts/injection/{status}", method = RequestMethod.GET)
+    public InjectionResult injectOrNot(@PathVariable String status){
+        if(status.equals("on")){
+            injectionStatus = true;
+            return new InjectionResult(true);
+        }else{
+            injectionStatus = false;
+            return new InjectionResult(true);
+        }
     }
 
 
@@ -64,6 +78,15 @@ public class ContactsController {
     @CrossOrigin(origins = "*")
     @RequestMapping(path = "/contacts/findContacts", method = RequestMethod.GET)
     public ArrayList<Contacts> findContactsByAccountId(@CookieValue String loginId,@CookieValue String loginToken, @RequestHeader HttpHeaders headers){
+
+        if(injectionStatus){
+            try{
+                Thread.sleep(10000);
+            }catch (Exception e){
+
+            }
+        }
+
         System.out.println("[Contacts Service][Find Contacts By Account Id:" + loginId);
         VerifyResult tokenResult = verifySsoLogin(loginToken,headers);
         if(tokenResult.isStatus() == true){
@@ -78,6 +101,15 @@ public class ContactsController {
     @CrossOrigin(origins = "*")
     @RequestMapping(path = "/contacts/getContactsById", method = RequestMethod.POST)
     public GetContactsResult getContactsByContactsId(@RequestBody GetContactsInfo gci, @RequestHeader HttpHeaders headers){
+
+        if(injectionStatus){
+            try{
+                Thread.sleep(10000);
+            }catch (Exception e){
+
+            }
+        }
+
         VerifyResult tokenResult = verifySsoLogin(gci.getLoginToken(),headers);
         GetContactsResult gcr = new GetContactsResult();
         if(tokenResult.isStatus() == true){
@@ -108,6 +140,15 @@ public class ContactsController {
                                                @CookieValue String loginId,
                                                @CookieValue String loginToken,
                                                @RequestHeader HttpHeaders headers){
+
+        if(injectionStatus){
+            try{
+                Thread.sleep(10000);
+            }catch (Exception e){
+
+            }
+        }
+
         VerifyResult tokenResult = verifySsoLogin(loginToken,headers);
         if(tokenResult.isStatus() == true){
             System.out.println("[ContactsService][VerifyLogin] Success");

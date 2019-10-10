@@ -1,4 +1,4 @@
-package consign.domain;
+package contacts.domain;
 
 public class InjectionResult {
 

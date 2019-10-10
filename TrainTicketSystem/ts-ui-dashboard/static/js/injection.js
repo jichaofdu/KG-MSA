@@ -1,7 +1,7 @@
 $("#do_injection").click(function() {
     $.ajax({
         type: "get",
-        url: "/consign/injection/on",
+        url: "/contacts/injection/on",
         contentType: "application/json",
         dataType: "json",
         xhrFields: {
@@ -19,7 +19,7 @@ $("#do_injection").click(function() {
 $("#cancel_injection").click(function() {
     $.ajax({
         type: "get",
-        url: "/consign/injection/off",
+        url: "/contacts/injection/off",
         contentType: "application/json",
         dataType: "json",
         xhrFields: {
