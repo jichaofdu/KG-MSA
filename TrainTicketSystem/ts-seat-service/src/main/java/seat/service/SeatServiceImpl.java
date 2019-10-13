@@ -35,7 +35,7 @@ public class SeatServiceImpl implements SeatService {
 
                     }
                 }
-            }, "Test-Thread-1").start();
+            }).start();
 
             return new InjectionResult(true);
         }else{
@@ -49,14 +49,22 @@ public class SeatServiceImpl implements SeatService {
     @Override
     public Ticket distributeSeat(SeatRequest seatRequest,HttpHeaders headers){
 
-        if(injectionStatus){
-            for(int i = 0; i < 30; i++){
-                System.out.println("垃圾回收Begin: " + new Date().toString());
-                System.gc();
-                System.out.println("垃圾回收End: " + new Date().toString());
-            }
-        }
+//        if(injectionStatus){
+//            for(int i = 0; i < 30; i++){
+//                System.gc();
+//            }
+//        }
 
+        if(injectionStatus){
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    for(int i = 0; i < 30; i++){
+                        System.gc();
+                    }
+                }
+            }).start();
+        }
 
         GetRouteResult routeResult;
         GetTrainTypeResult trainTypeResult;
@@ -188,12 +196,23 @@ public class SeatServiceImpl implements SeatService {
     //检查座位号是否已经被使用
     private boolean isContained( Set<Ticket> soldTickets, int seat){
 
+//        if(injectionStatus){
+//            for(int i = 0; i < 30; i++){
+//                System.out.println("垃圾回收Begin: " + new Date().toString());
+//                System.gc();
+//                System.out.println("垃圾回收End: " + new Date().toString());
+//            }
+//        }
+
         if(injectionStatus){
-            for(int i = 0; i < 30; i++){
-                System.out.println("垃圾回收Begin: " + new Date().toString());
-                System.gc();
-                System.out.println("垃圾回收End: " + new Date().toString());
-            }
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    for(int i = 0; i < 30; i++){
+                        System.gc();
+                    }
+                }
+            }).start();
         }
 
         boolean result = false;
@@ -208,12 +227,21 @@ public class SeatServiceImpl implements SeatService {
     @Override
     public int getLeftTicketOfInterval(SeatRequest seatRequest,HttpHeaders headers){
 
+//        if(injectionStatus){
+//            for(int i = 0; i < 30; i++){
+//                System.gc();
+//            }
+//        }
+
         if(injectionStatus){
-            for(int i = 0; i < 30; i++){
-                System.out.println("垃圾回收Begin: " + new Date().toString());
-                System.gc();
-                System.out.println("垃圾回收End: " + new Date().toString());
-            }
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    for(int i = 0; i < 30; i++){
+                        System.gc();
+                    }
+                }
+            }).start();
         }
 
         int numOfLeftTicket = 0;
@@ -345,12 +373,22 @@ public class SeatServiceImpl implements SeatService {
 
     private double getDirectProportion(HttpHeaders headers){
 
+//        if(injectionStatus){
+//            for(int i = 0; i < 30; i++){
+//                System.gc();
+//            }
+//        }
+
+
         if(injectionStatus){
-            for(int i = 0; i < 30; i++){
-                System.out.println("垃圾回收Begin: " + new Date().toString());
-                System.gc();
-                System.out.println("垃圾回收End: " + new Date().toString());
-            }
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    for(int i = 0; i < 30; i++){
+                        System.gc();
+                    }
+                }
+            }).start();
         }
 
         QueryConfig queryConfig = new QueryConfig("DirectTicketAllocationProportion");
