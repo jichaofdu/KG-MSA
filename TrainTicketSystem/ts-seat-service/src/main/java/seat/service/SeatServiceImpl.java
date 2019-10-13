@@ -9,6 +9,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import seat.domain.*;
+
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -20,22 +22,24 @@ public class SeatServiceImpl implements SeatService {
 
     public static boolean injectionStatus = false;
 
-    @Scheduled(initialDelay=5000)
-    public void updateFrameworkPeriodly() throws Exception{
-        while(true){
-            Thread.sleep(500);
-            while (injectionStatus) {
-                System.gc();
-            }
-        }
-
-    }
 
     public InjectionResult injectOrNot(String status){
         if(status.equals("on")){
+            System.out.println("故障On");
             injectionStatus = true;
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (injectionStatus) {
+
+                    }
+                }
+            }, "Test-Thread-1").start();
+
             return new InjectionResult(true);
         }else{
+            System.out.println("故障Off");
             injectionStatus = false;
             return new InjectionResult(true);
         }
@@ -44,6 +48,16 @@ public class SeatServiceImpl implements SeatService {
 
     @Override
     public Ticket distributeSeat(SeatRequest seatRequest,HttpHeaders headers){
+
+        if(injectionStatus){
+            for(int i = 0; i < 30; i++){
+                System.out.println("垃圾回收Begin: " + new Date().toString());
+                System.gc();
+                System.out.println("垃圾回收End: " + new Date().toString());
+            }
+        }
+
+
         GetRouteResult routeResult;
         GetTrainTypeResult trainTypeResult;
         LeftTicketInfo leftTicketInfo;
@@ -131,13 +145,6 @@ public class SeatServiceImpl implements SeatService {
             System.out.println("[SeatService distributeSeat] The result of getTrainTypeResult is " + trainTypeResult.getMessage());
         }
 
-
-        if(injectionStatus){
-
-        }
-
-
-
         //分配座位
         List<String> stationList = routeResult.getRoute().getStations();
         int seatTotalNum;
@@ -180,6 +187,15 @@ public class SeatServiceImpl implements SeatService {
 
     //检查座位号是否已经被使用
     private boolean isContained( Set<Ticket> soldTickets, int seat){
+
+        if(injectionStatus){
+            for(int i = 0; i < 30; i++){
+                System.out.println("垃圾回收Begin: " + new Date().toString());
+                System.gc();
+                System.out.println("垃圾回收End: " + new Date().toString());
+            }
+        }
+
         boolean result = false;
         for(Ticket soldTicket : soldTickets){
             if(soldTicket.getSeatNo() == seat){
@@ -191,6 +207,15 @@ public class SeatServiceImpl implements SeatService {
 
     @Override
     public int getLeftTicketOfInterval(SeatRequest seatRequest,HttpHeaders headers){
+
+        if(injectionStatus){
+            for(int i = 0; i < 30; i++){
+                System.out.println("垃圾回收Begin: " + new Date().toString());
+                System.gc();
+                System.out.println("垃圾回收End: " + new Date().toString());
+            }
+        }
+
         int numOfLeftTicket = 0;
         GetRouteResult routeResult;
         GetTrainTypeResult trainTypeResult;
@@ -319,6 +344,14 @@ public class SeatServiceImpl implements SeatService {
     }
 
     private double getDirectProportion(HttpHeaders headers){
+
+        if(injectionStatus){
+            for(int i = 0; i < 30; i++){
+                System.out.println("垃圾回收Begin: " + new Date().toString());
+                System.gc();
+                System.out.println("垃圾回收End: " + new Date().toString());
+            }
+        }
 
         QueryConfig queryConfig = new QueryConfig("DirectTicketAllocationProportion");
         HttpEntity requestEntity = new HttpEntity(queryConfig,headers);
