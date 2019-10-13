@@ -4,3 +4,10 @@
 timedatectl set-timezone Asia/Shanghai
 yum install -y ntp
 ntpdate cn.ntp.org.cn
+
+crontab -e
+crontab -l
+
+*/5 * * * * ntpdate cn.ntp.org.cn
+
+service crond restart
