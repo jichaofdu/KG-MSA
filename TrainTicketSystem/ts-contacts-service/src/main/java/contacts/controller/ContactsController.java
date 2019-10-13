@@ -83,7 +83,7 @@ public class ContactsController {
             try{
                 Thread.sleep(10000);
             }catch (Exception e){
-
+                System.out.println("等待时出现意外情况");
             }
         }
 
@@ -106,7 +106,7 @@ public class ContactsController {
             try{
                 Thread.sleep(10000);
             }catch (Exception e){
-
+                System.out.println("等待时出现意外情况");
             }
         }
 
@@ -145,7 +145,7 @@ public class ContactsController {
             try{
                 Thread.sleep(10000);
             }catch (Exception e){
-
+                System.out.println("等待时出现意外情况");
             }
         }
 
