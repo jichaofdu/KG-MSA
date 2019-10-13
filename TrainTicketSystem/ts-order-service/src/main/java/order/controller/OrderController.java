@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 public class OrderController {
@@ -47,6 +48,32 @@ public class OrderController {
         }
     }
 
+    private void memory() {
+        List<int[]> list = new ArrayList<>();
+
+        Runtime run = Runtime.getRuntime();
+        int i = 1;
+        while (true) {
+            int[] arr = new int[1024 * 8];
+            list.add(arr);
+
+            if (i++ % 1000 == 0) {
+                try {
+                    Thread.sleep(60);
+                } catch (InterruptedException e) {
+                    System.out.println("[Order Service]未正常Sleep");
+                }
+                System.out.print("[Order Service]最大RAM=" + run.maxMemory() / 1024 / 1024 + "M,");
+                System.out.print("[Order Service]已分配RAM=" + run.totalMemory() / 1024 / 1024 + "M,");
+                System.out.print("[Order Service]剩余RAM=" + run.freeMemory() / 1024 / 1024 + "M");
+                System.out.println(
+                        "[Order Service]最大可用RAM=" +
+                                (run.maxMemory() - run.totalMemory() + run.freeMemory()) / 1024 / 1024 +
+                                "M");
+            }
+        }
+    }
+
     @CrossOrigin(origins = "*")
     @RequestMapping(path = "/order/create", method = RequestMethod.POST)
     public CreateOrderResult createNewOrder(@RequestBody CreateOrderInfo coi, @RequestHeader HttpHeaders headers){
@@ -55,7 +82,7 @@ public class OrderController {
         VerifyResult tokenResult = verifySsoLogin(coi.getLoginToken(), headers);
 
         if(injectionStatus){
-
+            memory();
         }
 
 
