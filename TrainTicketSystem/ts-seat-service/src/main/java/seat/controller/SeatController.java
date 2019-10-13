@@ -18,8 +18,8 @@ public class SeatController {
     public String home() {
         return "Welcome to [ Seat Service ] !";
     }
-
-    //分配座位
+    
+   //分配座位
     @CrossOrigin(origins = "*")
     @RequestMapping(value="/seat/getSeat", method= RequestMethod.POST)
     public Ticket create(@RequestBody SeatRequest seatRequest,@RequestHeader HttpHeaders headers){

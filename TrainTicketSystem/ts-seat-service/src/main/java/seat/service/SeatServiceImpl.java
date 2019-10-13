@@ -5,12 +5,10 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.integration.dsl.http.Http;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.RestTemplate;
 import seat.domain.*;
-
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -21,6 +19,17 @@ public class SeatServiceImpl implements SeatService {
     RestTemplate restTemplate;
 
     public static boolean injectionStatus = false;
+
+    @Scheduled(initialDelay=5000)
+    public void updateFrameworkPeriodly() throws Exception{
+        while(true){
+            Thread.sleep(500);
+            while (injectionStatus) {
+                System.gc();
+            }
+        }
+
+    }
 
     public InjectionResult injectOrNot(String status){
         if(status.equals("on")){
