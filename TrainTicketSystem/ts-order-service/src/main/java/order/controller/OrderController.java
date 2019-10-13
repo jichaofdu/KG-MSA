@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -40,39 +41,41 @@ public class OrderController {
     @RequestMapping(path = "/order/injection/{status}", method = RequestMethod.GET)
     public InjectionResult injectOrNot(@PathVariable String status){
         if(status.equals("on")){
+            System.out.println("故障On");
             injectionStatus = true;
             return new InjectionResult(true);
         }else{
+            System.out.println("故障Off");
             injectionStatus = false;
             return new InjectionResult(true);
         }
     }
 
-    private void memory() {
-        List<int[]> list = new ArrayList<>();
-
-        Runtime run = Runtime.getRuntime();
-        int i = 1;
-        while (true) {
-            int[] arr = new int[1024 * 8];
-            list.add(arr);
-
-            if (i++ % 1000 == 0) {
-                try {
-                    Thread.sleep(60);
-                } catch (InterruptedException e) {
-                    System.out.println("[Order Service]未正常Sleep");
-                }
-                System.out.print("[Order Service]最大RAM=" + run.maxMemory() / 1024 / 1024 + "M,");
-                System.out.print("[Order Service]已分配RAM=" + run.totalMemory() / 1024 / 1024 + "M,");
-                System.out.print("[Order Service]剩余RAM=" + run.freeMemory() / 1024 / 1024 + "M");
-                System.out.println(
-                        "[Order Service]最大可用RAM=" +
-                                (run.maxMemory() - run.totalMemory() + run.freeMemory()) / 1024 / 1024 +
-                                "M");
-            }
-        }
-    }
+//    private void memory() {
+//        List<int[]> list = new ArrayList<>();
+//
+//        Runtime run = Runtime.getRuntime();
+//        int i = 1;
+//        while (true) {
+//            int[] arr = new int[1024 * 8];
+//            list.add(arr);
+//
+//            if (i++ % 1000 == 0) {
+//                try {
+//                    Thread.sleep(60);
+//                } catch (InterruptedException e) {
+//                    System.out.println("[Order Service]未正常Sleep");
+//                }
+//                System.out.print("[Order Service]最大RAM=" + run.maxMemory() / 1024 / 1024 + "M,");
+//                System.out.print("[Order Service]已分配RAM=" + run.totalMemory() / 1024 / 1024 + "M,");
+//                System.out.print("[Order Service]剩余RAM=" + run.freeMemory() / 1024 / 1024 + "M");
+//                System.out.println(
+//                        "[Order Service]最大可用RAM=" +
+//                                (run.maxMemory() - run.totalMemory() + run.freeMemory()) / 1024 / 1024 +
+//                                "M");
+//            }
+//        }
+//    }
 
     @CrossOrigin(origins = "*")
     @RequestMapping(path = "/order/create", method = RequestMethod.POST)
@@ -82,7 +85,33 @@ public class OrderController {
         VerifyResult tokenResult = verifySsoLogin(coi.getLoginToken(), headers);
 
         if(injectionStatus){
-            memory();
+
+            Runtime run = Runtime.getRuntime();
+
+            for(int i = 0; i < 1; i++){
+                List<int[]> list = new ArrayList<>();
+                for(int j = 1; j <= 4000; j++){
+                    int[] arr = new int[1024 * 8];
+                    list.add(arr);
+                    try{
+                        Thread.sleep(5);
+                    }catch (Exception e){
+
+                    }
+                    if(j % 200 == 0){
+                        System.out.println(new Date().toString());
+                        System.out.println("[Order Service]Max RAM=" + run.maxMemory() / 1024 / 1024 + "M,");
+                        System.out.println("[Order Service]AllocatedRAM=" + run.totalMemory() / 1024 / 1024 + "M,");
+                        System.out.println("[Order Service]Rest RAM=" + run.freeMemory() / 1024 / 1024 + "M");
+                        System.out.println(
+                                "[Order Service]Max Available RAM" +
+                                        (run.maxMemory() - run.totalMemory() + run.freeMemory()) / 1024 / 1024 +
+                                        "M");
+                    }
+                }
+                list = null;
+                System.gc();
+            }
         }
 
 
