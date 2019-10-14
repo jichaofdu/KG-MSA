@@ -15,7 +15,7 @@ spec:
         app: ts-ui-dashboard
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-ui-dashboard
+      - image: 10.141.211.175:5000/jichao/ft2-ts-ui-dashboard
         imagePullPolicy: Always
         name: ts-ui-dashboard
         ports:
