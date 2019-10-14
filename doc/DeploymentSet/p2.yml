@@ -15,7 +15,7 @@ spec:
         app: ts-admin-basic-info-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-admin-basic-info-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-admin-basic-info-service
         imagePullPolicy: Always
         name: ts-admin-basic-info-service
         ports:
@@ -173,7 +173,7 @@ spec:
         app: ts-admin-order-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-admin-order-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-admin-order-service
         imagePullPolicy: Always
         name: ts-admin-order-service
         ports:
@@ -331,7 +331,7 @@ spec:
         app: ts-admin-route-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-admin-route-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-admin-route-service
         imagePullPolicy: Always
         name: ts-admin-route-service
         ports:
@@ -489,7 +489,7 @@ spec:
         app: ts-admin-travel-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-admin-travel-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-admin-travel-service
         imagePullPolicy: Always
         name: ts-admin-travel-service
         ports:
@@ -647,7 +647,7 @@ spec:
         app: ts-admin-user-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-admin-user-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-admin-user-service
         imagePullPolicy: Always
         name: ts-admin-user-service
         ports:
@@ -805,7 +805,7 @@ spec:
         app: ts-assurance-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-assurance-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-assurance-service
         imagePullPolicy: Always
         name: ts-assurance-service
         ports:
@@ -963,7 +963,7 @@ spec:
         app: ts-basic-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-basic-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-basic-service
         imagePullPolicy: Always
         name: ts-basic-service
         ports:
@@ -1121,7 +1121,7 @@ spec:
         app: ts-cancel-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-cancel-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-cancel-service
         imagePullPolicy: Always
         name: ts-cancel-service
         ports:
@@ -1279,7 +1279,7 @@ spec:
         app: ts-config-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-config-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-config-service
         imagePullPolicy: Always
         name: ts-config-service
         ports:
@@ -1437,7 +1437,7 @@ spec:
         app: ts-consign-price-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-consign-price-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-consign-price-service
         imagePullPolicy: Always
         name: ts-consign-price-service
         ports:
@@ -1595,7 +1595,7 @@ spec:
         app: ts-consign-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-consign-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-consign-service
         imagePullPolicy: Always
         name: ts-consign-service
         ports:
@@ -1753,7 +1753,7 @@ spec:
         app: ts-contacts-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-contacts-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-contacts-service
         imagePullPolicy: Always
         name: ts-contacts-service
         ports:
@@ -1911,7 +1911,7 @@ spec:
         app: ts-execute-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-execute-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-execute-service
         imagePullPolicy: Always
         name: ts-execute-service
         ports:
@@ -2069,7 +2069,7 @@ spec:
         app: ts-food-map-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-food-map-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-food-map-service
         imagePullPolicy: Always
         name: ts-food-map-service
         ports:
@@ -2227,7 +2227,7 @@ spec:
         app: ts-food-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-food-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-food-service
         imagePullPolicy: Always
         name: ts-food-service
         ports:
@@ -2385,7 +2385,7 @@ spec:
         app: ts-inside-payment-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-inside-payment-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-inside-payment-service
         imagePullPolicy: Always
         name: ts-inside-payment-service
         ports:
@@ -2543,7 +2543,7 @@ spec:
         app: ts-login-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-login-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-login-service
         imagePullPolicy: Always
         name: ts-login-service
         ports:
@@ -2701,7 +2701,7 @@ spec:
         app: ts-news-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-news-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-news-service
         imagePullPolicy: Always
         name: ts-news-service
         ports:
@@ -2859,7 +2859,7 @@ spec:
         app: ts-notification-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-notification-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-notification-service
         imagePullPolicy: Always
         name: ts-notification-service
         ports:
@@ -3017,7 +3017,7 @@ spec:
         app: ts-order-other-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-order-other-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-order-other-service
         imagePullPolicy: Always
         name: ts-order-other-service
         ports:
@@ -3175,7 +3175,7 @@ spec:
         app: ts-order-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-order-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-order-service
         imagePullPolicy: Always
         name: ts-order-service
         ports:
@@ -3333,7 +3333,7 @@ spec:
         app: ts-payment-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-payment-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-payment-service
         imagePullPolicy: Always
         name: ts-payment-service
         ports:
@@ -3491,7 +3491,7 @@ spec:
         app: ts-preserve-other-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-preserve-other-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-preserve-other-service
         imagePullPolicy: Always
         name: ts-preserve-other-service
         ports:
@@ -3649,7 +3649,7 @@ spec:
         app: ts-preserve-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-preserve-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-preserve-service
         imagePullPolicy: Always
         name: ts-preserve-service
         ports:
@@ -3807,7 +3807,7 @@ spec:
         app: ts-price-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-price-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-price-service
         imagePullPolicy: Always
         name: ts-price-service
         ports:
@@ -3965,7 +3965,7 @@ spec:
         app: ts-rebook-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-rebook-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-rebook-service
         imagePullPolicy: Always
         name: ts-rebook-service
         ports:
@@ -4123,7 +4123,7 @@ spec:
         app: ts-register-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-register-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-register-service
         imagePullPolicy: Always
         name: ts-register-service
         ports:
@@ -4281,7 +4281,7 @@ spec:
         app: ts-route-plan-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-route-plan-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-route-plan-service
         imagePullPolicy: Always
         name: ts-route-plan-service
         ports:
@@ -4439,7 +4439,7 @@ spec:
         app: ts-route-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-route-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-route-service
         imagePullPolicy: Always
         name: ts-route-service
         ports:
@@ -4597,7 +4597,7 @@ spec:
         app: ts-seat-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-seat-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-seat-service
         imagePullPolicy: Always
         name: ts-seat-service
         ports:
@@ -4755,7 +4755,7 @@ spec:
         app: ts-security-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-security-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-security-service
         imagePullPolicy: Always
         name: ts-security-service
         ports:
@@ -4913,7 +4913,7 @@ spec:
         app: ts-sso-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-sso-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-sso-service
         imagePullPolicy: Always
         name: ts-sso-service
         ports:
@@ -5071,7 +5071,7 @@ spec:
         app: ts-station-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-station-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-station-service
         imagePullPolicy: Always
         name: ts-station-service
         ports:
@@ -5229,7 +5229,7 @@ spec:
         app: ts-ticket-office-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-ticket-office-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-ticket-office-service
         imagePullPolicy: Always
         name: ts-ticket-office-service
         ports:
@@ -5387,7 +5387,7 @@ spec:
         app: ts-ticketinfo-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-ticketinfo-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-ticketinfo-service
         imagePullPolicy: Always
         name: ts-ticketinfo-service
         ports:
@@ -5545,7 +5545,7 @@ spec:
         app: ts-train-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-train-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-train-service
         imagePullPolicy: Always
         name: ts-train-service
         ports:
@@ -5703,7 +5703,7 @@ spec:
         app: ts-travel2-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-travel2-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-travel2-service
         imagePullPolicy: Always
         name: ts-travel2-service
         ports:
@@ -5861,7 +5861,7 @@ spec:
         app: ts-travel-plan-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-travel-plan-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-travel-plan-service
         imagePullPolicy: Always
         name: ts-travel-plan-service
         ports:
@@ -6019,7 +6019,7 @@ spec:
         app: ts-travel-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-travel-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-travel-service
         imagePullPolicy: Always
         name: ts-travel-service
         ports:
@@ -6177,7 +6177,7 @@ spec:
         app: ts-verification-code-service
     spec:
       containers:
-      - image: 10.141.211.175:5000/jichao/cluster-ts-verification-code-service
+      - image: 10.141.211.175:5000/jichao/ft1-ts-verification-code-service
         imagePullPolicy: Always
         name: ts-verification-code-service
         ports:
