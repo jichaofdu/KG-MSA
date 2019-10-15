@@ -558,11 +558,11 @@ spec:
         - containerPort: 12031
         resources:
           requests:
-            cpu: 300m
-            memory: 160Mi
+            cpu: 50m
+            memory: 750Mi
           limits:
-            cpu: 700m
-            memory: 500Mi
+            cpu: 200m
+            memory: 800Mi
 
 ---
 
