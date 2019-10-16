@@ -23,7 +23,6 @@ docker tag ts/ts-login-service 10.141.211.175:5000/jichao/ft1-ts-login-service
 docker tag ts/ts-news-service 10.141.211.175:5000/jichao/ft1-ts-news-service    
 docker tag ts/ts-notification-service 10.141.211.175:5000/jichao/ft1-ts-notification-service    
 docker tag ts/ts-order-other-service 10.141.211.175:5000/jichao/ft1-ts-order-other-service    
-docker tag ts/ts-order-service 10.141.211.175:5000/jichao/ft1-ts-order-service    
 docker tag ts/ts-payment-service 10.141.211.175:5000/jichao/ft1-ts-payment-service    
 docker tag ts/ts-preserve-other-service 10.141.211.175:5000/jichao/ft1-ts-preserve-other-service    
 docker tag ts/ts-preserve-service 10.141.211.175:5000/jichao/ft1-ts-preserve-service    
@@ -46,6 +45,8 @@ docker tag ts/ts-verification-code-service 10.141.211.175:5000/jichao/ft1-ts-ver
 docker tag mongo 10.141.211.175:5000/jichao/ft1-ts-mongo    
 docker tag rabbitmq:management 10.141.211.175:5000/jichao/ft1-ts-rabbitmq-management      
 docker tag openzipkin/zipkin 10.141.211.175:5000/jichao/ft1-ts-openzipkin-zipkin    
+
+docker tag ts/ts-order-service 10.141.211.175:5000/jichao/ft1-ts-order-service    
 docker tag ts/ts-ui-dashboard 10.141.211.175:5000/jichao/ft1-ts-ui-dashboard    
 
 ## Part2
@@ -68,8 +69,7 @@ docker push 10.141.211.175:5000/jichao/ft1-ts-inside-payment-service
 docker push 10.141.211.175:5000/jichao/ft1-ts-login-service    
 docker push 10.141.211.175:5000/jichao/ft1-ts-news-service    
 docker push 10.141.211.175:5000/jichao/ft1-ts-notification-service    
-docker push 10.141.211.175:5000/jichao/ft1-ts-order-other-service    
-docker push 10.141.211.175:5000/jichao/ft1-ts-order-service    
+docker push 10.141.211.175:5000/jichao/ft1-ts-order-other-service     
 docker push 10.141.211.175:5000/jichao/ft1-ts-payment-service    
 docker push 10.141.211.175:5000/jichao/ft1-ts-preserve-other-service    
 docker push 10.141.211.175:5000/jichao/ft1-ts-preserve-service    
@@ -93,5 +93,6 @@ docker push 10.141.211.175:5000/jichao/ft1-ts-mongo
 docker push 10.141.211.175:5000/jichao/ft1-ts-rabbitmq-management       
 docker push 10.141.211.175:5000/jichao/ft1-ts-openzipkin-zipkin   
 
+docker push 10.141.211.175:5000/jichao/ft1-ts-order-service   
 docker push 10.141.211.175:5000/jichao/ft1-ts-ui-dashboard    
  

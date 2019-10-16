@@ -3183,10 +3183,10 @@ spec:
         resources:
           limits:
             cpu: 200m
-            memory: 800Mi
+            memory: 500Mi
           requests:
             cpu: 50m
-            memory: 750Mi
+            memory: 200Mi
       - args:
         - proxy
         - sidecar

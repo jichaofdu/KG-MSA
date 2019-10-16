@@ -559,10 +559,10 @@ spec:
         resources:
           requests:
             cpu: 50m
-            memory: 750Mi
+            memory: 200Mi
           limits:
             cpu: 200m
-            memory: 800Mi
+            memory: 500Mi
 
 ---
 
