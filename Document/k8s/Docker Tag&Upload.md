@@ -32,7 +32,6 @@ docker tag ts/ts-rebook-service 10.141.211.175:5000/jichao/ft2-ts-rebook-service
 docker tag ts/ts-register-service 10.141.211.175:5000/jichao/ft2-ts-register-service    
 docker tag ts/ts-route-plan-service 10.141.211.175:5000/jichao/ft2-ts-route-plan-service    
 docker tag ts/ts-route-service 10.141.211.175:5000/jichao/ft2-ts-route-service    
-docker tag ts/ts-seat-service 10.141.211.175:5000/jichao/ft2-ts-seat-service    
 docker tag ts/ts-security-service 10.141.211.175:5000/jichao/ft2-ts-security-service    
 docker tag ts/ts-sso-service 10.141.211.175:5000/jichao/ft2-ts-sso-service    
 docker tag ts/ts-station-service 10.141.211.175:5000/jichao/ft2-ts-station-service    
@@ -46,6 +45,8 @@ docker tag ts/ts-verification-code-service 10.141.211.175:5000/jichao/ft2-ts-ver
 docker tag mongo 10.141.211.175:5000/jichao/ft2-ts-mongo    
 docker tag rabbitmq:management 10.141.211.175:5000/jichao/ft2-ts-rabbitmq-management      
 docker tag openzipkin/zipkin 10.141.211.175:5000/jichao/ft2-ts-openzipkin-zipkin    
+
+docker tag ts/ts-seat-service 10.141.211.175:5000/jichao/ft2-ts-seat-service    
 docker tag ts/ts-ui-dashboard 10.141.211.175:5000/jichao/ft2-ts-ui-dashboard    
 
 ## Part2
@@ -78,7 +79,6 @@ docker push 10.141.211.175:5000/jichao/ft2-ts-rebook-service
 docker push 10.141.211.175:5000/jichao/ft2-ts-register-service    
 docker push 10.141.211.175:5000/jichao/ft2-ts-route-plan-service    
 docker push 10.141.211.175:5000/jichao/ft2-ts-route-service    
-docker push 10.141.211.175:5000/jichao/ft2-ts-seat-service    
 docker push 10.141.211.175:5000/jichao/ft2-ts-security-service    
 docker push 10.141.211.175:5000/jichao/ft2-ts-sso-service    
 docker push 10.141.211.175:5000/jichao/ft2-ts-station-service    
@@ -94,4 +94,5 @@ docker push 10.141.211.175:5000/jichao/ft2-ts-rabbitmq-management
 docker push 10.141.211.175:5000/jichao/ft2-ts-openzipkin-zipkin   
 
 docker push 10.141.211.175:5000/jichao/ft2-ts-ui-dashboard    
+docker push 10.141.211.175:5000/jichao/ft2-ts-seat-service    
  

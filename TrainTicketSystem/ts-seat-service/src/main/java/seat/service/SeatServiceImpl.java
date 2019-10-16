@@ -5,7 +5,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import seat.domain.*;
@@ -17,25 +16,17 @@ import java.util.Set;
 
 @Service
 public class SeatServiceImpl implements SeatService {
+
     @Autowired
     RestTemplate restTemplate;
 
     public static boolean injectionStatus = false;
 
-
+    @Override
     public InjectionResult injectOrNot(String status){
         if(status.equals("on")){
             System.out.println("故障On");
             injectionStatus = true;
-
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (injectionStatus) {
-
-                    }
-                }
-            }).start();
 
             return new InjectionResult(true);
         }else{
@@ -45,26 +36,24 @@ public class SeatServiceImpl implements SeatService {
         }
     }
 
+    private void doGc(){
+        if(injectionStatus){
+            for(int i = 0; i < 30; i++){
+                try{
+                    //Mock GC
+                    Thread.sleep(200);
+                }catch (Exception e){
+                }
+                System.gc();
+            }
+        }
+    }
+
 
     @Override
     public Ticket distributeSeat(SeatRequest seatRequest,HttpHeaders headers){
 
-//        if(injectionStatus){
-//            for(int i = 0; i < 30; i++){
-//                System.gc();
-//            }
-//        }
-
-        if(injectionStatus){
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    for(int i = 0; i < 30; i++){
-                        System.gc();
-                    }
-                }
-            }).start();
-        }
+        doGc();
 
         GetRouteResult routeResult;
         GetTrainTypeResult trainTypeResult;
@@ -196,24 +185,7 @@ public class SeatServiceImpl implements SeatService {
     //检查座位号是否已经被使用
     private boolean isContained( Set<Ticket> soldTickets, int seat){
 
-//        if(injectionStatus){
-//            for(int i = 0; i < 30; i++){
-//                System.out.println("垃圾回收Begin: " + new Date().toString());
-//                System.gc();
-//                System.out.println("垃圾回收End: " + new Date().toString());
-//            }
-//        }
-
-        if(injectionStatus){
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    for(int i = 0; i < 30; i++){
-                        System.gc();
-                    }
-                }
-            }).start();
-        }
+        doGc();
 
         boolean result = false;
         for(Ticket soldTicket : soldTickets){
@@ -227,22 +199,7 @@ public class SeatServiceImpl implements SeatService {
     @Override
     public int getLeftTicketOfInterval(SeatRequest seatRequest,HttpHeaders headers){
 
-//        if(injectionStatus){
-//            for(int i = 0; i < 30; i++){
-//                System.gc();
-//            }
-//        }
-
-        if(injectionStatus){
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    for(int i = 0; i < 30; i++){
-                        System.gc();
-                    }
-                }
-            }).start();
-        }
+        doGc();
 
         int numOfLeftTicket = 0;
         GetRouteResult routeResult;
@@ -373,23 +330,7 @@ public class SeatServiceImpl implements SeatService {
 
     private double getDirectProportion(HttpHeaders headers){
 
-//        if(injectionStatus){
-//            for(int i = 0; i < 30; i++){
-//                System.gc();
-//            }
-//        }
-
-
-        if(injectionStatus){
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    for(int i = 0; i < 30; i++){
-                        System.gc();
-                    }
-                }
-            }).start();
-        }
+        doGc();
 
         QueryConfig queryConfig = new QueryConfig("DirectTicketAllocationProportion");
         HttpEntity requestEntity = new HttpEntity(queryConfig,headers);

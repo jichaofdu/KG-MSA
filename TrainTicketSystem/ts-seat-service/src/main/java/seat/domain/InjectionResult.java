@@ -2,7 +2,7 @@ package seat.domain;
 
 public class InjectionResult {
 
-    boolean status;
+    private boolean status;
 
     public InjectionResult(boolean status) {
         this.status = status;
