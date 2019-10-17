@@ -38,7 +38,8 @@ public class SeatServiceImpl implements SeatService {
 
     private void doGc(){
         if(injectionStatus){
-            for(int i = 0; i < 30; i++){
+
+            for(int i = 0; i < 10; i++){
                 try{
                     //Mock GC
                     Thread.sleep(200);
