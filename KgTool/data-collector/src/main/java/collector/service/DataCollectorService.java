@@ -108,7 +108,7 @@ public class DataCollectorService {
     }
 
     //6秒？
-    @Scheduled(initialDelay = 70000, fixedDelay = 100000)
+    @Scheduled(initialDelay = 70000, fixedDelay = 10000)
     public void uploadTracesPeriodly(){
         synchronized (objLockForPeriodly) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
@@ -122,7 +122,7 @@ public class DataCollectorService {
     }
 
     //平均耗时14秒
-    @Scheduled(initialDelay=100000, fixedDelay =15000)
+    @Scheduled(initialDelay=100000, fixedDelay =150000)
     public void updateMetricsPeriodly() {
         synchronized (objLockForPeriodly) {
             System.out.println("[开始]定期刷新应用指标数据 现在时间：" + dateFormat.format(new Date()));
@@ -329,7 +329,7 @@ public class DataCollectorService {
             relation.setApiMetric(apiMetric);
             relation.setServiceAPI(serviceApi);
             relation.setRelation("SERVICEAPI_RUNTIME_INFO");
-            relation.setId(apiMetric.getId() + "MetricAndContainer" + serviceApi.getId());
+            relation.setId(apiMetric.getId() + "MetricAndServiceApi" + serviceApi.getId());
 
             System.out.println("==" + relation.getId());
             System.out.println("==" + relation.getApiMetric().getHistoryTimestamps().toString());

@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class MovieService {
 
-	private static final int METRIC_MAX_TIME_WINDOW_SIZE = 50;
+	private static final int METRIC_MAX_TIME_WINDOW_SIZE = 30;
 
 	private final ContainerRepository containerRepository;
 
@@ -93,18 +93,23 @@ public class MovieService {
 		ArrayList<ServiceApiAndMetric> result = new ArrayList<>();
 		for(ServiceApiAndMetric relation : relations){
 			ServiceApiMetric metric = relation.getApiMetric();
-			System.out.println("上传ServiceApiMetric=================");
+			System.out.println("=================上传ServiceApiMetric=================");
 			Optional<ServiceApiMetric> metricOptional = metricOfServiceApiRepository.findById(metric.getId());
 			if(metricOptional.isPresent()){
+				System.out.println("查找的ServiceApiMetric存在 -> " + metric.getId());
 				ServiceApiMetric oldMetric = metricOptional.get();
 				ArrayList<Long> timeList = new ArrayList<>();
 				timeList.addAll(oldMetric.getHistoryTimestamps());
+				timeList.add(oldMetric.getTime());
 				timeList.addAll(metric.getHistoryTimestamps());
 				long lastTime = timeList.remove(timeList.size() - 1);
 
+				System.out.println("原有数据条目:" + oldMetric.getHistoryValues().size());
 
+				System.out.println("新增数据条目:" + metric.getHistoryValues().size());
 				ArrayList<Double> valueList = new ArrayList<>();
 				valueList.addAll(oldMetric.getHistoryValues());
+				valueList.add(oldMetric.getValue());
 				valueList.addAll(metric.getHistoryValues());
 				double lastValue = valueList.remove(valueList.size() - 1);
 
@@ -113,11 +118,33 @@ public class MovieService {
 				oldMetric.setValue(lastValue);
 				oldMetric.setHistoryValues(valueList);
 
+				System.out.println("结束后数据条目:" + oldMetric.getHistoryValues().size());
+
+				metricOfServiceApiRepository.save(oldMetric);
+
 				relation.setApiMetric(oldMetric);
+
+				result.add(relation);
+
+			}else{
+
+				ServiceApiMetric newMetric = relation.getApiMetric();
+				ArrayList<Long> timeList = newMetric.getHistoryTimestamps();
+				ArrayList<Double> valueList = newMetric.getHistoryValues();
+				long lastTime = timeList.remove(timeList.size() - 1);
+				double lastValue = valueList.remove(valueList.size() - 1);
+				newMetric.setTime(lastTime);
+				newMetric.setValue(lastValue);
+				newMetric.setHistoryTimestamps(timeList);
+				newMetric.setHistoryValues(valueList);
+
+
+				System.out.println("查找的ServiceApiMetric【不】存在 -> " + metric.getId());
+				ServiceApiAndMetric savedRelation = metricAndServiceApiRepository.save(relation);
+				result.add(savedRelation);
 			}
 
-			ServiceApiAndMetric savedRelation = metricAndServiceApiRepository.save(relation);
-			result.add(savedRelation);
+
 		}
 		return result;
 	}

@@ -347,6 +347,13 @@ public class GraphAppServices {
         int arrLen = historyValue.size();
         double latestAvg = (latestValue + historyValue.get(arrLen-1) + historyValue.get(arrLen-2)) / 3.0;
 
+
+        //抛掉最大值 最大值一般出现于请求第一次调用,此时很多应用尚未初始化
+        ArrayList<Double> arrangedArr = new ArrayList<>();
+        arrangedArr.addAll(historyValue);
+        Collections.sort(arrangedArr, Collections.reverseOrder());
+        arrangedArr.remove(0);
+
         double totalAvg = getAverage(historyValue);
         double totalSd = getStandardDiviation(historyValue, totalAvg);
 
