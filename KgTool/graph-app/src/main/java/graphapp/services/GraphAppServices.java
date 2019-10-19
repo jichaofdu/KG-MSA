@@ -71,7 +71,6 @@ public class GraphAppServices {
         Set<ServiceApiMetric> serviceApiMetricSet = traceMetricsSet.get("ServiceApiMetric");
 
         ArrayList<BasicMetric> startings = new ArrayList<>();
-        startings.addAll(podMetricSet);
         startings.addAll(serviceApiMetricSet);
 
         HashMap<GraphNode, HashMap<String, HashSet<BasicRelationship>>> ret = getTotalGraph();
@@ -112,7 +111,12 @@ public class GraphAppServices {
 
 
         for(BasicMetric starting : startings){
+
             System.out.println("===============================================");
+
+            System.out.println("起点:" + starting.getName());
+            System.out.println("起点:" + starting.getAbnormality());
+
             //下面这两个是用于一次源节点值的传播的
             //已经被访问过的节点
             HashMap<GraphNode, GraphNodeInfo> recordVisited = new HashMap<>();
@@ -129,7 +133,7 @@ public class GraphAppServices {
             while(!queue.isEmpty()){
                 int layerSize = queue.size();
                 ArrayList<GraphNode> layerNodes = new ArrayList<>();
-                System.out.println("本层大小" + layerSize);
+//                System.out.println("本层大小" + layerSize);
                 //在队列里找一个起点出来 接着遍历
                 for(int i = 0; i < layerSize; i++){
                     GraphNode tempNode = queue.poll();
@@ -142,12 +146,12 @@ public class GraphAppServices {
                     //这个点的邻居们的遍历
                     //它的邻居有好几种relationship 挨个遍历一下
                     if(neighborsMap == null){
-                        System.out.println(tempNode.getName() + " 没有指向新节点");
+//                        System.out.println(tempNode.getName() + " 没有指向新节点");
                         continue;
                     }
                     for(String key : neighborsMap.keySet()){
                         HashSet<BasicRelationship> neighborsSet = neighborsMap.get(key);
-                        System.out.println(key + " - " + neighborsSet.size());
+//                        System.out.println(key + " - " + neighborsSet.size());
                         for(BasicRelationship br : neighborsSet){
                             GraphNode to = null;
                             switch (key){
@@ -202,16 +206,16 @@ public class GraphAppServices {
                                 }else{
                                     gni = nodeAndInfo.get(to);
                                 }
-                                System.out.println("在第" + layerIndex + "层新发现:" + gni.node.getName());
+//                                System.out.println("在第" + layerIndex + "层新发现:" + gni.node.getName());
                             }else{
                                 gni = recordVisited.get(to);
-                                System.out.println("更新已发现节点GraphNodeInfo");
+//                                System.out.println("更新已发现节点GraphNodeInfo");
                             }
                             gni.parents.add(tempNode);
                             gni.propagateScores.add(fromNodeScore);
                             gni.score = calcualteScore(gni);
                             gni.toRelations.add(br);
-                            System.out.println(gni.node.getName() + "分数为:" + gni.score);
+//                            System.out.println(gni.node.getName() + "分数为:" + gni.score);
                             recordVisited.put(to, gni);
                             nodeAndInfo.put(to, gni);
                         }
@@ -242,6 +246,7 @@ public class GraphAppServices {
             });
             System.out.println("====" + key + "====");
 
+
             double total = 0.0001;
 
             for(GraphNodeInfo graphNodeInfo : graphNodeInfos){
@@ -249,7 +254,7 @@ public class GraphAppServices {
             }
             for(GraphNodeInfo graphNodeInfo : graphNodeInfos){
                 graphNodeInfo.score = graphNodeInfo.score / total;
-                System.out.println(graphNodeInfo.node.getName() + "    " + graphNodeInfo.score);
+                System.out.println(graphNodeInfo.node.getName() + "    " + (graphNodeInfo.score * 100) + "%");
             }
         }
     }
@@ -264,12 +269,13 @@ public class GraphAppServices {
             return 0.8 * scores.get(0);
         }else{
             double total = 0;
+            int count = 0;
             for(int i = 0; i < size; i++){
                 total += scores.get(i);
             }
             total /= scores.size();
-            //TODO 计算有误
-            return total * (Math.log(size) / Math.log(2));
+
+            return total;
         }
     }
 
@@ -354,8 +360,8 @@ public class GraphAppServices {
         Collections.sort(arrangedArr, Collections.reverseOrder());
         arrangedArr.remove(0);
 
-        double totalAvg = getAverage(historyValue);
-        double totalSd = getStandardDiviation(historyValue, totalAvg);
+        double totalAvg = getAverage(arrangedArr);
+        double totalSd = getStandardDiviation(arrangedArr, totalAvg);
 
         double abnormality;
         if(totalSd == 0){
