@@ -312,9 +312,19 @@ public class DataCollectorService {
         for(String serviceApiName : apiMetricsMap.keySet()){
 
             TreeMap<Long, Double> apiTimeMetricMap = apiMetricsMap.get(serviceApiName);
+
+
+            ArrayList<Long> sortedTimeList = new ArrayList<>();
+            ArrayList<Double> sortedValueList = new ArrayList<>();
+
+            for (Map.Entry<Long, Double> entry : apiTimeMetricMap.entrySet()) {
+                sortedTimeList.add(entry.getKey());
+                sortedValueList.add(entry.getValue());
+            }
+
             ServiceApiMetric apiMetric = new ServiceApiMetric();
-            apiMetric.setHistoryValues(new ArrayList<>(apiTimeMetricMap.values()));
-            apiMetric.setHistoryTimestamps(new ArrayList<>(apiTimeMetricMap.keySet()));
+            apiMetric.setHistoryValues(sortedValueList);
+            apiMetric.setHistoryTimestamps(sortedTimeList);
             apiMetric.setCreationTimestamp(getCurrentTimestamp());
             apiMetric.setLatestUpdateTimestamp(getCurrentTimestamp());
             apiMetric.setName(serviceApiName + "_" + "duration");

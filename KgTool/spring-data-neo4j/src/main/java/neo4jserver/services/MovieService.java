@@ -102,21 +102,34 @@ public class MovieService {
 				timeList.addAll(oldMetric.getHistoryTimestamps());
 				timeList.add(oldMetric.getTime());
 				timeList.addAll(metric.getHistoryTimestamps());
-				long lastTime = timeList.remove(timeList.size() - 1);
 
-				System.out.println("原有数据条目:" + oldMetric.getHistoryValues().size());
-
-				System.out.println("新增数据条目:" + metric.getHistoryValues().size());
 				ArrayList<Double> valueList = new ArrayList<>();
 				valueList.addAll(oldMetric.getHistoryValues());
 				valueList.add(oldMetric.getValue());
 				valueList.addAll(metric.getHistoryValues());
-				double lastValue = valueList.remove(valueList.size() - 1);
+
+
+
+				System.out.println("原有数据条目:" + oldMetric.getHistoryValues().size());
+				System.out.println("新增数据条目:" + metric.getHistoryValues().size());
+
+
+				TreeMap<Long, Double> treeMap = getTreeMapOfTimestampAndValue(timeList, valueList);
+				ArrayList<Long> sortedTimeList = new ArrayList<>();
+				ArrayList<Double> sortedValueList = new ArrayList<>();
+				for (Map.Entry<Long, Double> entry : treeMap.entrySet()) {
+					sortedTimeList.add(entry.getKey());
+					sortedValueList.add(entry.getValue());
+				}
+
+
+				long lastTime = sortedTimeList.remove(sortedTimeList.size() - 1);
+				double lastValue = sortedValueList.remove(sortedValueList.size() - 1);
 
 				oldMetric.setTime(lastTime);
-				oldMetric.setHistoryTimestamps(timeList);
+				oldMetric.setHistoryTimestamps(sortedTimeList);
 				oldMetric.setValue(lastValue);
-				oldMetric.setHistoryValues(valueList);
+				oldMetric.setHistoryValues(sortedValueList);
 
 				System.out.println("结束后数据条目:" + oldMetric.getHistoryValues().size());
 
@@ -147,6 +160,15 @@ public class MovieService {
 
 		}
 		return result;
+	}
+
+
+	private TreeMap<Long, Double> getTreeMapOfTimestampAndValue(ArrayList<Long> timestamps, ArrayList<Double> values){
+		TreeMap<Long, Double> treeMap = new TreeMap<>();
+		for(int i = 0;i < timestamps.size(); i++){
+			treeMap.put(timestamps.get(i), values.get(i));
+		}
+		return treeMap;
 	}
 
 	@Transactional(readOnly = true)
