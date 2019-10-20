@@ -77,7 +77,7 @@ RETURN n,r,m
 查询多个Trace的交叠部分
 MATCH (n)-[r:TraceInvokeApiToPod|TraceInvokePodToApi]->(m)-[rs:AppServiceAndPod|AppServiceHostServiceAPI|VirtualMachineAndPod]->(s)
 WHERE
-    ANY(x IN r.traceIdSpanId WHERE x =~ '3981be0de236a85e8ee2f91faabd804c-.*')
+    ANY(x IN r.traceIdSpanId WHERE x =~ 'b9f33b70ec4ba487aaaa9cbdf1ec29da-.*')
 RETURN n,r,m,rs,s
 
         AND
@@ -106,24 +106,24 @@ RETURN metrics,rm
 http://localhost:17632/getCrossOfTwoTrace/75c1d44834925763c082bf6cf7863e53/5e92c60ddaacaf85ec4b2ed75c74964a
 
 
-
+=====Show=====
 
 //------查找联系人的操作
 MATCH (n)-[r:TraceInvokeApiToPod|TraceInvokePodToApi]->(m)
 WHERE
-    ANY(y IN r.traceIdSpanId WHERE y =~ '9e71a815ac88d54316e31e3e4d466a93-.*')
+    ANY(y IN r.traceIdSpanId WHERE y =~ '88648cabbfdc58e57e3ed39e1108f2b7-.*')
 RETURN n,r,m
 
 //------购票操作
 MATCH (n)-[r:TraceInvokeApiToPod|TraceInvokePodToApi]->(m)
 WHERE
-    ANY(y IN r.traceIdSpanId WHERE y =~ '119566709ab7714aefda48b560713d79-.*')
+    ANY(y IN r.traceIdSpanId WHERE y =~ 'b9f33b70ec4ba487aaaa9cbdf1ec29da-.*')
 RETURN n,r,m
 
 //------查找联系人与购票的交集
 MATCH (n)-[r:TraceInvokeApiToPod|TraceInvokePodToApi]->(m)
 WHERE
-    ANY(x IN r.traceIdSpanId WHERE x =~ '119566709ab7714aefda48b560713d79-.*')
+    ANY(x IN r.traceIdSpanId WHERE x =~ '88648cabbfdc58e57e3ed39e1108f2b7-.*')
         AND
-    ANY(y IN r.traceIdSpanId WHERE y =~ '9e71a815ac88d54316e31e3e4d466a93-.*')
+    ANY(y IN r.traceIdSpanId WHERE y =~ 'b9f33b70ec4ba487aaaa9cbdf1ec29da-.*')
 RETURN n,r,m
