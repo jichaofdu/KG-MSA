@@ -249,6 +249,7 @@ public class GraphAppServices {
 
             double total = 0.0001;
 
+            //前面是按照累积的异常度排序 接下来要把这些异常度归一化
             for(GraphNodeInfo graphNodeInfo : graphNodeInfos){
                 total += graphNodeInfo.score;
             }
@@ -257,9 +258,11 @@ public class GraphAppServices {
                 System.out.println(graphNodeInfo.node.getName() + "    " + (graphNodeInfo.score * 100) + "%");
             }
         }
+
     }
 
-
+    //GraphNodeInfo是在故障诊断时图遍历过程中所使用到的节点
+    //其中包含其他节点传来的异常度的值 这里根据定义的算法综合这些传来的异常度输出一个最终的异常度
     private double calcualteScore(GraphNodeInfo info){
         ArrayList<Double> scores = info.propagateScores;
         int size = scores.size();
@@ -279,6 +282,7 @@ public class GraphAppServices {
         }
     }
 
+    //更新所有PodMetric的异常度
     public String updateAbnormalityOfPods(){
         ArrayList<PodMetric> podMetricList = metricOfPodRepository.findAllMetrics();
         for(PodMetric podMetric : podMetricList){
@@ -290,6 +294,7 @@ public class GraphAppServices {
         return "Success";
     }
 
+    //更新一组PodMetric的异常度
     public String updatePodAbnormalityByList(ArrayList<String> podMetricIdList){
         for(String podMetricId : podMetricIdList){
             PodMetric podMetric = metricOfPodRepository.findById(podMetricId).get();
@@ -306,6 +311,7 @@ public class GraphAppServices {
         return "Success " + podMetricIdList.size();
     }
 
+    //更新一组ServiceApiMetric的异常度
     public String updateApiAbnormalityByList(@RequestBody ArrayList<String> apiMetricIdList){
         for(String apiMetricId : apiMetricIdList){
             ServiceApiMetric serviceApiMetric = metricOfServiceApiRepository.findById(apiMetricId).get();
@@ -318,6 +324,7 @@ public class GraphAppServices {
         return "Success" + apiMetricIdList.size();
     }
 
+    //更新所有ServiceApiMetric的异常度
     public String updateAbnomalityOfServiceApis(){
         ArrayList<ServiceApiMetric> serviceApiMetricList = metricOfServiceApiRepository.findAllMetrics();
         for(ServiceApiMetric serviceApiMetric : serviceApiMetricList){
@@ -329,6 +336,7 @@ public class GraphAppServices {
         return "Success";
     }
 
+    //返回某一个Pod的异常度
     private double updateSingleAbnormalityOfPods(PodMetric podMetric){
         ArrayList<Double> values = podMetric.getHistoryValues();
         if(values.size() <= 3){
@@ -339,6 +347,7 @@ public class GraphAppServices {
 
     }
 
+    //返回某一个ApiMetirc的异常度
     private double updateSingleAbnormalityOfServiceApis(ServiceApiMetric serviceApiMetric){
         ArrayList<Double> values = serviceApiMetric.getHistoryValues();
         if(values.size() <= 3){
@@ -346,13 +355,12 @@ public class GraphAppServices {
         }else{
             return threeSigmaAbnormality(values,serviceApiMetric.getValue());
         }
-
     }
 
+    //给出一组历史数据，给出一个当前值，输出当前值相比过去的异常度
     private double threeSigmaAbnormality(ArrayList<Double> historyValue, double latestValue){
         int arrLen = historyValue.size();
         double latestAvg = (latestValue + historyValue.get(arrLen-1) + historyValue.get(arrLen-2)) / 3.0;
-
 
         //抛掉最大值 最大值一般出现于请求第一次调用,此时很多应用尚未初始化
         ArrayList<Double> arrangedArr = new ArrayList<>();
@@ -526,7 +534,6 @@ public class GraphAppServices {
         return retMap;
     }
 
-
     @Transactional(readOnly = true)
     public Map<String, Set> getCrossComponentOfTwoTrace(String traceA, String traceB){
         //下面这部分是获得的两个Trace的交集
@@ -552,9 +559,7 @@ public class GraphAppServices {
         return crossingMap;
     }
 
-
-
-
+    //获取一条Trace中的Abnormality的排序
     public ArrayList<UnitGraphNode> getSortedGraphNode(String traceId){
         Map<String, Set> metricMap = getOneTraceMetrics(traceId);
 

@@ -64,7 +64,7 @@ Use the follow instructions to init kubeadm
 kubeadm reset  
 kubeadm init --pod-network-cidr=10.244.0.0/16   
 
-kubeadm init --kubernetes-version=v1.14.1   --pod-network-cidr=10.244.0.0/16 
+kubeadm init --kubernetes-version=v1.15.2   --pod-network-cidr=10.244.0.0/16 
 kubeadm join 192.168.193.128:6443 --token 83ln77.5jehuwn2bqwalw91 \
     --discovery-token-ca-cert-hash sha256:2f74e2f48187381b6129a37132b3ac6bd47490b89bf9e30517aaf0fc264dcaa0
 
