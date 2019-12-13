@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import java.text.DecimalFormat;
 import java.util.*;
 
 @Service
@@ -112,10 +114,9 @@ public class GraphAppServices {
 
         for(BasicMetric starting : startings){
 
-            System.out.println("===============================================");
+            System.out.println("==================On Processing==================");
 
-            System.out.println("起点:" + starting.getName());
-            System.out.println("起点:" + starting.getAbnormality());
+            System.out.println("Startings:" + starting.getName() + " Abnormality:" +starting.getAbnormality());
 
             //下面这两个是用于一次源节点值的传播的
             //已经被访问过的节点
@@ -236,7 +237,39 @@ public class GraphAppServices {
                 recordTypeScore.put(className, graphNodeInfos);
         }
 
+        ArrayList<KeyHigher> keys = new ArrayList<>();
+
         for(String key : recordTypeScore.keySet()){
+            ArrayList<GraphNodeInfo> graphNodeInfos = recordTypeScore.get(key);
+
+            double total = 0.0001;
+
+            //前面是按照累积的异常度排序 接下来要把这些异常度归一化
+            for(GraphNodeInfo graphNodeInfo : graphNodeInfos){
+                total += graphNodeInfo.score;
+            }
+
+            double average = total / graphNodeInfos.size();
+            double maxHigherThanAverage = graphNodeInfos.get(0).score / average;
+            keys.add(new KeyHigher(key, maxHigherThanAverage));
+
+            for(GraphNodeInfo graphNodeInfo : graphNodeInfos){
+                graphNodeInfo.score = graphNodeInfo.score / average;
+//                System.out.println(graphNodeInfo.node.getName() + "    " + (graphNodeInfo.score * 100) + "%");
+            }
+        }
+
+        Collections.sort(keys, new Comparator<KeyHigher>() {
+            @Override
+            public int compare(KeyHigher o1, KeyHigher o2) {
+                return Double.compare(o1.value, o2.value);
+            }
+        });
+
+        System.out.println("==========End Diagnosis==========");
+
+        for(KeyHigher kh : keys){
+            String key = kh.key;
             ArrayList<GraphNodeInfo> graphNodeInfos = recordTypeScore.get(key);
             Collections.sort(graphNodeInfos, new Comparator<GraphNodeInfo>() {
                 @Override
@@ -246,19 +279,28 @@ public class GraphAppServices {
             });
             System.out.println("====" + key + "====");
 
-
-            double total = 0.0001;
-
-            //前面是按照累积的异常度排序 接下来要把这些异常度归一化
+            int count = 0;
             for(GraphNodeInfo graphNodeInfo : graphNodeInfos){
-                total += graphNodeInfo.score;
-            }
-            for(GraphNodeInfo graphNodeInfo : graphNodeInfos){
-                graphNodeInfo.score = graphNodeInfo.score / total;
-                System.out.println(graphNodeInfo.node.getName() + "    " + (graphNodeInfo.score * 100) + "%");
+                if(graphNodeInfo.score > 1.0){
+                    DecimalFormat df = new DecimalFormat("0.000");
+
+                    System.out.println(graphNodeInfo.node.getName() + "    " + df.format(graphNodeInfo.score));
+                }else{
+                    break;
+                }
             }
         }
+    }
 
+    //用来输出结果的时候决定先输出哪一个key的
+    class KeyHigher {
+        String key;
+        double value;
+
+        KeyHigher(String key, double value){
+            this.key = key;
+            this.value = value;
+        }
     }
 
     //GraphNodeInfo是在故障诊断时图遍历过程中所使用到的节点
