@@ -1,0 +1,43 @@
+[
+    ......
+  {
+    "traceId": "93560405e0fa92ba2faae756e47b6c36",
+    "id": "7b72f27b42eccfae",
+    "name": "ts-sso-service.default.svc.cluster.local:12349/*",
+    "parentId": "f97dba8539f0fcc8",
+    "timestamp": 1580363531464778,
+    "duration": 3900048,
+    "annotations": [
+      {
+        "timestamp": 1580363531464778,
+        "value": "cs",
+        "endpoint": {
+          "serviceName": "ts-login-service.default",
+          "ipv4": "10.44.0.15"
+        }
+      },
+      ......
+    ],
+    "binaryAnnotations": [
+        ......
+      {
+        "key": "http.url",
+        "value": "http://ts-sso-service:12349/account/login",
+        "endpoint": {
+          "serviceName": "ts-login-service.default",
+          "ipv4": "10.44.0.15"
+        }
+      },
+      {
+        "key": "node_id",
+        "value": "sidecar~10.44.0.15~ts-login-service-7457cb7966-nb9ld.default~default.svc.cluster.local",
+        "endpoint": {
+          "serviceName": "ts-login-service.default",
+          "ipv4": "10.44.0.15"
+        }
+      }
+      ......
+    ]
+  }
+     ......
+]

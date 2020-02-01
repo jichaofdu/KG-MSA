@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: mock-user
+
+# HTTP Server
+server:
+  port: 12221  # HTTP (Tomcat) port
