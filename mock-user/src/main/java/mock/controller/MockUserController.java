@@ -64,8 +64,8 @@ public class MockUserController {
     @RequestMapping(path = "/mock", method = RequestMethod.GET)
     public String mock() throws Exception{
 
-        int[] lastTime = {10, 50, 100, 50, 100};
-        int[] frequncy = {5, 20, 3, 30, 1};
+        int[] lastTime = {10, 50, 100, 50, 100}; //每个阶段的持续时间（秒）
+        int[] frequncy = {5, 20, 3, 30, 1}; //每个阶段的请求发送频率（也就是请求发送间隔）
 
         for(int i = 0; i < lastTime.length; i++){
             int t = lastTime[i];

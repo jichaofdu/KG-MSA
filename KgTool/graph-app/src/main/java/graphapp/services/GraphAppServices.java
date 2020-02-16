@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
-
 import java.text.DecimalFormat;
 import java.util.*;
 
@@ -42,6 +41,8 @@ public class GraphAppServices {
         this.metricOfServiceApiRepository = metricOfServiceApiRepository;
     }
 
+    /****************************基础算法：读取和打印全图数据：开始***********************************/
+
     public HashMap<GraphNode, HashMap<String, HashSet<BasicRelationship>>> getTotalGraph(){
 
         HashMap<GraphNode, HashMap<String, HashSet<BasicRelationship>>> ret =
@@ -65,6 +66,84 @@ public class GraphAppServices {
             }
         }
     }
+
+    /****************************基础算法：读取和打印全图数据：结束***********************************/
+
+
+    /****************************扩缩容优化算法：微服务间流量分析：开始***********************************/
+    public void extraceLoadRelationAmongMicroservice(){
+        HashMap<GraphNode, HashMap<String, HashSet<BasicRelationship>>> ret = neo4jUtil.getWholeGraphByAdjacentList();
+
+        //API从属Map API:SvcName
+        HashMap<String, String> apiBelongMap = new HashMap<>();
+        //服务调用API Map  SvcName:Relation
+        HashMap<String, HashSet<AppServiceInvokeServiceAPI>> apiInvokeByMap = new HashMap<>();
+
+        //第一步：确定API和微服务的从属关系
+        HashMap<GraphNode, HashMap<String, HashSet<BasicRelationship>>> apiBelongMicrosvc =
+                neo4jUtil.getNodeAndRelationInfoWithRelationTag("AppServiceHostServiceAPI");
+        for(Map.Entry<GraphNode, HashMap<String, HashSet<BasicRelationship>>> entry: apiBelongMicrosvc.entrySet()){
+            ServiceAPI api = (ServiceAPI)entry.getKey();
+            HashSet<BasicRelationship> apiHostRelation = entry.getValue().get("AppServiceHostServiceAPI");
+            AppServiceHostServiceAPI relation = (AppServiceHostServiceAPI)apiHostRelation.iterator().next();
+            AppService appService = relation.getAppService();
+            apiBelongMap.put(api.getName(), appService.getName());
+            System.out.println("API属于关系:" + api.getName() + " 属于" + appService.getName());
+        }
+
+
+        //第二步：确定微服务与API的负载关系
+        HashMap<GraphNode, HashMap<String, HashSet<BasicRelationship>>> microsvcInvokeApi =
+                neo4jUtil.getNodeAndRelationInfoWithRelationTag("AppServiceInvokeServiceAPI");
+        for(Map.Entry<GraphNode, HashMap<String, HashSet<BasicRelationship>>> entry : microsvcInvokeApi.entrySet()){
+            AppService appService = (AppService) entry.getKey();
+            String svcName = appService.getName();
+            HashSet<BasicRelationship> invokeRelations = entry.getValue().get("AppServiceInvokeServiceAPI");
+            for(BasicRelationship rawRelation: invokeRelations){
+                AppServiceInvokeServiceAPI relation = (AppServiceInvokeServiceAPI)rawRelation;
+                HashSet<AppServiceInvokeServiceAPI> apis = apiInvokeByMap.getOrDefault(svcName, new HashSet<>());
+                apis.add(relation);
+                apiInvokeByMap.put(appService.getName(), apis);
+                System.out.println("API调用关系:" + relation.getServiceAPI().getName() + " 被调用" + appService.getName());
+            }
+        }
+
+        //第三步：整合API与微服务的负载关系
+        HashMap<String, HashMap<String, Integer>> flowRecord = new HashMap<>();
+        for(Map.Entry<String, HashSet<AppServiceInvokeServiceAPI>> entry : apiInvokeByMap.entrySet()) {
+            String fromSvcName = entry.getKey();
+            for(AppServiceInvokeServiceAPI apiRelation : entry.getValue()){
+                String apiName = apiRelation.getServiceAPI().getName();
+                String toSvcName = apiBelongMap.getOrDefault(apiName, "defaultSvc");
+                int count = apiRelation.getCount();
+                HashMap<String, Integer> targets = flowRecord.getOrDefault(fromSvcName, new HashMap<>());
+                int totalCount = targets.getOrDefault(toSvcName, 0) + count;
+                targets.put(toSvcName, totalCount);
+                flowRecord.put(fromSvcName, targets);
+            }
+        }
+
+        //第四步：打印数据
+        for(Map.Entry<String, HashMap<String, Integer>> entry : flowRecord.entrySet()){
+            String fromSvcName = entry.getKey();
+            HashMap<String, Integer> map = entry.getValue();
+            for(Map.Entry<String, Integer> dataEntry : map.entrySet()){
+                String toSvcName = dataEntry.getKey();
+                int number = dataEntry.getValue();
+                System.out.println("微服务" + fromSvcName + "调用了" + toSvcName + " " + number + "次");
+            }
+
+
+        }
+
+    }
+
+
+    /****************************扩缩容优化算法：微服务间流量分析：结束***********************************/
+
+
+
+    /****************************故障定位算法：开始***********************************/
 
     public String diagnosisTrace(String traceId){
 
@@ -324,6 +403,11 @@ public class GraphAppServices {
         }
     }
 
+    /****************************故障定位算法：结束***********************************/
+
+
+    /****************************图谱数据更新，异常度计算：开始***********************************/
+
     //更新所有PodMetric的异常度
     public String updateAbnormalityOfPods(){
         ArrayList<PodMetric> podMetricList = metricOfPodRepository.findAllMetrics();
@@ -446,6 +530,12 @@ public class GraphAppServices {
         return Math.sqrt(dVar / x.size());
     }
 
+    /****************************图谱数据更新，异常度计算：结束***********************************/
+
+
+    /****************************图谱数据花式查询：开始***********************************/
+
+    //获取两条Trace的交集
     @Transactional(readOnly = true)
     public Map<String, Set> getCrossOfTwoTrace(String traceA, String traceB){
         Map<String, Set> crossComponent = getCrossComponentOfTwoTrace(traceA, traceB);
@@ -493,7 +583,7 @@ public class GraphAppServices {
         return retMap;
     }
 
-    //获取两条Trace相交的Metirc信息
+    //获取两条Trace交集Metirc信息
    @Transactional(readOnly = true)
     public Map<String, Set> getCrossMetricsOfTwoTrace(String traceA, String traceB){
         //下面这部分是获得的两个Trace的Metric交集
@@ -639,5 +729,7 @@ public class GraphAppServices {
                 }
             });
     }
+
+    /****************************图谱数据花式查询：结束***********************************/
 
 }

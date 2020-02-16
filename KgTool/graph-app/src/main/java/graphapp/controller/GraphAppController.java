@@ -24,6 +24,12 @@ public class GraphAppController {
         return graphAppServices.getTotalGraph();
     }
 
+    @GetMapping("/invoke")
+    public String getInvoke(){
+        graphAppServices.extraceLoadRelationAmongMicroservice();
+        return "结束";
+    }
+
     @GetMapping("/diagnosis/{traceId}")
     public String diagnosisTraceId(@PathVariable String traceId){
         return graphAppServices.diagnosisTrace(traceId);
