@@ -26,9 +26,21 @@ public class GraphAppController {
 
     @GetMapping("/invoke")
     public String getInvoke(){
-        graphAppServices.extraceLoadRelationAmongMicroservice();
+        graphAppServices.extractLoadRelationAmongMicroservice();
         return "结束";
     }
+
+    //http://localhost:17632/calculate/ts-execute-service/100
+    @GetMapping("/calculate/{svcName}/{newPayload}")
+    public String getCalculate(@PathVariable String svcName, @PathVariable int newPayload){
+
+        System.out.println("微服务" + svcName + "的新流量" + newPayload);
+
+        HashMap<String, HashMap<String, Integer>> svcAmongData = graphAppServices.extractLoadRelationAmongMicroservice();
+        graphAppServices.extractLoadRelationAmongMicroservice(svcAmongData, svcName, newPayload);
+        return "结束";
+    }
+
 
     @GetMapping("/diagnosis/{traceId}")
     public String diagnosisTraceId(@PathVariable String traceId){

@@ -1,5 +1,6 @@
 package graphapp.services;
 
+import com.sun.tools.javac.code.Scope;
 import graphapp.domain.UnitGraphNode;
 import graphapp.domain.entities.*;
 import graphapp.domain.relationships.*;
@@ -71,7 +72,8 @@ public class GraphAppServices {
 
 
     /****************************扩缩容优化算法：微服务间流量分析：开始***********************************/
-    public void extraceLoadRelationAmongMicroservice(){
+    //返回数据格式: 起点微服务-重点微服务-服务间流量
+    public HashMap<String, HashMap<String, Integer>> extractLoadRelationAmongMicroservice(){
         HashMap<GraphNode, HashMap<String, HashSet<BasicRelationship>>> ret = neo4jUtil.getWholeGraphByAdjacentList();
 
         //API从属Map API:SvcName
@@ -132,14 +134,86 @@ public class GraphAppServices {
                 int number = dataEntry.getValue();
                 System.out.println("微服务" + fromSvcName + "调用了" + toSvcName + " " + number + "次");
             }
+        }
 
+        //第五步：返回数据
+        return flowRecord;
+    }
+
+    /****************************扩缩容优化算法：微服务间流量分析：结束***********************************/
+
+    /****************************扩缩容优化方法：微服务间流量变化计算：开始********************************/
+    //输出数据是变化后的流量数据
+    //格式： 起点微服务-重点微服务-新的流量数据
+    public void extractLoadRelationAmongMicroservice(
+            HashMap<String, HashMap<String, Integer>> oldLoadData, String staringSvcName, int newLoad){
+
+        //1.先把旧的数据Copy一份到新的数据
+        HashMap<String, HashMap<String, Integer>> newLoadData = new HashMap<>();
+        for(Map.Entry<String, HashMap<String, Integer>> oldOuterEntry: oldLoadData.entrySet()){
+            String fromSvcName = oldOuterEntry.getKey();
+            for(Map.Entry<String, Integer> oldInnerEntry : oldOuterEntry.getValue().entrySet()){
+                String toSvcName = oldInnerEntry.getKey();
+                int count = oldInnerEntry.getValue();
+                //将旧数据抄录进去
+                HashMap<String, Integer> newInnerEntry = newLoadData.getOrDefault(fromSvcName, new HashMap<>());
+                newInnerEntry.put(toSvcName, count);
+                newLoadData.put(fromSvcName, newInnerEntry);
+            }
+        }
+        //2.统计旧时刻每隔微服务的负载
+        HashMap<String, Integer> oldMvcPayloadMap = new HashMap<>();
+        for(Map.Entry<String, HashMap<String, Integer>> oldOuterEntry: oldLoadData.entrySet()){
+            for(Map.Entry<String, Integer> oldInnerEntry : oldOuterEntry.getValue().entrySet()){
+                String toSvcName = oldInnerEntry.getKey();
+                int oldMvcPayLoad = oldMvcPayloadMap.getOrDefault(toSvcName, 0);
+                oldMvcPayLoad += oldInnerEntry.getValue();
+                oldMvcPayloadMap.put(toSvcName, oldMvcPayLoad);
+            }
+        }
+        //3.计算微服务间负载变化
+        HashMap<String, Integer> newMvcPayloadMap = new HashMap<>(oldMvcPayloadMap);
+        newMvcPayloadMap.put(staringSvcName, newLoad);
+
+        LinkedList<String> propagateSvcNameStack = new LinkedList<>();
+        propagateSvcNameStack.offer(staringSvcName);
+
+        while(!propagateSvcNameStack.isEmpty()){
+            String nextSvcName = propagateSvcNameStack.poll();
+            int thisSvcOldPayload = oldMvcPayloadMap.get(nextSvcName);
+            int thisSvcNewPayload = newMvcPayloadMap.get(nextSvcName);
+            double proportionScale = (double)thisSvcNewPayload / (double)thisSvcOldPayload;
+
+            HashMap<String, Integer> invokeSvcMap = newLoadData.get(nextSvcName);
+            if(invokeSvcMap == null){
+                continue;
+            }
+            for(Map.Entry<String, Integer> invokeEntry : invokeSvcMap.entrySet()){
+                String toSvc = invokeEntry.getKey();
+                int toPayload = invokeEntry.getValue();
+                int newToPayload = (int)(toPayload * proportionScale);
+                invokeSvcMap.put(toSvc, newToPayload);
+
+                int toSvcOldPayload = newMvcPayloadMap.get(toSvc);
+                int toSvcNewPayload = toSvcOldPayload - toPayload + newToPayload;
+                newMvcPayloadMap.put(toSvc, toSvcNewPayload);
+
+                propagateSvcNameStack.offer(toSvc);
+            }
+            newLoadData.put(nextSvcName, invokeSvcMap);
 
         }
 
+        //4.输出结果
+        for(String svcName : oldMvcPayloadMap.keySet()){
+            int oldPayLoad = oldMvcPayloadMap.get(svcName);
+            int newPayLoad = newMvcPayloadMap.get(svcName);
+            System.out.println("微服务" + svcName + "流量变化:" + ((double)newPayLoad / (double)oldPayLoad));
+        }
+
+
     }
-
-
-    /****************************扩缩容优化算法：微服务间流量分析：结束***********************************/
+    /****************************扩缩容优化方法：微服务间流量变化计算：结束********************************/
 
 
 
