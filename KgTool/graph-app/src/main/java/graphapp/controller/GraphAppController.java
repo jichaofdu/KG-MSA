@@ -41,6 +41,18 @@ public class GraphAppController {
         return "结束";
     }
 
+    //http://localhost:17632/calculate/ts-execute-service/100
+    @GetMapping("/calculateReplica/{svcName}/{newPayload}")
+    public String getCalculateReplica(@PathVariable String svcName, @PathVariable int newPayload){
+
+        System.out.println("微服务" + svcName + "的新流量" + newPayload);
+
+        HashMap<String, HashMap<String, Integer>> svcAmongData = graphAppServices.extractLoadRelationAmongMicroservice();
+        HashMap<String, Double> portionChangeResult = graphAppServices.extractLoadRelationAmongMicroservice(
+                svcAmongData, svcName, newPayload);
+        graphAppServices.calculateMvcReplicaInNewEra(portionChangeResult);
+        return "结束";
+    }
 
     @GetMapping("/diagnosis/{traceId}")
     public String diagnosisTraceId(@PathVariable String traceId){

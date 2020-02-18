@@ -74,8 +74,6 @@ public class GraphAppServices {
     /****************************扩缩容优化算法：微服务间流量分析：开始***********************************/
     //返回数据格式: 起点微服务-重点微服务-服务间流量
     public HashMap<String, HashMap<String, Integer>> extractLoadRelationAmongMicroservice(){
-        HashMap<GraphNode, HashMap<String, HashSet<BasicRelationship>>> ret = neo4jUtil.getWholeGraphByAdjacentList();
-
         //API从属Map API:SvcName
         HashMap<String, String> apiBelongMap = new HashMap<>();
         //服务调用API Map  SvcName:Relation
@@ -145,7 +143,7 @@ public class GraphAppServices {
     /****************************扩缩容优化方法：微服务间流量变化计算：开始********************************/
     //输出数据是变化后的流量数据
     //格式： 起点微服务-重点微服务-新的流量数据
-    public void extractLoadRelationAmongMicroservice(
+    public HashMap<String, Double> extractLoadRelationAmongMicroservice(
             HashMap<String, HashMap<String, Integer>> oldLoadData, String staringSvcName, int newLoad){
 
         //1.先把旧的数据Copy一份到新的数据
@@ -205,15 +203,59 @@ public class GraphAppServices {
         }
 
         //4.输出结果
+        HashMap<String, Double> resultMap = new HashMap<>();
         for(String svcName : oldMvcPayloadMap.keySet()){
             int oldPayLoad = oldMvcPayloadMap.get(svcName);
             int newPayLoad = newMvcPayloadMap.get(svcName);
-            System.out.println("微服务" + svcName + "流量变化:" + ((double)newPayLoad / (double)oldPayLoad));
+            double portion = (double)newPayLoad / (double)oldPayLoad;
+            resultMap.put(svcName, portion);
+            System.out.println("微服务" + svcName + "流量变化:" + portion);
         }
 
-
+        //5.返回结果
+        return resultMap;
     }
     /****************************扩缩容优化方法：微服务间流量变化计算：结束********************************/
+
+
+    /****************************扩缩容优化方法：计算新时刻各个微服务的应有数量：开始********************************/
+    public  HashMap<String, Integer> calculateMvcReplicaInNewEra(HashMap<String, Double> svcPayloadChangePortion){
+        //1.登记每个微服务目前包含多少个副本
+        HashMap<String, Integer> oldSvcReplicaNumber = new HashMap<>();
+        HashMap<GraphNode, HashMap<String, HashSet<BasicRelationship>>> podBelongToSvc =
+                neo4jUtil.getNodeAndRelationInfoWithRelationTag("AppServiceAndPod");
+        for(Map.Entry<GraphNode, HashMap<String, HashSet<BasicRelationship>>> entry: podBelongToSvc.entrySet()){
+            Pod pod = (Pod)entry.getKey();
+            HashSet<BasicRelationship> apiHostRelation = entry.getValue().get("AppServiceAndPod");
+            AppServiceAndPod relation = (AppServiceAndPod)apiHostRelation.iterator().next();
+            AppService svc = relation.getAppService();
+            String svcName = svc.getName();
+
+            int existReplica = oldSvcReplicaNumber.getOrDefault(svcName, 0);
+            existReplica += 1;
+            oldSvcReplicaNumber.put(svcName, existReplica);
+        }
+
+        //2.根据Payload的比例关系记录新的微服务实例数量数据
+        HashMap<String, Integer> newSvcReplicaNumber = new HashMap<>();
+        for(String svcName : svcPayloadChangePortion.keySet()){
+            double portion = svcPayloadChangePortion.get(svcName);
+            int oldReplica = oldSvcReplicaNumber.get(svcName);
+            int newReplica = (int)Math.ceil((double)oldReplica * portion);
+            newSvcReplicaNumber.put(svcName, newReplica);
+        }
+
+        //3.打印结果
+        for(String svcName : newSvcReplicaNumber.keySet()){
+            int oldReplica = oldSvcReplicaNumber.get(svcName);
+            int newReplica = newSvcReplicaNumber.get(svcName);
+            System.out.println("微服务" + svcName + "副本数由" + oldReplica + "变为" + newReplica);
+        }
+
+        //4.返回结果
+        return newSvcReplicaNumber;
+    }
+    /****************************扩缩容优化方法：计算新时刻各个微服务的应有数量：结束********************************/
 
 
 
