@@ -9,6 +9,7 @@ import graphapp.repositories.MetricOfServiceApiRepository;
 import graphapp.repositories.PodRepository;
 import graphapp.repositories.ServiceApiRepository;
 import graphapp.utils.Neo4jUtil;
+import graphapp.utils.RemoteExecuteCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -257,6 +258,26 @@ public class GraphAppServices {
     }
     /****************************扩缩容优化方法：计算新时刻各个微服务的应有数量：结束********************************/
 
+
+    /****************************扩缩容优化方法：执行扩缩容：开始********************************/
+    public void doScaling(HashMap<String, Integer> scalingDemands){
+
+        String ip = "10.141.211.162";
+        String user = "root";
+        String passwd = "FlHy355g@rA#grhV";
+        RemoteExecuteCommand rec = new RemoteExecuteCommand(ip, user, passwd);
+        System.out.println(rec.login());
+
+        for(String svcName : scalingDemands.keySet()){
+            int replca = scalingDemands.get(svcName);
+            System.out.println(
+                    rec.execute("export KUBECONFIG=/etc/kubernetes/admin.conf; " +
+                            "kubectl scale deployment.v1.apps/" + svcName + " --replicas=" + replca)
+            );
+        }
+
+    }
+    /****************************扩缩容优化方法：执行扩缩容：结束********************************/
 
 
     /****************************故障定位算法：开始***********************************/
