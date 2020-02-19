@@ -279,6 +279,42 @@ public class GraphAppServices {
     }
     /****************************扩缩容优化方法：执行扩缩容：结束********************************/
 
+    /****************************仅供测试使用:开始**********************/
+    public void testRCM(){
+
+        String ip = "10.141.211.162";
+        String user = "root";
+        String passwd = "FlHy355g@rA#grhV";
+        RemoteExecuteCommand rec = new RemoteExecuteCommand(ip, user, passwd);
+        System.out.println(rec.login());
+
+        System.out.println(
+                rec.execute("export KUBECONFIG=/etc/kubernetes/admin.conf; " +
+                        "kubectl scale deployment.v1.apps/ts-execute-service" + " --replicas=8")
+        );
+
+
+        while(true){
+            String podInfo = rec.execute("export KUBECONFIG=/etc/kubernetes/admin.conf; " +
+                    "kubectl get pods");
+            if(podInfo.contains("Init:") || podInfo.contains("0/2") || podInfo.contains("1/2") || podInfo.contains("Terminating")){
+                System.out.println("扩缩容未完成");
+            }else{
+                System.out.println("扩缩容已完成");
+                break;
+            }
+            try{
+                Thread.sleep(2000);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+        }
+
+    }
+    /****************************仅供测试使用:结束**********************/
+
+
 
     /****************************故障定位算法：开始***********************************/
 

@@ -68,6 +68,12 @@ public class GraphAppController {
         return "结束";
     }
 
+    @GetMapping("/testcmd")
+    public String testCmd(){
+        graphAppServices.testRCM();
+        return "结束";
+    }
+
     @GetMapping("/diagnosis/{traceId}")
     public String diagnosisTraceId(@PathVariable String traceId){
         return graphAppServices.diagnosisTrace(traceId);
