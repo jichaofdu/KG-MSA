@@ -64,9 +64,55 @@ public class GraphAppController {
         HashMap<String, Double> portionChangeResult = graphAppServices.extractLoadRelationAmongMicroservice(
                 svcAmongData, svcName, newPayload);
         HashMap<String, Integer> demands = graphAppServices.calculateMvcReplicaInNewEra(portionChangeResult);
-        graphAppServices.doScaling(demands);
+        HashMap<String, Integer> oldReplicaCount = graphAppServices.getNowSvcReplicaNumber();
+        graphAppServices.doScaling(oldReplicaCount, demands);
         return "结束";
     }
+
+    @GetMapping("/doNormalScaling/{svcName}/{newPayload}")
+    public String doNormalScaling(@PathVariable String svcName, @PathVariable int newPayload){
+
+        System.out.println("微服务" + svcName + "的新流量" + newPayload);
+
+        HashMap<String, HashMap<String, Integer>> svcAmongData = graphAppServices.extractLoadRelationAmongMicroservice();
+        HashMap<String, Double> portionChangeResult = graphAppServices.extractLoadRelationAmongMicroservice(
+                svcAmongData, svcName, newPayload);
+
+
+        HashMap<String, Integer> demands = graphAppServices.calculateMvcReplicaInNewEra(portionChangeResult);
+        HashMap<String, Integer> oldReplicaCount = graphAppServices.getNowSvcReplicaNumber();
+        graphAppServices.doNormalScaling(oldReplicaCount,demands);
+        return "结束";
+    }
+
+    @GetMapping("/doBetterScaling/{svcName}/{newPayload}")
+    public String doBetterScaling(@PathVariable String svcName, @PathVariable int newPayload){
+
+        System.out.println("微服务" + svcName + "的新流量" + newPayload);
+
+        HashMap<String, HashMap<String, Integer>> svcAmongData = graphAppServices.extractLoadRelationAmongMicroservice();
+        HashMap<String, Double> portionChangeResult = graphAppServices.extractLoadRelationAmongMicroservice(
+                svcAmongData, svcName, newPayload);
+        HashMap<String, Integer> demands = graphAppServices.calculateMvcReplicaInNewEra(portionChangeResult);
+        HashMap<String, Integer> oldReplicaCount = graphAppServices.getNowSvcReplicaNumber();
+
+        graphAppServices.doBetterScaling(oldReplicaCount, demands);
+        return "结束";
+    }
+
+    @GetMapping("/doRecoverScaling/{svcName}/{newPayload}")
+    public String doRecoverScaling(@PathVariable String svcName, @PathVariable int newPayload){
+
+        System.out.println("微服务" + svcName + "的新流量" + newPayload);
+
+        HashMap<String, HashMap<String, Integer>> svcAmongData = graphAppServices.extractLoadRelationAmongMicroservice();
+        HashMap<String, Double> portionChangeResult = graphAppServices.extractLoadRelationAmongMicroservice(
+                svcAmongData, svcName, newPayload);
+        HashMap<String, Integer> demands = graphAppServices.calculateMvcReplicaInNewEra(portionChangeResult);
+        graphAppServices.recoverScaling(demands);
+        return "结束";
+    }
+
 
     @GetMapping("/testcmd")
     public String testCmd(){

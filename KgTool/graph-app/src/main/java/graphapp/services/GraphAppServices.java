@@ -11,6 +11,7 @@ import graphapp.repositories.ServiceApiRepository;
 import graphapp.utils.Neo4jUtil;
 import graphapp.utils.RemoteExecuteCommand;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,6 +33,15 @@ public class GraphAppServices {
     private final MetricOfServiceApiRepository metricOfServiceApiRepository;
 
     private static final double DEFAULT_ABNORMALITY = 0.1;
+
+    @Value("${k8s.master.ip}")
+    private String k8sMasterIP;
+
+    @Value("${k8s.master.username}")
+    private String k8sMaterVMUsername;
+
+    @Value("${k8s.master.password}")
+    private String k8sMaterVMPasswd;
 
     public GraphAppServices(PodRepository podRepository,
                         ServiceApiRepository serviceApiRepository,
@@ -222,21 +232,7 @@ public class GraphAppServices {
     /****************************扩缩容优化方法：计算新时刻各个微服务的应有数量：开始********************************/
     public  HashMap<String, Integer> calculateMvcReplicaInNewEra(HashMap<String, Double> svcPayloadChangePortion){
         //1.登记每个微服务目前包含多少个副本
-        HashMap<String, Integer> oldSvcReplicaNumber = new HashMap<>();
-        HashMap<GraphNode, HashMap<String, HashSet<BasicRelationship>>> podBelongToSvc =
-                neo4jUtil.getNodeAndRelationInfoWithRelationTag("AppServiceAndPod");
-        for(Map.Entry<GraphNode, HashMap<String, HashSet<BasicRelationship>>> entry: podBelongToSvc.entrySet()){
-            Pod pod = (Pod)entry.getKey();
-            HashSet<BasicRelationship> apiHostRelation = entry.getValue().get("AppServiceAndPod");
-            AppServiceAndPod relation = (AppServiceAndPod)apiHostRelation.iterator().next();
-            AppService svc = relation.getAppService();
-            String svcName = svc.getName();
-
-            int existReplica = oldSvcReplicaNumber.getOrDefault(svcName, 0);
-            existReplica += 1;
-            oldSvcReplicaNumber.put(svcName, existReplica);
-        }
-
+        HashMap<String, Integer> oldSvcReplicaNumber = getNowSvcReplicaNumber();
         //2.根据Payload的比例关系记录新的微服务实例数量数据
         HashMap<String, Integer> newSvcReplicaNumber = new HashMap<>();
         for(String svcName : svcPayloadChangePortion.keySet()){
@@ -256,36 +252,153 @@ public class GraphAppServices {
         //4.返回结果
         return newSvcReplicaNumber;
     }
+
+    public HashMap<String, Integer> getNowSvcReplicaNumber(){
+        HashMap<String, Integer> oldSvcReplicaNumber = new HashMap<>();
+        HashMap<GraphNode, HashMap<String, HashSet<BasicRelationship>>> podBelongToSvc =
+                neo4jUtil.getNodeAndRelationInfoWithRelationTag("AppServiceAndPod");
+        for(Map.Entry<GraphNode, HashMap<String, HashSet<BasicRelationship>>> entry: podBelongToSvc.entrySet()){
+            Pod pod = (Pod)entry.getKey();
+            HashSet<BasicRelationship> apiHostRelation = entry.getValue().get("AppServiceAndPod");
+            AppServiceAndPod relation = (AppServiceAndPod)apiHostRelation.iterator().next();
+            AppService svc = relation.getAppService();
+            String svcName = svc.getName();
+
+            int existReplica = oldSvcReplicaNumber.getOrDefault(svcName, 0);
+            existReplica += 1;
+            oldSvcReplicaNumber.put(svcName, existReplica);
+        }
+        return oldSvcReplicaNumber;
+    }
     /****************************扩缩容优化方法：计算新时刻各个微服务的应有数量：结束********************************/
 
-
     /****************************扩缩容优化方法：执行扩缩容：开始********************************/
-    public void doScaling(HashMap<String, Integer> scalingDemands){
-
-        String ip = "10.141.211.162";
-        String user = "root";
-        String passwd = "FlHy355g@rA#grhV";
-        RemoteExecuteCommand rec = new RemoteExecuteCommand(ip, user, passwd);
+    public void doScaling(HashMap<String, Integer> oldReplicaNumber, HashMap<String, Integer> scalingDemands){
+        RemoteExecuteCommand rec = new RemoteExecuteCommand(k8sMasterIP,
+                k8sMaterVMUsername, k8sMaterVMPasswd);
         System.out.println(rec.login());
 
         for(String svcName : scalingDemands.keySet()){
-            int replca = scalingDemands.get(svcName);
+            int replica = scalingDemands.get(svcName);
+            int oldReplica = oldReplicaNumber.get(svcName);
+            if(replica == oldReplica){
+                System.out.println("无需扩缩容");
+                continue;
+            }
             System.out.println(
                     rec.execute("export KUBECONFIG=/etc/kubernetes/admin.conf; " +
-                            "kubectl scale deployment.v1.apps/" + svcName + " --replicas=" + replca)
+                            "kubectl scale deployment.v1.apps/" + svcName + " --replicas=" + replica)
             );
         }
+    }
+
+    public void doNormalScaling(HashMap<String, Integer> oldReplicaNumber, HashMap<String, Integer> scalingDemands) {
+        RemoteExecuteCommand rec = new RemoteExecuteCommand(k8sMasterIP,
+                k8sMaterVMUsername, k8sMaterVMPasswd);
+        System.out.println(rec.login());
+
+        //时间记录开始
+        Date start = new Date();
+        for(String svcName : scalingDemands.keySet()){
+            int replica = scalingDemands.get(svcName);
+            int oldReplica = oldReplicaNumber.get(svcName);
+            if(replica == oldReplica){
+                System.out.println("无需扩缩容");
+                continue;
+            }
+            System.out.println(
+                    rec.execute("export KUBECONFIG=/etc/kubernetes/admin.conf; " +
+                            "kubectl scale deployment.v1.apps/" + svcName + " --replicas=" + replica)
+            );
+            waitingUntilScalingEnd();
+        }
+        Date end = new Date();
+        //时间记录结束
+
+        System.out.println("普通扩缩容 - 开始时间：" + start.toString());
+        System.out.println("普通扩缩容 - 结束时间：" + end.toString());
 
     }
+
+    public void doBetterScaling(HashMap<String, Integer> oldReplicaNumber, HashMap<String, Integer> scalingDemands) {
+        RemoteExecuteCommand rec = new RemoteExecuteCommand(k8sMasterIP,
+                k8sMaterVMUsername, k8sMaterVMPasswd);
+        System.out.println(rec.login());
+
+        //时间记录开始
+        Date start = new Date();
+        for(String svcName : scalingDemands.keySet()){
+            int replica = scalingDemands.get(svcName);
+            int oldReplica = oldReplicaNumber.get(svcName);
+            if(replica == oldReplica){
+                System.out.println("无需扩缩容");
+                continue;
+            }
+            System.out.println(
+                    rec.execute("export KUBECONFIG=/etc/kubernetes/admin.conf; " +
+                            "kubectl scale deployment.v1.apps/" + svcName + " --replicas=" + replica)
+            );
+        }
+        waitingUntilScalingEnd();
+        Date end = new Date();
+        //时间记录结束
+
+        System.out.println("优化扩缩容 - 开始时间：" + start.toString());
+        System.out.println("优化扩缩容 - 结束时间：" + end.toString());
+
+    }
+
+    public void recoverScaling(HashMap<String, Integer> oldSvcReplica) {
+        RemoteExecuteCommand rec = new RemoteExecuteCommand(k8sMasterIP,
+                k8sMaterVMUsername, k8sMaterVMPasswd);
+        System.out.println(rec.login());
+
+        //时间记录开始
+        Date start = new Date();
+        for(String svcName : oldSvcReplica.keySet()){
+            int replica = oldSvcReplica.get(svcName);
+            System.out.println(
+                    rec.execute("export KUBECONFIG=/etc/kubernetes/admin.conf; " +
+                            "kubectl scale deployment.v1.apps/" + svcName + " --replicas=" + 1)
+            );
+        }
+        Date end = new Date();
+        //时间记录结束
+        waitingUntilScalingEnd();
+        System.out.println("恢复扩缩容 - 开始时间：" + start.toString());
+        System.out.println("恢复扩缩容 - 结束时间：" + end.toString());
+    }
+
+    private void waitingUntilScalingEnd(){
+        RemoteExecuteCommand rec = new RemoteExecuteCommand(k8sMasterIP,
+                k8sMaterVMUsername, k8sMaterVMPasswd);
+        System.out.println(rec.login());
+        while(true){
+            String podInfo = rec.execute("export KUBECONFIG=/etc/kubernetes/admin.conf; " +
+                    "kubectl get pods");
+            Date now = new Date();
+            if(podInfo.contains("Init:") || podInfo.contains("0/2") || podInfo.contains("1/2") || podInfo.contains("Terminating")){
+                System.out.println("时间：" + now.toString() + " 状态：扩缩容未完成");
+            }else{
+                System.out.println("时间：" + now.toString() + " 状态：扩缩容已完成");
+                break;
+            }
+            try{
+                Thread.sleep(2000);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+
     /****************************扩缩容优化方法：执行扩缩容：结束********************************/
 
     /****************************仅供测试使用:开始**********************/
     public void testRCM(){
 
-        String ip = "10.141.211.162";
-        String user = "root";
-        String passwd = "FlHy355g@rA#grhV";
-        RemoteExecuteCommand rec = new RemoteExecuteCommand(ip, user, passwd);
+        RemoteExecuteCommand rec = new RemoteExecuteCommand(k8sMasterIP,
+                k8sMaterVMUsername, k8sMaterVMPasswd);
         System.out.println(rec.login());
 
         System.out.println(
@@ -297,10 +410,11 @@ public class GraphAppServices {
         while(true){
             String podInfo = rec.execute("export KUBECONFIG=/etc/kubernetes/admin.conf; " +
                     "kubectl get pods");
+            Date now = new Date();
             if(podInfo.contains("Init:") || podInfo.contains("0/2") || podInfo.contains("1/2") || podInfo.contains("Terminating")){
-                System.out.println("扩缩容未完成");
+                System.out.println("时间：" + now.toString() + " 状态：扩缩容未完成");
             }else{
-                System.out.println("扩缩容已完成");
+                System.out.println("时间：" + now.toString() + " 状态：扩缩容已完成");
                 break;
             }
             try{
