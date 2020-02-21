@@ -297,8 +297,6 @@ public class GraphAppServices {
                 k8sMaterVMUsername, k8sMaterVMPasswd);
         System.out.println(rec.login());
 
-        //时间记录开始
-        Date start = new Date();
         for(String svcName : scalingDemands.keySet()){
             int replica = scalingDemands.get(svcName);
             int oldReplica = oldReplicaNumber.get(svcName);
@@ -312,11 +310,6 @@ public class GraphAppServices {
             );
             waitingUntilScalingEnd();
         }
-        Date end = new Date();
-        //时间记录结束
-
-        System.out.println("普通扩缩容 - 开始时间：" + start.toString());
-        System.out.println("普通扩缩容 - 结束时间：" + end.toString());
 
     }
 
@@ -325,8 +318,6 @@ public class GraphAppServices {
                 k8sMaterVMUsername, k8sMaterVMPasswd);
         System.out.println(rec.login());
 
-        //时间记录开始
-        Date start = new Date();
         for(String svcName : scalingDemands.keySet()){
             int replica = scalingDemands.get(svcName);
             int oldReplica = oldReplicaNumber.get(svcName);
@@ -340,12 +331,6 @@ public class GraphAppServices {
             );
         }
         waitingUntilScalingEnd();
-        Date end = new Date();
-        //时间记录结束
-
-        System.out.println("优化扩缩容 - 开始时间：" + start.toString());
-        System.out.println("优化扩缩容 - 结束时间：" + end.toString());
-
     }
 
     public void recoverScaling(HashMap<String, Integer> oldSvcReplica) {
@@ -353,8 +338,6 @@ public class GraphAppServices {
                 k8sMaterVMUsername, k8sMaterVMPasswd);
         System.out.println(rec.login());
 
-        //时间记录开始
-        Date start = new Date();
         for(String svcName : oldSvcReplica.keySet()){
             int replica = oldSvcReplica.get(svcName);
             System.out.println(
@@ -362,11 +345,7 @@ public class GraphAppServices {
                             "kubectl scale deployment.v1.apps/" + svcName + " --replicas=" + 1)
             );
         }
-        Date end = new Date();
-        //时间记录结束
         waitingUntilScalingEnd();
-        System.out.println("恢复扩缩容 - 开始时间：" + start.toString());
-        System.out.println("恢复扩缩容 - 结束时间：" + end.toString());
     }
 
     private void waitingUntilScalingEnd(){
@@ -384,7 +363,7 @@ public class GraphAppServices {
                 break;
             }
             try{
-                Thread.sleep(2000);
+                Thread.sleep(1000);
             }catch (Exception e){
                 e.printStackTrace();
             }

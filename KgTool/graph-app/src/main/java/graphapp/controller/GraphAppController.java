@@ -74,6 +74,8 @@ public class GraphAppController {
 
         System.out.println("微服务" + svcName + "的新流量" + newPayload);
 
+        Date start = new Date();
+
         HashMap<String, HashMap<String, Integer>> svcAmongData = graphAppServices.extractLoadRelationAmongMicroservice();
         HashMap<String, Double> portionChangeResult = graphAppServices.extractLoadRelationAmongMicroservice(
                 svcAmongData, svcName, newPayload);
@@ -82,6 +84,10 @@ public class GraphAppController {
         HashMap<String, Integer> demands = graphAppServices.calculateMvcReplicaInNewEra(portionChangeResult);
         HashMap<String, Integer> oldReplicaCount = graphAppServices.getNowSvcReplicaNumber();
         graphAppServices.doNormalScaling(oldReplicaCount,demands);
+
+        Date end = new Date();
+        System.out.println("优化扩缩容 - 开始时间：" + start.toString());
+        System.out.println("优化扩缩容 - 结束时间：" + end.toString());
         return "结束";
     }
 
@@ -89,6 +95,7 @@ public class GraphAppController {
     public String doBetterScaling(@PathVariable String svcName, @PathVariable int newPayload){
 
         System.out.println("微服务" + svcName + "的新流量" + newPayload);
+        Date start = new Date();
 
         HashMap<String, HashMap<String, Integer>> svcAmongData = graphAppServices.extractLoadRelationAmongMicroservice();
         HashMap<String, Double> portionChangeResult = graphAppServices.extractLoadRelationAmongMicroservice(
@@ -97,6 +104,10 @@ public class GraphAppController {
         HashMap<String, Integer> oldReplicaCount = graphAppServices.getNowSvcReplicaNumber();
 
         graphAppServices.doBetterScaling(oldReplicaCount, demands);
+
+        Date end = new Date();
+        System.out.println("优化扩缩容 - 开始时间：" + start.toString());
+        System.out.println("优化扩缩容 - 结束时间：" + end.toString());
         return "结束";
     }
 
